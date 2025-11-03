@@ -19,6 +19,31 @@ spring:
               predicates:
                 - Path=/v1/orders/**
 
+            - id: hub-service
+              uri: lb://HUB-SERVICE
+              predicates:
+                - Path=/v1/hubs/**
+
+            - id: product-service
+              uri: lb://PRODUCT-SERVICE
+              predicates:
+                - Path=/v1/products/**
+
+            - id: delivery-service
+              uri: lb://DELIVERY-SERVICE
+              predicates:
+                - Path=/v1/delivery/**
+
+            - id: vendor-service
+              uri: lb://VENDOR-SERVICE
+              predicates:
+                - Path=/v1/vendors/**
+
+            - id: slack-service
+              uri: lb://SLACK-SERVICE
+              predicates:
+                - Path=/v1/slacks/**
+
 eureka:
   client:
     register-with-eureka: true
