@@ -1,12 +1,12 @@
 server:
-  port: 20100
+  port: 20200
 
 spring:
   application:
-    name: order-service
+    name: hub-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/order_db
+    url: jdbc:postgresql://localhost:5432/hub_db
     driver-class-name: org.postgresql.Driver
     username: ${DB_USER}
     password: ${DB_PASSWORD}
