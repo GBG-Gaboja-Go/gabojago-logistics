@@ -1,4 +1,4 @@
-package com.gbg.userservice.infrasturcture.config;
+package com.gbg.userservice.infrastructure.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;

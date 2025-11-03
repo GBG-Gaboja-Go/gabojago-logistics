@@ -1,4 +1,4 @@
-package com.gbg.userservice.infrasturcture.repository;
+package com.gbg.userservice.infrastructure.repository;
 
 import com.gbg.userservice.domain.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
