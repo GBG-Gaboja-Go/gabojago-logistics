@@ -12,6 +12,7 @@ public class VendorController {
     public String test() {
 
         return "Vendor Controller Test!";
+
     }
 
 }
