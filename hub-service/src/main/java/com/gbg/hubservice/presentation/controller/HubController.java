@@ -11,6 +11,6 @@ public class HubController {
     @GetMapping
     public String test() {
 
-        return "Hub Controller Test!";
+        return "Hub Controller Test!!!";
     }
 }
