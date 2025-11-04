@@ -1,11 +1,10 @@
-server:
-  port: 8761
-
 spring:
   application:
     name: service-discovery
-
-eureka:
-  client:
-    register-with-eureka: false
-    fetch-registry: false
+  config:
+    import: "configserver:http://localhost:8888"
+  cloud:
+    config:
+      name: service-discovery
+      profile: dev
+      fail-fast: true
