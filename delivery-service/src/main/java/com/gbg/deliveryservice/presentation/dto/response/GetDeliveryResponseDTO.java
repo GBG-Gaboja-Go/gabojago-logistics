@@ -25,11 +25,15 @@ public record GetDeliveryResponseDTO(
         private final UUID id;
         private final UUID orderId;
         private final String deliveryAddress;
+        private final double actualDistance;
+        private final LocalTime actualDeliveryTime;
         private final double estimatedDistance;
         private final LocalTime estimatedTime;
         private final DeliveryStatus status;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
+        private LocalDateTime startedAt;
+        private LocalDateTime completedAt;
 
         public static DeliveryDTO from(
             DeliveryDTO delivery) {
@@ -37,11 +41,15 @@ public record GetDeliveryResponseDTO(
                 .id(delivery.getId())
                 .orderId(delivery.getOrderId())
                 .deliveryAddress(delivery.getDeliveryAddress())
+                .actualDistance(delivery.getActualDistance())
+                .actualDeliveryTime(delivery.getActualDeliveryTime())
                 .estimatedDistance(delivery.getEstimatedDistance())
                 .estimatedTime(delivery.getEstimatedTime())
                 .status(delivery.getStatus())
                 .createdAt(delivery.getCreatedAt())
                 .updatedAt(delivery.getUpdatedAt())
+                .startedAt(delivery.getStartedAt())
+                .completedAt(delivery.getCompletedAt())
                 .build();
         }
     }
