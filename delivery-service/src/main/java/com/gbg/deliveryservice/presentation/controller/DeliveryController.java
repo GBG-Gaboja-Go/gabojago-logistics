@@ -21,6 +21,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -179,6 +180,14 @@ public class DeliveryController {
         return ResponseEntity.ok(
             BaseResponseDto.success("배달담당자 본인의 배달 목록입니다.",
                 GetMyDeliveryResponseDTO.from(deliveries, pageInfo)));
+    }
+
+    @DeleteMapping("/{deliveryId}")
+    public ResponseEntity<BaseResponseDto<Any>> deleteDelivery(
+        @PathVariable("deliveryId") UUID id
+    ) {
+
+        return ResponseEntity.ok(BaseResponseDto.success("삭제되었습니다.", null));
     }
 }
 
