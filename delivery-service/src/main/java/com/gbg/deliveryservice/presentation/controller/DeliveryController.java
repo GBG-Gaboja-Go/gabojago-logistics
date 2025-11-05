@@ -1,7 +1,7 @@
 package com.gbg.deliveryservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
-import com.gbg.deliveryservice.domain.DeliveryStatus;
+import com.gbg.deliveryservice.domain.enums.DeliveryStatus;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryStatusRequestDTO;
