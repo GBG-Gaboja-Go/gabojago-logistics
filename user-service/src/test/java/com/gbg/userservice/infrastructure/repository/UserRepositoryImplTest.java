@@ -17,7 +17,7 @@ class UserRepositoryImplTest {
     @Test
     void createBaseEntityTest() {
 
-        User user = User.of("test", "test", "test", "test", "test", UserRole.MASTER);
+        User user = User.of("test", "test", "test", "test", "test");
 
         User save =  userRepository.save(user);
 

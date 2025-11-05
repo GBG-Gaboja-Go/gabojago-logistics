@@ -2,18 +2,20 @@ package com.gbg.userservice.domain.entity;
 
 import com.gabojago.entity.BaseEntity;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.util.UUID;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "p_user")
 public class User extends BaseEntity {
 
@@ -25,29 +27,55 @@ public class User extends BaseEntity {
 
     private String nickname;
 
-    private String slackId;
-
-    private String email;
+    private String slackEmail;
 
     private String password;
 
+    private UUID organization;
+
+    private String summary;
+
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
+    @Enumerated(EnumType.STRING)
     private UserStatus status;
 
-    public static User of
-        (String username, String nickname, String slackId, String email,
-            String password, UserRole role)
-    {
-        User user = new User();
-        user.username = username;
-        user.nickname = nickname;
-        user.slackId = slackId;
-        user.email = email;
-        user.password = password;
-        user.role = role;
-        user.status = UserStatus.PENDING;
-        return user;
+    private User(String username, String nickname, String slackEmail, String password, UUID organization, String summary, UserRole role, UserStatus status) {
+        this.username = username;
+        this.nickname = nickname;
+        this.slackEmail = slackEmail;
+        this.password = password;
+        this.organization = organization;
+        this.summary = summary;
+        this.role = role;
+        this.status = status;
+    }
+
+    public static User of(String username, String nickname, String slackEmail, String password, String summary) {
+        return new User(
+            username,
+            nickname,
+            slackEmail,
+            password,
+            new UUID(0L, 0L),
+            summary,
+            UserRole.USER,
+            UserStatus.PENDING
+        );
+    }
+
+    public static User of(String username, String nickname, String slackEmail, String password, UUID organization, String summary) {
+        return new User(
+            username,
+            nickname,
+            slackEmail,
+            password,
+            organization,
+            summary,
+            UserRole.USER,
+            UserStatus.PENDING
+        );
     }
 
 }
