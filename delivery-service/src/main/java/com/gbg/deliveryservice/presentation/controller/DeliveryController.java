@@ -9,6 +9,7 @@ import com.gbg.deliveryservice.presentation.dto.response.CreateDeliveryResponseD
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryPageResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetMyDeliveryResponseDTO;
+import com.gbg.deliveryservice.presentation.dto.response.PageInfoDTO;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -87,7 +88,7 @@ public class DeliveryController {
                 .build()
         );
 
-        GetDeliveryPageResponseDTO.PageInfo pageInfo = GetDeliveryPageResponseDTO.PageInfo.from(
+        PageInfoDTO pageInfo = PageInfoDTO.from(
             pageable.getPageNumber(), pageable.getPageSize(), 5, 10L);
 
         return ResponseEntity.ok(
@@ -172,7 +173,7 @@ public class DeliveryController {
                 .createdAt(LocalDateTime.now())
                 .build()
         );
-        GetMyDeliveryResponseDTO.PageInfo pageInfo = GetMyDeliveryResponseDTO.PageInfo.from(
+        PageInfoDTO pageInfo = PageInfoDTO.from(
             pageable.getPageNumber(), pageable.getPageSize(), 5, 10L);
 
         return ResponseEntity.ok(
