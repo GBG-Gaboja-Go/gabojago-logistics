@@ -43,3 +43,31 @@ spring:
               uri: lb://SLACK-SERVICE
               predicates:
                 - Path=/v1/slacks/**
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - name: user-service
+        url: http://localhost:20000/v3/api-docs
+
+      - name: order-service
+        url: http://localhost:20100/v3/api-docs
+
+      - name: hub-service
+        url: http://localhost:20200/v3/api-docs
+
+      - name: product-service
+        url: http://localhost:20300/v3/api-docs
+
+      - name: delivery-service
+        url: http://localhost:20400/v3/api-docs
+
+      - name: vendor-service
+        url: http://localhost:20500/v3/api-docs
+
+      - name: slack-service
+        url: http://localhost:20600/v3/api-docs
