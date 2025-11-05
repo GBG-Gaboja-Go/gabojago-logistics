@@ -11,13 +11,13 @@ import lombok.Getter;
 @Builder
 public record GetDeliveryPageResponseDTO(
     List<DeliveryDto> deliveries,
-    PageInfo pageInfo
+    PageInfoDTO pageInfo
 ) {
 
     @Builder
     public static GetDeliveryPageResponseDTO from(
         List<DeliveryDto> deliveries,
-        PageInfo pageInfo
+        PageInfoDTO pageInfo
     ) {
 
         return GetDeliveryPageResponseDTO.builder()
@@ -57,30 +57,6 @@ public record GetDeliveryPageResponseDTO(
                 .updatedAt(delivery.getUpdatedAt())
                 .startedAt(delivery.getStartedAt())
                 .completedAt(delivery.getCompletedAt())
-                .build();
-        }
-    }
-
-    @Getter
-    @Builder
-    public static class PageInfo {
-
-        private int pageNumber;
-        private int pageSize;
-        private int totalPages;
-        private long totalElements;
-
-        public static PageInfo from(
-            int pageNumber,
-            int pageSize,
-            int totalPages,
-            long totalElements
-        ) {
-            return PageInfo.builder()
-                .pageNumber(pageNumber)
-                .pageSize(pageSize)
-                .totalPages(totalPages)
-                .totalElements(totalElements)
                 .build();
         }
     }
