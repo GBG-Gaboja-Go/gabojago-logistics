@@ -2,8 +2,23 @@ package com.gbg.userservice.domain.entity;
 
 public enum UserRole {
 
-    MASTER,
-    HUN_MANAGER,
-    DELIVERY_MANAGER,
-    SUPPLIER_MANAGER
+    MASTER("ROLE_MASTER"),
+    HUB_MANAGER("ROLE_HUN_MANAGER"),
+    DELIVERY_MANAGER("ROLE_DELIVERY_MANAGER"),
+    SUPPLIER_MANAGER("ROLE_SUPPLIER_MANAGER"),
+    USER("ROLE_USER");
+
+    private final String authority;
+
+    UserRole(String authority) {
+        this.authority = authority;
+    }
+
+    public boolean isAdmin() {
+        return this == MASTER;
+    }
+
+    public String getAuthority() {
+        return authority;
+    }
 }

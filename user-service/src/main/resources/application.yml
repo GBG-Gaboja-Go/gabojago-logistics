@@ -1,10 +1,12 @@
-server:
-  port: 0 # config에서 덮어쓰기 전까지는 0 (랜덤) 또는 로컬값
-
 spring:
   application:
     name: user-service
   profiles:
     active: dev
+
   config:
     import: "configserver:http://localhost:8888"
+
+  cloud:
+    config:
+      name: user-service
