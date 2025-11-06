@@ -1,4 +1,4 @@
-package com.gbg.orderservice.presentation.dto.response;
+package presentation.dto.response;
 
 import com.gbg.orderservice.domain.entity.Order;
 import java.util.UUID;
