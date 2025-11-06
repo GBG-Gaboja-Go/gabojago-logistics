@@ -1,4 +1,4 @@
-package com.gbg.orderservice.presentation.dto.response;
+package presentation.dto.response;
 
 import java.util.UUID;
 import lombok.AllArgsConstructor;

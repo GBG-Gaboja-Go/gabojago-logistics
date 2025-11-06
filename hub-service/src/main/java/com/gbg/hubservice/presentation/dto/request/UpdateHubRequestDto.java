@@ -1,6 +1,8 @@
 package com.gbg.hubservice.presentation.dto.request;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -9,11 +11,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PostHubRequestDto {
+public class UpdateHubRequestDto {
 
     @NotNull(message = "허브 정보를 입력해주세요.")
     @Valid
@@ -32,9 +35,13 @@ public class PostHubRequestDto {
         private String address;
 
         @NotNull(message = "위도를 입력해주세요.")
+        @DecimalMin(value = "-90.0", message = "위도는 -90 ~ 90 범위여야 합니다.")
+        @DecimalMax(value = "90.0", message = "위도는 -90 ~ 90 범위여야 합니다.")
         private BigDecimal latitude;
-        
+
         @NotNull(message = "경도를 입력해주세요.")
+        @DecimalMin(value = "-180.0", message = "경도는 -180 ~ 180 범위여야 합니다.")
+        @DecimalMax(value = "180.0", message = "경도는 -180 ~ 180 범위여야 합니다.")
         private BigDecimal longitude;
     }
 }
