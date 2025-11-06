@@ -1,4 +1,4 @@
-package com.gbg.orderservice.presentation.dto.request;
+package presentation.dto.request;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
