@@ -3,15 +3,14 @@ package com.gbg.userservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.userservice.application.service.AuthService;
 import com.gbg.userservice.application.service.UserService;
-import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.CreateUserRequestDto;
 import com.gbg.userservice.presentation.dto.response.UserResponseDto;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -32,7 +31,12 @@ public class UserController {
     ) {
         UUID saveUser = authService.signUp(req);
 
-        return ResponseEntity.ok(BaseResponseDto.success("회원가입이 완료 되었습니다", saveUser));
+        return ResponseEntity
+            .status(HttpStatus.CREATED)
+            .body(BaseResponseDto.success(
+                "회원가입이 완료 되었습니다",
+                saveUser,
+                HttpStatus.CREATED));
     }
 
     @GetMapping
@@ -40,7 +44,12 @@ public class UserController {
 
         List<UserResponseDto> userList = userService.getUserList();
 
-        return ResponseEntity.ok(BaseResponseDto.success("조회 성공", userList));
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body((BaseResponseDto.success(
+                "조회 성공",
+                userList,
+                HttpStatus.OK)));
     }
 
 }
