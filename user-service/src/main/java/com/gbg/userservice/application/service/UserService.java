@@ -1,5 +1,6 @@
 package com.gbg.userservice.application.service;
 
+import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.UserUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.response.UserListResponseDto;
 import com.gbg.userservice.presentation.dto.response.UserResponseDto;
@@ -13,4 +14,6 @@ public interface UserService {
     UserResponseDto userDetail(UUID userId);
 
     UUID userDetailUpdate(UserUpdateRequestDto req, UUID id);
+
+    void userDelete(UUID loginId, UUID userId);
 }
