@@ -41,6 +41,18 @@ public class User extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    public void changeNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    public void changeOrganization(UUID organization) {
+        this.organization = organization;
+    }
+
+    public void changeSummary(String summary) {
+        this.summary = summary;
+    }
+
     private User(String username, String nickname, String slackEmail, String password, UUID organization, String summary, UserRole role, UserStatus status) {
         this.username = username;
         this.nickname = nickname;
