@@ -53,6 +53,14 @@ public class User extends BaseEntity {
         this.summary = summary;
     }
 
+    public void changeRole(UserRole role) {
+        this.role = role;
+    }
+
+    public void changeStatus(UserStatus status) {
+        this.status = status;
+    }
+
     private User(String username, String nickname, String slackEmail, String password, UUID organization, String summary, UserRole role, UserStatus status) {
         this.username = username;
         this.nickname = nickname;
