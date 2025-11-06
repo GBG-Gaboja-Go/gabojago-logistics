@@ -1,8 +1,13 @@
-package presentation.controller;
+package com.gbg.orderservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.dto.PageResponseDto;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
+import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
+import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
+import com.gbg.orderservice.presentation.dto.request.UpdateOrderStatusRequestDto;
+import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
+import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
@@ -24,11 +29,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import presentation.dto.request.CreateOrderRequestDto;
-import presentation.dto.request.OrderSearchRequestDto;
-import presentation.dto.request.UpdateOrderStatusRequestDto;
-import presentation.dto.response.CreateOrderResponseDto;
-import presentation.dto.response.GetOrderResponseDto;
 
 @RestController
 @RequestMapping("/v1/orders")

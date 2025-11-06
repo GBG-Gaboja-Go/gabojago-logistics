@@ -1,4 +1,4 @@
-package presentation.dto.request;
+package com.gbg.orderservice.presentation.dto.request;
 
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import jakarta.validation.Valid;
