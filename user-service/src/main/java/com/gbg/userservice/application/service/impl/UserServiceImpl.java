@@ -77,6 +77,14 @@ public class UserServiceImpl implements UserService {
         return findUser.getId();
     }
 
+    @Override
+    @Transactional
+    public void userDelete(UUID loginId ,UUID userId) {
+        User findUser = getUser(userId);
+
+        findUser.delete(loginId);
+    }
+
     private User getUser(UUID userId) {
 
         return userRepository.findById(userId).orElseThrow(
