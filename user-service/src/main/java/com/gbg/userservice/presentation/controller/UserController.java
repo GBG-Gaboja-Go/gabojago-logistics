@@ -14,10 +14,12 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -88,10 +90,20 @@ public class UserController {
             ));
     }
 
-    @DeleteMapping("/my-page")
-    public ResponseEntity<BaseResponseDto<Void>> userDelete() {
+    @DeleteMapping("/my-page/{userId}")
+    @PreAuthorize("hasRole('MASTER')")
+    public ResponseEntity<BaseResponseDto<Void>> userDelete(
+        @AuthenticationPrincipal CustomUser customUser,
+        @PathVariable("userId") UUID userId
+    ) {
+        userService.userDelete(customUser.getId(), userId);
 
-        return null;
+        return ResponseEntity
+            .status(HttpStatus.NO_CONTENT)
+            .body(BaseResponseDto.success(
+                "사용자 삭제가 정상적으로 처리되었습니다.",
+                    HttpStatus.NO_CONTENT
+            ));
     }
 
 
