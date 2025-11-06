@@ -87,8 +87,14 @@ public class UserServiceImpl implements UserService {
 
     private User getUser(UUID userId) {
 
-        return userRepository.findById(userId).orElseThrow(
+        User user = userRepository.findById(userId).orElseThrow(
             () -> new AppException(UserErrorCode.USER_NOT_FOUND)
         );
+
+        if (user.getDeletedAt() != null || user.getDeletedBy() != null) {
+            throw new AppException(UserErrorCode.USER_NOT_FOUND);
+        }
+
+        return user;
     }
 }
