@@ -5,6 +5,7 @@ import com.gbg.userservice.application.service.UserService;
 import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.exception.UserErrorCode;
+import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.request.UserUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.response.UserListResponseDto;
 import com.gbg.userservice.presentation.dto.response.UserResponseDto;
@@ -83,6 +84,36 @@ public class UserServiceImpl implements UserService {
         User findUser = getUser(userId);
 
         findUser.delete(loginId);
+    }
+
+    @Override
+    @Transactional
+    public UUID adminDetailUpdate(UUID loginId, UUID userId,  AdminUpdateRequestDto req) {
+        User findUser = userRepository.findById(userId).orElseThrow(
+            () -> new AppException(UserErrorCode.USER_NOT_FOUND)
+        );
+
+        if (req.nickname() != null) {
+            findUser.changeNickname(req.nickname());
+        }
+
+        if (req.organization() != null) {
+            findUser.changeOrganization(req.organization());
+        }
+
+        if (req.summary() != null) {
+            findUser.changeSummary(req.summary());
+        }
+
+        if (req.role() != null) {
+            findUser.changeRole(req.role());
+        }
+
+        if (req.status() != null) {
+            findUser.changeStatus(req.status());
+        }
+
+        return findUser.getId();
     }
 
     private User getUser(UUID userId) {
