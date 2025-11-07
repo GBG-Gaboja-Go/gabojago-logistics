@@ -30,7 +30,7 @@ ext {
 }
 
 dependencies {
-    implementation 'com.github.GBG-Gaboja-Go:gabojago-common:1.0.7'
+    implementation 'com.github.GBG-Gaboja-Go:gabojago-common:1.0.9'
 
     implementation 'org.springframework.cloud:spring-cloud-starter-config'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

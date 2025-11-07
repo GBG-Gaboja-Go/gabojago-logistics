@@ -1,6 +1,6 @@
 package com.gbg.deliveryservice.presentation.dto.response;
 
-import com.gbg.deliveryservice.domain.enums.DeliveryStatus;
+import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
