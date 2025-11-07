@@ -71,3 +71,6 @@ springdoc:
 
       - name: slack-service
         url: http://localhost:20600/v3/api-docs
+
+jwt:
+  secret: ${JWT_KEY}
