@@ -1,6 +1,6 @@
 package com.gbg.hubservice.presentation.dto.response;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,19 +15,17 @@ public class UpdateHubRouteResponseDto {
 
     private RouteDto route;
 
-    public static UpdateHubRouteResponseDto of(
-        UUID id,
+    public static UpdateHubRouteResponseDto of(UUID id,
         UUID startHubId,
         UUID endHubId,
-        double distance
-    ) {
+        Integer distance) {
         return UpdateHubRouteResponseDto.builder()
             .route(RouteDto.builder()
                 .id(id)
                 .startHubId(startHubId)
                 .endHubId(endHubId)
                 .distance(distance)
-                .updatedAt(LocalDateTime.now())
+                .updatedAt(Instant.now())
                 .build())
             .build();
     }
@@ -41,7 +39,7 @@ public class UpdateHubRouteResponseDto {
         private UUID id;
         private UUID startHubId;
         private UUID endHubId;
-        private double distance;
-        private LocalDateTime updatedAt;
+        private Integer distance;
+        private Instant updatedAt;
     }
 }
