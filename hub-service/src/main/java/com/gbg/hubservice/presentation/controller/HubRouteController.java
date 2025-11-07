@@ -35,6 +35,7 @@ public class HubRouteController {
     @Operation(summary = "허브간 경로 생성", description = "마스터 관리자만 허브 경로를 생성합니다.")
     public ResponseEntity<BaseResponseDto<CreateHubRouteResponseDto>> createHubRoute(
         @Valid @RequestBody CreateHubRouteRequestDto requestDto) {
+
         UUID createdId = UUID.randomUUID();
         return ResponseEntity.status(HttpStatus.CREATED).body(
             BaseResponseDto.success("허브 경로 생성 성공", CreateHubRouteResponseDto.of(createdId),
@@ -45,12 +46,18 @@ public class HubRouteController {
     @Operation(summary = "특정 허브 경로 조회", description = "routeId로 허브 경로 상세를 조회합니다.")
     public ResponseEntity<BaseResponseDto<GetHubRouteResponseDto>> getHubRoute(
         @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId) {
-        LocalDateTime now = LocalDateTime.now();
 
-        GetHubRouteResponseDto resp = GetHubRouteResponseDto.builder().route(
-            GetHubRouteResponseDto.RouteDto.builder().id(routeId).startHubId(UUID.randomUUID())
-                .endHubId(UUID.randomUUID()).distance(12.345) // ✅ km 단위 double
-                .createdAt(now.minusHours(1)).updatedAt(now.minusMinutes(1)).build()).build();
+        LocalDateTime now = LocalDateTime.now();
+        GetHubRouteResponseDto resp = GetHubRouteResponseDto.builder()
+            .route(GetHubRouteResponseDto.RouteDto.builder()
+                .id(routeId)
+                .startHubId(UUID.randomUUID())
+                .endHubId(UUID.randomUUID())
+                .distance(12.345) // km 단위 Double
+                .createdAt(now.minusHours(1))
+                .updatedAt(now.minusMinutes(1))
+                .build())
+            .build();
 
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 조회 성공", resp, HttpStatus.OK));
     }
@@ -59,14 +66,20 @@ public class HubRouteController {
     @Operation(summary = "허브 경로 조회", description = "허브 경로 목록을 페이지로 조회합니다.")
     public ResponseEntity<BaseResponseDto<PageResponseDto<GetHubRouteResponseDto>>> getHubRoutes(
         Pageable pageable) {
-        LocalDateTime now = LocalDateTime.now();
 
-        List<GetHubRouteResponseDto> items = IntStream.range(0, 5).mapToObj(
-            i -> GetHubRouteResponseDto.builder().route(
-                GetHubRouteResponseDto.RouteDto.builder().id(UUID.randomUUID())
-                    .startHubId(UUID.randomUUID()).endHubId(UUID.randomUUID())
-                    .distance(1.0 + (i * 0.25)).createdAt(now.minusHours(2 + i))
-                    .updatedAt(now.minusMinutes(2 + i)).build()).build()).toList();
+        LocalDateTime now = LocalDateTime.now();
+        List<GetHubRouteResponseDto> items = IntStream.range(0, 5)
+            .mapToObj(i -> GetHubRouteResponseDto.builder()
+                .route(GetHubRouteResponseDto.RouteDto.builder()
+                    .id(UUID.randomUUID())
+                    .startHubId(UUID.randomUUID())
+                    .endHubId(UUID.randomUUID())
+                    .distance(1.0 + (i * 0.25)) // km 단위 Double
+                    .createdAt(now.minusHours(2 + i))
+                    .updatedAt(now.minusMinutes(2 + i))
+                    .build())
+                .build())
+            .toList();
 
         Page<GetHubRouteResponseDto> page = new PageImpl<>(items, pageable, items.size());
         return ResponseEntity.ok(
@@ -78,6 +91,7 @@ public class HubRouteController {
     public ResponseEntity<BaseResponseDto<Void>> updateHubRoute(
         @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId,
         @Valid @RequestBody UpdateHubRouteRequestDto requestDto) {
+
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 수정 성공", HttpStatus.OK));
     }
 
@@ -85,6 +99,7 @@ public class HubRouteController {
     @Operation(summary = "허브 경로 삭제", description = "허브 경로를 삭제합니다.")
     public ResponseEntity<BaseResponseDto<Void>> deleteHubRoute(
         @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId) {
+
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 삭제 성공", HttpStatus.OK));
     }
 }
