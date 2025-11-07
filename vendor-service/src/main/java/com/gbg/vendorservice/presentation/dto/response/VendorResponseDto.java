@@ -17,8 +17,8 @@ public class VendorResponseDto {
     private String name;
     private UUID hubId;
     private UUID managerId;
-    private boolean isSupplier;
-    private boolean isReceiver;
+    private boolean supplier;
+    private boolean receiver;
     private String address;
 
     private String createdBy;
@@ -27,6 +27,6 @@ public class VendorResponseDto {
     private LocalDateTime updatedAt;
     private String deletedBy;
     private LocalDateTime deletedAt;
-    private boolean isDeleted;
+    private boolean deleted;
 
 }
