@@ -1,7 +1,6 @@
 package com.gbg.vendorservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
-import com.gabojago.entity.BaseEntity;
 import com.gbg.vendorservice.presentation.dto.request.CreateVendorRequestDto;
 import com.gbg.vendorservice.presentation.dto.request.UpdateVendorRequestDto;
 import com.gbg.vendorservice.presentation.dto.response.CreateVendorResponseDto;
@@ -9,7 +8,6 @@ import com.gbg.vendorservice.presentation.dto.response.VendorResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/vendors")
-public class VendorController extends BaseEntity {
+public class VendorController {
 
     @PostMapping
     @Operation(summary = "업체 생성 API", description = "마스터, 허브관리자가 업체를 생성할 수 있습니다.")
@@ -56,13 +54,8 @@ public class VendorController extends BaseEntity {
             .hubId(UUID.randomUUID())
             .managerId(UUID.randomUUID())
             .address("서울시 강남구 물류로 123")
-            .supplier(true)
-            .receiver(false)
-            .createdBy("system_admin")
-            .createdAt(LocalDateTime.now().minusDays(3))
-            .updatedBy("hub_manager")
-            .updatedAt(LocalDateTime.now())
-            .deleted(false)
+            .isSupplier(true)
+            .isReceiver(false)
             .build();
 
         return ResponseEntity.ok(
@@ -82,11 +75,8 @@ public class VendorController extends BaseEntity {
                 .hubId(UUID.randomUUID())
                 .managerId(UUID.randomUUID())
                 .address("서울시 송파구 물류로 " + i + "번지")
-                .supplier(i % 2 == 0)
-                .receiver(i % 2 != 0)
-                .createdBy("hub_manager_" + i)
-                .createdAt(LocalDateTime.now().minusDays(i))
-                .deleted(false)
+                .isSupplier(i % 2 == 0)
+                .isReceiver(i % 2 != 0)
                 .build())
             .collect(Collectors.toList());
 
@@ -106,11 +96,8 @@ public class VendorController extends BaseEntity {
                 .hubId(UUID.randomUUID())
                 .managerId(UUID.randomUUID())
                 .address("서울시 송파구 물류로 " + i + "번지")
-                .supplier(i % 2 == 0)
-                .receiver(i % 2 != 0)
-                .createdBy("hub_manager_" + i)
-                .createdAt(LocalDateTime.now().minusDays(i))
-                .deleted(false)
+                .isSupplier(i % 2 == 0)
+                .isReceiver(i % 2 != 0)
                 .build())
             // 더미데이터 기반 필터링
             .filter(v -> name == null || v.getName().contains(name))
@@ -136,10 +123,8 @@ public class VendorController extends BaseEntity {
             .managerId(
                 requestDto.getManagerId() != null ? requestDto.getManagerId() : UUID.randomUUID())
             .address(requestDto.getAddress() != null ? requestDto.getAddress() : "기존 주소")
-            .supplier(requestDto.getIsSupplier() != null && requestDto.getIsSupplier())
-            .receiver(requestDto.getIsReceiver() != null && requestDto.getIsReceiver())
-            .updatedBy("master_admin")
-            .updatedAt(LocalDateTime.now())
+            .isSupplier(requestDto.getIsSupplier() != null && requestDto.getIsSupplier())
+            .isReceiver(requestDto.getIsReceiver() != null && requestDto.getIsReceiver())
             .build();
 
         return ResponseEntity.ok(
