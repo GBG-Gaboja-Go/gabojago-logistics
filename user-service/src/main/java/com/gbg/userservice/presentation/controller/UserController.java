@@ -121,7 +121,7 @@ public class UserController {
         return ResponseEntity
             .status(HttpStatus.NO_CONTENT)
             .body(BaseResponseDto.success(
-                "사용자 삭제가 정상적으로 처리되었습니다.",
+                "사용자 삭제가 정상적으로 처리되었습니다..",
                 HttpStatus.NO_CONTENT
             ));
     }
