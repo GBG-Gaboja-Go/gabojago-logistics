@@ -3,7 +3,6 @@ package com.gbg.orderservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.dto.PageResponseDto;
 import com.gbg.orderservice.application.service.OrderService;
-import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.request.UpdateOrderStatusRequestDto;
@@ -13,14 +12,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import java.math.BigInteger;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,44 +36,24 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
+    // 사용자 role이 업체인지 확인 → preAuthorize("ROLE_SUPPLIER_MANAGER")
     @Operation(summary = "주문 생성 API", description = "수령업체만 주문을 생성할 수 있습니다.")
     public ResponseEntity<BaseResponseDto<CreateOrderResponseDto>> createOrder(
         @Valid @RequestBody CreateOrderRequestDto requestDto
     ) {
         CreateOrderResponseDto responseDto = orderService.createOrder(requestDto);
-        return ResponseEntity.ok(
-            BaseResponseDto.success("주문 생성 성공", responseDto, HttpStatus.CREATED));
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(BaseResponseDto.success("주문 생성 성공", responseDto, HttpStatus.CREATED));
     }
 
     @PostMapping("/search")
-    // 사용자 role이 업체인지 확인 → preAuthorize("ROLE_SUPPLIER_MANAGER")
+    // 사용자 role이 마스터인지/업체인지 확인
     @Operation(summary = "주문 전체 조회 API", description = "수령업체는 본인 주문을 모두 조회할 수 있습니다.(마스터는 모든 수령업체 주문 조회 가능)")
     public ResponseEntity<BaseResponseDto<PageResponseDto<GetOrderResponseDto>>> getOrders(
-        OrderSearchRequestDto searchRequestDto,
+        @RequestBody(required = false) OrderSearchRequestDto searchRequestDto,
         Pageable pageable
     ) {
-        List<GetOrderResponseDto> orders = IntStream.range(0, 5)
-            .mapToObj(i -> GetOrderResponseDto.builder()
-                .order(GetOrderResponseDto.OrderDto.builder()
-                    .id(UUID.randomUUID())
-                    .producerVendorId(UUID.randomUUID())
-                    .receiverVendorId(UUID.randomUUID())
-                    .productId(UUID.randomUUID())
-                    .deliveryId(UUID.randomUUID())
-                    .quantity(1 + i)
-                    .totalPrice(BigInteger.valueOf(10000L * (i + 1)))
-                    .requestMessage("샘플 주문 " + i)
-                    .status(OrderStatus.PENDING)
-                    .build())
-                .build())
-            .collect(Collectors.toList());
-
-        Page<GetOrderResponseDto> result = new PageImpl<>(
-            orders,
-            pageable,
-            orders.size()
-        );
-
+        Page<GetOrderResponseDto> result = orderService.searchOrders(searchRequestDto, pageable);
         return ResponseEntity.ok(
             BaseResponseDto.success("메뉴 목록 조회 성공", PageResponseDto.from(result), HttpStatus.OK));
     }
@@ -89,21 +63,7 @@ public class OrderController {
     public ResponseEntity<BaseResponseDto<GetOrderResponseDto>> getOrder(
         @Parameter(description = "order UUID") @PathVariable UUID orderId
     ) {
-        GetOrderResponseDto responseDto = GetOrderResponseDto.builder()
-            .order(
-                GetOrderResponseDto.OrderDto.builder()
-                    .id(orderId)
-                    .producerVendorId(UUID.randomUUID())
-                    .receiverVendorId(UUID.randomUUID())
-                    .deliveryId(UUID.randomUUID())
-                    .productId(UUID.randomUUID())
-                    .quantity(40)
-                    .totalPrice(BigInteger.valueOf(400000))
-                    .requestMessage("내일 5시까지 배달 부탁드려요.")
-                    .status(OrderStatus.DELIVERING)
-                    .build()
-            )
-            .build();
+        GetOrderResponseDto responseDto = orderService.getOrder(orderId);
         return ResponseEntity.ok(
             BaseResponseDto.success("상세 주문 조회 성공", responseDto, HttpStatus.OK));
     }

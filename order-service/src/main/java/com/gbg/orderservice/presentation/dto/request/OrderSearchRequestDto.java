@@ -24,8 +24,10 @@ public class OrderSearchRequestDto {
     @Builder
     public static class OrderDto {
 
+        private UUID userId;
         private UUID producerVendorId;
         private UUID receiverVendorId;
+        private UUID productId;
         private OrderStatus status;
         private LocalDate dateFrom;
         private LocalDate dateTo;
