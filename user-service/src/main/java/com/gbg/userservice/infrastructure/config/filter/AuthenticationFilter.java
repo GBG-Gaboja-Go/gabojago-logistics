@@ -3,7 +3,9 @@ package com.gbg.userservice.infrastructure.config.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojago.exception.AppException;
 import com.gabojago.exception.ErrorResponse;
+import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.entity.UserRole;
+import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.infrastructure.config.jwt.JwtTokenProvider;
 import com.gbg.userservice.infrastructure.exception.UserErrorCode;
@@ -23,15 +25,16 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
 
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String LOGIN_PROCESS_URL = "/v1/users/sign-in";
 
-    public AuthenticationFilter(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper) {
+    public AuthenticationFilter(JwtTokenProvider jwtTokenProvider, ObjectMapper objectMapper,  UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.objectMapper = objectMapper;
+        this.userRepository = userRepository;
         setFilterProcessesUrl(LOGIN_PROCESS_URL);
-        System.out.println("AuthenticationFilter 초기화 완료 , 경로 + " + LOGIN_PROCESS_URL);
     }
 
     public Authentication attemptAuthentication(HttpServletRequest request,
@@ -39,6 +42,14 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         try {
             FormLoginRequestDto loginRequest = objectMapper.readValue(request.getInputStream(),
                 FormLoginRequestDto.class);
+
+            User user = userRepository.findByUserName(loginRequest.username()).orElseThrow(
+                () -> new AppException(UserErrorCode.USER_NOT_FOUND)
+            );
+
+            if (user.getDeletedAt() != null || user.getDeletedBy() != null) {
+                throw new AppException(UserErrorCode.DELETED_USER);
+            }
 
             UsernamePasswordAuthenticationToken authRequest = UsernamePasswordAuthenticationToken
                 .unauthenticated(loginRequest.username(), loginRequest.password());
