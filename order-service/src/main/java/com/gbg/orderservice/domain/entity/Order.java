@@ -2,6 +2,7 @@ package com.gbg.orderservice.domain.entity;
 
 import com.gabojago.entity.BaseEntity;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
+import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -58,4 +59,8 @@ public class Order extends BaseEntity {
 
     @Column(name = "request_message", nullable = false, length = 1000)
     private String requestMessage;
+
+    public GetOrderResponseDto toResponseDto() {
+        return GetOrderResponseDto.from(this);
+    }
 }

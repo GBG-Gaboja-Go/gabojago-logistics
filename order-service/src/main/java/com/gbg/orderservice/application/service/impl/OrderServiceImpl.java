@@ -7,10 +7,17 @@ import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
+import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
+import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import java.math.BigInteger;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,6 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
+    private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 30, 50);
+    private static final int DEFAULT_SIZE = 10;
 
     @Override
     @Transactional
@@ -59,12 +68,49 @@ public class OrderServiceImpl implements OrderService {
             .status(OrderStatus.PENDING)
             .build();
 
-        orderRepository.save(order);
+        Order savedOrder = orderRepository.save(order);
 
         // 배송 서비스에 알림 (비동기 or feign)
 
-        return CreateOrderResponseDto.builder()
-            .order(CreateOrderResponseDto.OrderDto.from(order))
-            .build();
+        return CreateOrderResponseDto.from(savedOrder);
+    }
+
+    @Override
+    public Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
+        Pageable pageable) {
+        String role = "";
+        UUID userId = UUID.randomUUID();
+        pageable = normalizePageable(pageable);
+        return orderRepository.searchOrders(searchRequestDto, pageable, role, userId);
+    }
+
+    @Override
+    public GetOrderResponseDto getOrder(UUID orderId) {
+        Order order = orderRepository.findById(orderId)
+            .filter(o -> o.getDeletedAt() == null)
+            .orElseThrow(() -> new AppException(OrderErrorCode.ORDER_NOT_FOUND));
+
+        return GetOrderResponseDto.from(order);
+    }
+
+    // common에 utils로 뺄 예정
+    private Pageable normalizePageable(Pageable pageable) {
+        int page = Math.max(0, pageable.getPageNumber());
+        int size = pageable.getPageSize();
+
+        if (!ALLOWED_SIZES.contains(size)) {
+            size = DEFAULT_SIZE;
+        }
+
+        Sort sort = pageable.getSort();
+        if (sort == null || sort.isUnsorted()) {
+            // 기본 정렬: 생성일(desc) 우선, 다음으로 수정일(desc)
+            sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("updatedAt"));
+        } else {
+            // Optional: 클라이언트가 보낸 sort에 허용되지 않은 프로퍼티가 있으면 무시하거나 대체할 수 있음.
+            // (여기서는 클라이언트 sort를 그대로 사용)
+        }
+
+        return PageRequest.of(page, size, sort);
     }
 }

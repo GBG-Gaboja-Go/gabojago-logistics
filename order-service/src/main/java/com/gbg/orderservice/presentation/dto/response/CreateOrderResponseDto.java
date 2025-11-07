@@ -26,4 +26,9 @@ public class CreateOrderResponseDto {
         }
     }
 
+    public static CreateOrderResponseDto from(Order order) {
+        return CreateOrderResponseDto.builder()
+            .order(OrderDto.from(order))
+            .build();
+    }
 }
