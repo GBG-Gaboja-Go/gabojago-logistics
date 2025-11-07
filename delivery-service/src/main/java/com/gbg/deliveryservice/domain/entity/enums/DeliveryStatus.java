@@ -1,4 +1,4 @@
-package com.gbg.deliveryservice.domain.enums;
+package com.gbg.deliveryservice.domain.entity.enums;
 
 public enum DeliveryStatus {
     PENDING,
