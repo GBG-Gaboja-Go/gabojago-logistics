@@ -1,7 +1,7 @@
 package com.gbg.deliveryservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
-import com.gbg.deliveryservice.domain.enums.DeliveryStatus;
+import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryStatusRequestDTO;
@@ -10,12 +10,12 @@ import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryPageResponse
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetMyDeliveryResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.PageInfoDTO;
+import io.swagger.v3.oas.annotations.Operation;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.mapping.Any;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -38,16 +38,18 @@ import org.springframework.web.bind.annotation.RestController;
 public class DeliveryController {
 
     @PostMapping
+    @Operation(summary = "배달 생성", description = "배달 생성하는 api 입니다.(예상 시간 입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
     public ResponseEntity<BaseResponseDto<CreateDeliveryResponseDTO>> createDelivery(
         @RequestBody CreateDeliveryRequestDTO req
     ) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(BaseResponseDto.success("배달이 생성되었습니다.",
-                CreateDeliveryResponseDTO.from(UUID.randomUUID())));
+                CreateDeliveryResponseDTO.from(UUID.randomUUID()), HttpStatus.CREATED));
     }
 
     @GetMapping
+    @Operation(summary = "배달 조회 및 검색", description = "배달 목록을 조회 및 검색하는 api 입니다.")
     public ResponseEntity<BaseResponseDto<GetDeliveryPageResponseDTO>> getDeliveryPage(
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
         Pageable pageable,
@@ -92,13 +94,14 @@ public class DeliveryController {
         PageInfoDTO pageInfo = PageInfoDTO.from(
             pageable.getPageNumber(), pageable.getPageSize(), 5, 10L);
 
-        return ResponseEntity.ok(
+        return ResponseEntity.status(HttpStatus.OK).body(
             BaseResponseDto.success("배달 목록입니다.",
-                GetDeliveryPageResponseDTO.from(deliveries, pageInfo)));
+                GetDeliveryPageResponseDTO.from(deliveries, pageInfo), HttpStatus.OK));
     }
 
 
     @GetMapping("/{deliveryId}")
+    @Operation(summary = "배달 단건 조회", description = "배달 조회하는 api 입니다.")
     public ResponseEntity<BaseResponseDto<GetDeliveryResponseDTO>> getDelivery(
         @PathVariable("deliveryId") UUID id
     ) {
@@ -113,28 +116,32 @@ public class DeliveryController {
             .createdAt(LocalDateTime.now())
             .build();
 
-        return ResponseEntity.ok(BaseResponseDto.success("", GetDeliveryResponseDTO.from(res)));
+        return ResponseEntity.ok(
+            BaseResponseDto.success("", GetDeliveryResponseDTO.from(res), HttpStatus.OK));
     }
 
     @PutMapping("/{deliveryId}")
-    public ResponseEntity<BaseResponseDto<Any>> updateDelivery(
+    @Operation(summary = "배달 수정", description = "배달 수정하는 api 입니다.(소요시간 입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
+    public ResponseEntity<BaseResponseDto<Void>> updateDelivery(
         @PathVariable("deliveryId") UUID id,
         @RequestBody UpdateDeliveryRequestDTO req
     ) {
 
-        return ResponseEntity.ok(BaseResponseDto.success("배달정보가 변경되었습니다.", null));
+        return ResponseEntity.ok(BaseResponseDto.success("배달정보가 변경되었습니다.", HttpStatus.OK));
     }
 
     @PatchMapping("/{deliveryId}/status")
-    public ResponseEntity<BaseResponseDto<Any>> updateDeliveryStatus(
+    @Operation(summary = "배달 상태 변경", description = "배달 상태를 변경하는 api 입니다.")
+    public ResponseEntity<BaseResponseDto<Void>> updateDeliveryStatus(
         @PathVariable("deliveryId") UUID id,
         @RequestBody UpdateDeliveryStatusRequestDTO req
     ) {
 
-        return ResponseEntity.ok(BaseResponseDto.success("상태가 변경되었습니다.", null));
+        return ResponseEntity.ok(BaseResponseDto.success("상태가 변경되었습니다.", HttpStatus.OK));
     }
 
     @GetMapping("/my")
+    @Operation(summary = "배달 담당자 본인 목록 조회 및 검색", description = "배달 담당자 본인의 목록을 조회 및 검색하는 api 입니다.")
     public ResponseEntity<BaseResponseDto<GetMyDeliveryResponseDTO>> getMyDeliveryPage(
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
         Pageable pageable,
@@ -179,15 +186,17 @@ public class DeliveryController {
 
         return ResponseEntity.ok(
             BaseResponseDto.success("배달담당자 본인의 배달 목록입니다.",
-                GetMyDeliveryResponseDTO.from(deliveries, pageInfo)));
+                GetMyDeliveryResponseDTO.from(deliveries, pageInfo), HttpStatus.OK));
     }
 
     @DeleteMapping("/{deliveryId}")
-    public ResponseEntity<BaseResponseDto<Any>> deleteDelivery(
+    @Operation(summary = "배달 삭제", description = "배달 삭제하는 api 입니다.")
+    public ResponseEntity<BaseResponseDto<Void>> deleteDelivery(
         @PathVariable("deliveryId") UUID id
     ) {
 
-        return ResponseEntity.ok(BaseResponseDto.success("삭제되었습니다.", null));
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .body(BaseResponseDto.success("삭제되었습니다.", HttpStatus.NO_CONTENT));
     }
 }
 

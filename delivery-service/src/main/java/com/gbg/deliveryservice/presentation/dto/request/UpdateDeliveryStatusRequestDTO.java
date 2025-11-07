@@ -1,6 +1,6 @@
 package com.gbg.deliveryservice.presentation.dto.request;
 
-import com.gbg.deliveryservice.domain.enums.DeliveryStatus;
+import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
