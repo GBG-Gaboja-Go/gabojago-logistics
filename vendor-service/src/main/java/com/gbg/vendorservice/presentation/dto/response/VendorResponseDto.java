@@ -1,6 +1,5 @@
 package com.gbg.vendorservice.presentation.dto.response;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
