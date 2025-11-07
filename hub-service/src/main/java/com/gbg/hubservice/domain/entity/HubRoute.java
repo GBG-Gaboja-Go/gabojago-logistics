@@ -13,6 +13,6 @@ public class HubRoute extends BaseEntity {
     private UUID id;
     private UUID startHubId;
     private UUID endHubId;
-    private Integer distance;
+    private double distance;
 
 }
