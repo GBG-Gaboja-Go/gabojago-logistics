@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-
 @RestController
 @RequestMapping("/v1/hubs")
 public class HubController {
@@ -39,7 +38,6 @@ public class HubController {
     public ResponseEntity<BaseResponseDto<CreateHubResponseDto>> createHub(
         @Valid @RequestBody CreateHubRequestDto requestDto
     ) {
-
         CreateHubResponseDto responseDto = CreateHubResponseDto.builder()
             .id(UUID.randomUUID())
             .build();
