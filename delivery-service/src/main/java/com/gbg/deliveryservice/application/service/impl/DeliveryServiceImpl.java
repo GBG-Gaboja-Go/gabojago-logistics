@@ -2,7 +2,6 @@ package com.gbg.deliveryservice.application.service.impl;
 
 import com.gbg.deliveryservice.application.service.DeliveryService;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
-import com.gbg.deliveryservice.domain.repository.DeliveryRepository;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryStatusRequestDTO;
@@ -19,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DeliveryServiceImpl implements DeliveryService {
 
-    private final DeliveryRepository deliveryRepository;
+//    private final DeliveryRepository deliveryRepository;
 
     @Override
     public CreateDeliveryResponseDTO createDelivery(CreateDeliveryRequestDTO req) {
