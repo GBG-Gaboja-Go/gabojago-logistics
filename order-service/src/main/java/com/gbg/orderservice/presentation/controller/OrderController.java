@@ -2,6 +2,7 @@ package com.gbg.orderservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.dto.PageResponseDto;
+import com.gbg.orderservice.application.service.OrderService;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
@@ -10,12 +11,14 @@ import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -32,27 +35,24 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/orders")
+@RequiredArgsConstructor
+@Tag(name = "주문 API", description = "주문 API 입니다.")
 public class OrderController {
+
+    private final OrderService orderService;
 
     @PostMapping
     @Operation(summary = "주문 생성 API", description = "수령업체만 주문을 생성할 수 있습니다.")
     public ResponseEntity<BaseResponseDto<CreateOrderResponseDto>> createOrder(
         @Valid @RequestBody CreateOrderRequestDto requestDto
     ) {
-        // order 생성
-        CreateOrderResponseDto responseDto = CreateOrderResponseDto.builder()
-            .order(
-                CreateOrderResponseDto.OrderDto.builder()
-                    .id(UUID.randomUUID())
-                    .build()
-            )
-            .build();
-
+        CreateOrderResponseDto responseDto = orderService.createOrder(requestDto);
         return ResponseEntity.ok(
             BaseResponseDto.success("주문 생성 성공", responseDto, HttpStatus.CREATED));
     }
 
     @PostMapping("/search")
+    // 사용자 role이 업체인지 확인 → preAuthorize("ROLE_SUPPLIER_MANAGER")
     @Operation(summary = "주문 전체 조회 API", description = "수령업체는 본인 주문을 모두 조회할 수 있습니다.(마스터는 모든 수령업체 주문 조회 가능)")
     public ResponseEntity<BaseResponseDto<PageResponseDto<GetOrderResponseDto>>> getOrders(
         OrderSearchRequestDto searchRequestDto,
