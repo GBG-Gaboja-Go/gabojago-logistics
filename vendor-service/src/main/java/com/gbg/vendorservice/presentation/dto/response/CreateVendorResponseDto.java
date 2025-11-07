@@ -10,13 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class VendorResponseDto {
+public class CreateVendorResponseDto {
 
     private UUID id;
-    private String name;
-    private UUID hubId;
-    private UUID managerId;
-    private boolean isSupplier;
-    private boolean isReceiver;
-    private String address;
 }
