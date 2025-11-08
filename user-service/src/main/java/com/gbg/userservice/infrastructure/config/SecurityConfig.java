@@ -1,6 +1,7 @@
 package com.gbg.userservice.infrastructure.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.config.auth.CustomAccessDeniedHandler;
 import com.gbg.userservice.infrastructure.config.auth.CustomAuthenticationEntryPoint;
 import com.gbg.userservice.infrastructure.config.filter.JwtAuthorizationFilter;
@@ -29,6 +30,7 @@ public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
+    private final UserRepository userRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -42,7 +44,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationFilter authenticationFilter(AuthenticationManager authenticationManager) {
-        AuthenticationFilter filter = new AuthenticationFilter(jwtTokenProvider, objectMapper);
+        AuthenticationFilter filter = new AuthenticationFilter(jwtTokenProvider, objectMapper, userRepository);
         filter.setAuthenticationManager(authenticationManager);
         return filter;
     }
@@ -62,6 +64,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v1/users/sign-up").permitAll()
                 .requestMatchers("/v1/users/sign-in").permitAll()
+                .requestMatchers("/v1/users/internal/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-resources/**").permitAll()
                 .requestMatchers("/v3/api-docs/**").permitAll()
