@@ -17,5 +17,4 @@ public class ProductResponseDto {
     private UUID vendorId;
     private Integer stock;
     private Integer price;
-    private Integer minOrderQty;
 }
