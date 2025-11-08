@@ -3,6 +3,7 @@ package com.gbg.userservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.userservice.application.service.AuthService;
 import com.gbg.userservice.application.service.UserService;
+import com.gbg.userservice.domain.entity.UserStatus;
 import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.request.CreateUserRequestDto;
@@ -126,5 +127,20 @@ public class UserController {
             ));
     }
 
+    @GetMapping("/internal/{userId}/status")
+    public ResponseEntity<BaseResponseDto<UserStatus>> getUserStatus(
+        @PathVariable("userId") UUID userId
+    ) {
+
+        UserStatus status = userService.getUserStatus(userId);
+
+        return ResponseEntity
+            .status(HttpStatus.OK)
+            .body(BaseResponseDto.success(
+                "사용자 상태 정보 조회 성공",
+                status,
+                HttpStatus.OK
+            ));
+    }
 
 }
