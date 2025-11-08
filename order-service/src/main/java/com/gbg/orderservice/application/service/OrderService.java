@@ -16,4 +16,8 @@ public interface OrderService {
 
     Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
         Pageable pageable);
+
+    void postInternalOrderDelivering(UUID orderId);
+
+    void postInternalOrderDelivered(UUID orderId);
 }

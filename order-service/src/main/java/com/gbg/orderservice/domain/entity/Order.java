@@ -63,4 +63,38 @@ public class Order extends BaseEntity {
     public GetOrderResponseDto toResponseDto() {
         return GetOrderResponseDto.from(this);
     }
+
+    public Order markDelivering() {
+        return toBuilder()
+            .status(OrderStatus.DELIVERING)
+            .build();
+    }
+
+    public Order markDelivered() {
+        return toBuilder()
+            .status(OrderStatus.DELIVERED)
+            .build();
+    }
+
+    public Order markCancelled() {
+        return toBuilder()
+            .status(OrderStatus.CANCELLED)
+            .build();
+    }
+
+    // 모든 필드 복사하도록 수정된 toBuilder
+    OrderBuilder toBuilder() {
+        return Order.builder()
+            .id(id)
+            .userId(userId)
+            .producerVendorId(producerVendorId)
+            .receiverVendorId(receiverVendorId)
+            .deliveryId(deliveryId)
+            .productId(productId)
+            .quantity(quantity)
+            .totalPrice(totalPrice)
+            .status(status)
+            .requestMessage(requestMessage);
+    }
+
 }
