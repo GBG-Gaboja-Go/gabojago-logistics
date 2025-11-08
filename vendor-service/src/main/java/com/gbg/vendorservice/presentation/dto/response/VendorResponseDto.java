@@ -1,5 +1,6 @@
 package com.gbg.vendorservice.presentation.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,4 +20,13 @@ public class VendorResponseDto {
     private boolean isSupplier;
     private boolean isReceiver;
     private String address;
+
+    private String createdBy;
+    private LocalDateTime createdAt;
+    private String updatedBy;
+    private LocalDateTime updatedAt;
+    private String deletedBy;
+    private LocalDateTime deletedAt;
+    private boolean isDeleted;
+
 }
