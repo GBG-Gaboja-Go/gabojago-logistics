@@ -52,7 +52,6 @@ public class ProductController {
             .vendorId(UUID.randomUUID())
             .stock(100)
             .price(10000)
-            .minOrderQty(10)
             .build();
 
         return ResponseEntity.ok(
@@ -69,7 +68,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(100)
                 .price(12000)
-                .minOrderQty(10)
                 .build(),
             ProductResponseDto.builder()
                 .id(UUID.randomUUID())
@@ -77,7 +75,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(200)
                 .price(18000)
-                .minOrderQty(10)
                 .build(),
             ProductResponseDto.builder()
                 .id(UUID.randomUUID())
@@ -85,7 +82,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(150)
                 .price(15000)
-                .minOrderQty(10)
                 .build()
         );
 
@@ -105,7 +101,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(100)
                 .price(12000)
-                .minOrderQty(10)
                 .build(),
             ProductResponseDto.builder()
                 .id(UUID.randomUUID())
@@ -113,7 +108,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(200)
                 .price(18000)
-                .minOrderQty(10)
                 .build(),
             ProductResponseDto.builder()
                 .id(UUID.randomUUID())
@@ -121,7 +115,6 @@ public class ProductController {
                 .vendorId(UUID.randomUUID())
                 .stock(150)
                 .price(15000)
-                .minOrderQty(10)
                 .build()
         );
 
@@ -148,7 +141,6 @@ public class ProductController {
                 requestDto.getVendorId() != null ? requestDto.getVendorId() : UUID.randomUUID())
             .stock(requestDto.getStock() != null ? requestDto.getStock() : 0)
             .price(requestDto.getPrice() != null ? requestDto.getPrice() : 0)
-            .minOrderQty(requestDto.getMinOrderQty() != null ? requestDto.getMinOrderQty() : 0)
             .build();
 
         return ResponseEntity.ok(
