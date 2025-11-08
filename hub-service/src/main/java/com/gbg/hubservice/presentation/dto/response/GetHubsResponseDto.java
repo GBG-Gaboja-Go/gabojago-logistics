@@ -2,7 +2,7 @@ package com.gbg.hubservice.presentation.dto.response;
 
 import com.gbg.hubservice.domain.entity.Hub;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
@@ -54,10 +54,10 @@ public class GetHubsResponseDto {
             private final String address;
             private final BigDecimal latitude;
             private final BigDecimal longitude;
-            private final LocalDateTime createdAt;
-            private final LocalDateTime updatedAt;
+            private final Instant createdAt;
+            private final Instant updatedAt;
 
-
+          
             public static List<HubDto> from(List<Hub> hubList) {
                 return hubList.stream().map(HubDto::from).toList();
             }
@@ -77,7 +77,7 @@ public class GetHubsResponseDto {
 
             public static HubDto of(UUID id, String name, String address,
                 BigDecimal latitude, BigDecimal longitude) {
-                LocalDateTime now = LocalDateTime.now();
+                Instant now = Instant.now();
                 return HubDto.builder()
                     .id(id)
                     .name(name)

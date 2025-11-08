@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @RequestMapping("/v1/hubs")
 public class HubController {
@@ -38,12 +39,14 @@ public class HubController {
     public ResponseEntity<BaseResponseDto<CreateHubResponseDto>> createHub(
         @Valid @RequestBody CreateHubRequestDto requestDto
     ) {
+
         CreateHubResponseDto responseDto = CreateHubResponseDto.builder()
             .id(UUID.randomUUID())
             .build();
 
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(BaseResponseDto.success("허브 생성 성공", responseDto, HttpStatus.CREATED));
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브 생성 성공", responseDto, HttpStatus.CREATED)
+        );
     }
 
     @PostMapping("/search")
@@ -70,9 +73,9 @@ public class HubController {
 
         Page<GetHubResponseDto> page = new PageImpl<>(hubs, pageable, hubs.size());
 
-        return ResponseEntity.status(HttpStatus.OK)
-            .body(
-                BaseResponseDto.success("허브 목록 조회 성공", PageResponseDto.from(page), HttpStatus.OK));
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브 목록 조회 성공", PageResponseDto.from(page), HttpStatus.OK)
+        );
     }
 
     @GetMapping("/{hubId}")
@@ -92,8 +95,9 @@ public class HubController {
                 .build())
             .build();
 
-        return ResponseEntity.status(HttpStatus.OK)
-            .body(BaseResponseDto.success("허브 조회 성공", responseDto, HttpStatus.OK));
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브 조회 성공", responseDto, HttpStatus.OK)
+        );
     }
 
     @PutMapping("/{hubId}")
@@ -102,8 +106,10 @@ public class HubController {
         @Parameter(description = "허브 UUID") @PathVariable UUID hubId,
         @Valid @RequestBody UpdateHubRequestDto requestDto
     ) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(BaseResponseDto.success("허브 수정 성공", HttpStatus.NO_CONTENT));
+        // 실제 업데이트 로직 대신 성공만 반환
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브 수정 성공", HttpStatus.NO_CONTENT)
+        );
     }
 
     @DeleteMapping("/{hubId}")
@@ -111,7 +117,9 @@ public class HubController {
     public ResponseEntity<BaseResponseDto<Void>> deleteHub(
         @Parameter(description = "허브 UUID") @PathVariable UUID hubId
     ) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .body(BaseResponseDto.success("허브 삭제 성공", HttpStatus.NO_CONTENT));
+        // 실제 삭제 로직 대신 성공만 반환
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브 삭제 성공", HttpStatus.NO_CONTENT)
+        );
     }
 }
