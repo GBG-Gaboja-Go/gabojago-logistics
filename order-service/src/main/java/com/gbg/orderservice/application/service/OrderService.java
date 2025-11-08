@@ -20,4 +20,6 @@ public interface OrderService {
     void postInternalOrderDelivering(UUID orderId);
 
     void postInternalOrderDelivered(UUID orderId);
+
+    void postOrderCancel(UUID orderId);
 }
