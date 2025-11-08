@@ -3,6 +3,7 @@ package com.gbg.userservice.application.service.impl;
 import com.gabojago.exception.AppException;
 import com.gbg.userservice.application.service.UserService;
 import com.gbg.userservice.domain.entity.User;
+import com.gbg.userservice.domain.entity.UserStatus;
 import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.exception.UserErrorCode;
 import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
@@ -114,6 +115,13 @@ public class UserServiceImpl implements UserService {
         }
 
         return findUser.getId();
+    }
+
+    @Override
+    public UserStatus getUserStatus(UUID userId) {
+        User user = getUser(userId);
+
+        return user.getStatus();
     }
 
     private User getUser(UUID userId) {
