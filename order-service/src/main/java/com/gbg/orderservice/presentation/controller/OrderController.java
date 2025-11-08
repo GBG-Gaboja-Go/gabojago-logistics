@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -66,12 +65,12 @@ public class OrderController {
             BaseResponseDto.success("상세 주문 조회 성공", responseDto, HttpStatus.OK));
     }
 
-    @DeleteMapping("/{orderId}")
+    @PostMapping("/{orderId}/cancel")
     @Operation(summary = "주문 취소 API", description = "상품 담당 허브 관리자와 공급업체는 주문을 취소할 수 있습니다.")
-    public ResponseEntity<BaseResponseDto<Void>> cancelOrder(
+    public ResponseEntity<BaseResponseDto<Void>> postOrderCancel(
         @Parameter(description = "order UUID") @PathVariable UUID orderId
     ) {
-        // order 취소
+        orderService.postOrderCancel(orderId);
         return ResponseEntity.ok(BaseResponseDto.success("주문 취소 성공", HttpStatus.NO_CONTENT));
     }
 }

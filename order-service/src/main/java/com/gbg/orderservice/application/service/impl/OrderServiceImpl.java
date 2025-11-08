@@ -116,6 +116,21 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(cancelledOrder);
     }
 
+    @Override
+    public void postOrderCancel(UUID orderId) {
+        Order order = findOrder(orderId);
+        // 권한 검증
+
+        if (OrderStatus.CANCELLED.equals(order.getStatus())) {
+            throw new AppException(OrderErrorCode.ORDER_ALREADY_CANCELLED);
+        }
+
+        Order cancelledOrder = order.markCancelled();
+        orderRepository.save(cancelledOrder);
+
+        // product 수량 복원
+    }
+
     private Order findOrder(UUID orderId) {
         return orderRepository.findById(orderId)
             .filter(o -> o.getDeletedAt() == null)
