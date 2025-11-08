@@ -26,8 +26,4 @@ public class CreateProductRequestDto {
 
     @NotNull(message = "가격을 입력해주세요.")
     private Integer price;
-
-    @NotNull(message = "최소 주문 수량을 입력해주세요.")
-    @Min(value = 10, message = "최소 주문 수량은 10개 이상이어야 합니다.")
-    private Integer minOrderQty;
 }

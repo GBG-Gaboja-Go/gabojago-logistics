@@ -16,5 +16,4 @@ public class UpdateProductRequestDto {
     private UUID vendorId;
     private Integer stock;
     private Integer price;
-    private Integer minOrderQty;
 }
