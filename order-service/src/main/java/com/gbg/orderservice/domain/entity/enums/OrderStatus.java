@@ -6,10 +6,10 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum OrderStatus {
-    PENDING("PENDING"),
-    CONFIRMED("CONFIRMED"),
+    CREATED("CREATED"),
     DELIVERING("DELIVERING"),
-    CANCELED("CANCELED");
+    DELIVERED("DELIVERED"),
+    CANCELLED("CANCELLED");
 
     private final String value;
 }

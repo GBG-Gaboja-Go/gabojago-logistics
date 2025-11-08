@@ -48,8 +48,6 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
         }
 
-        // product 최소 주문 수량보다 요청 재고가 적은지 검증
-
         // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
 
         // delivery 배송 알림
@@ -65,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
             .totalPrice(
                 BigInteger.valueOf(orderDto.getQuantity() * 1000)) // product 하나 가격 * quantity
             .requestMessage(orderDto.getRequestMessage())
-            .status(OrderStatus.PENDING)
+            .status(OrderStatus.CREATED)
             .build();
 
         Order savedOrder = orderRepository.save(order);
@@ -86,11 +84,42 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public GetOrderResponseDto getOrder(UUID orderId) {
-        Order order = orderRepository.findById(orderId)
+        Order order = findOrder(orderId);
+        return GetOrderResponseDto.from(order);
+    }
+
+    @Override
+    @Transactional
+    public void postInternalOrderDelivering(UUID orderId) {
+        Order order = findOrder(orderId);
+        // 권한 검증
+
+        if (OrderStatus.DELIVERING.equals(order.getStatus())) {
+            throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERING);
+        }
+
+        Order cancelledOrder = order.markDelivering();
+        orderRepository.save(cancelledOrder);
+    }
+
+    @Override
+    @Transactional
+    public void postInternalOrderDelivered(UUID orderId) {
+        Order order = findOrder(orderId);
+        // 권한 검증
+
+        if (OrderStatus.DELIVERED.equals(order.getStatus())) {
+            throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERED);
+        }
+
+        Order cancelledOrder = order.markDelivered();
+        orderRepository.save(cancelledOrder);
+    }
+
+    private Order findOrder(UUID orderId) {
+        return orderRepository.findById(orderId)
             .filter(o -> o.getDeletedAt() == null)
             .orElseThrow(() -> new AppException(OrderErrorCode.ORDER_NOT_FOUND));
-
-        return GetOrderResponseDto.from(order);
     }
 
     // common에 utils로 뺄 예정
@@ -103,7 +132,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         Sort sort = pageable.getSort();
-        if (sort == null || sort.isUnsorted()) {
+        if (sort.isUnsorted()) {
             // 기본 정렬: 생성일(desc) 우선, 다음으로 수정일(desc)
             sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("updatedAt"));
         } else {

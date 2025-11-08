@@ -5,7 +5,6 @@ import com.gabojago.dto.PageResponseDto;
 import com.gbg.orderservice.application.service.OrderService;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
-import com.gbg.orderservice.presentation.dto.request.UpdateOrderStatusRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +19,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -66,16 +64,6 @@ public class OrderController {
         GetOrderResponseDto responseDto = orderService.getOrder(orderId);
         return ResponseEntity.ok(
             BaseResponseDto.success("상세 주문 조회 성공", responseDto, HttpStatus.OK));
-    }
-
-    @PatchMapping("/{orderId}")
-    @Operation(summary = "주문 상태 업데이트 API", description = "마스터와 담당 허브 관리자는 상세 주문을 업데이트할 수 있습니다.")
-    public ResponseEntity<BaseResponseDto<Void>> updateOrderStatus(
-        @Valid @RequestBody UpdateOrderStatusRequestDto requestDto,
-        @Parameter(description = "order UUID") @PathVariable UUID orderId
-    ) {
-        // order status 변경
-        return ResponseEntity.ok(BaseResponseDto.success("주문 상태 변경 성공", HttpStatus.NO_CONTENT));
     }
 
     @DeleteMapping("/{orderId}")
