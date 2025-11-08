@@ -1,4 +1,4 @@
-package com.gbg.gatewayservice.config.jwt;
+package com.gbg.gatewayservice.infrastructure.config.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
