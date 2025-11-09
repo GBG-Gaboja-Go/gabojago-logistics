@@ -1,6 +1,7 @@
 package com.gbg.userservice.domain.entity;
 
 import com.gabojago.entity.BaseEntity;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -27,8 +28,13 @@ public class User extends BaseEntity {
 
     private String nickname;
 
+    @Column(nullable = false, unique = true)
     private String slackEmail;
 
+    @Column(nullable = false)
+    private boolean slackVerified = false;
+
+    @Column(nullable = false)
     private String password;
 
     private UUID organization;
@@ -59,6 +65,10 @@ public class User extends BaseEntity {
 
     public void changeStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public void updateSlackVerified(boolean verified) {
+        this.slackVerified = verified;
     }
 
     private User(String username, String nickname, String slackEmail, String password, UUID organization, String summary, UserRole role, UserStatus status) {
