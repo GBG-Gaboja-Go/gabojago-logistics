@@ -3,6 +3,7 @@ package com.gbg.orderservice.infrastructure.resttemplate.product.client;
 import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.exception.AppException;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReleaseRequestDto;
+import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReturnRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
 import java.util.UUID;
@@ -84,14 +85,14 @@ public class ProductRestTemplateClient {
         }
     }
 
-    public void postInternalProductReturnStock(InternalProductReleaseRequestDto requestDto) {
+    public void postInternalProductReturnStock(InternalProductReturnRequestDto requestDto) {
 //        HttpHeaders headers = createJsonHeadersWithAuthorization(accessJwt);
 
         // reqDto → body (요청 JSON 데이터)
         //headers → header (예: Content-Type, Authorization 등)을 하나로 묶어서 RestTemplate에 전달하는 역할
 //        HttpEntity<ReqPostInternalProductsReleaseStockDtoV1> httpEntity = new HttpEntity<>(requestDto, headers);
 
-        HttpEntity<InternalProductReleaseRequestDto> httpEntity = new HttpEntity<>(requestDto);
+        HttpEntity<InternalProductReturnRequestDto> httpEntity = new HttpEntity<>(requestDto);
 
         try {
             restTemplate.exchange(
