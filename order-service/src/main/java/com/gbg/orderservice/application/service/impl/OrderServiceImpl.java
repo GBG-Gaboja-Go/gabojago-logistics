@@ -7,6 +7,7 @@ import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
 import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
+import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReleaseRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
@@ -48,8 +49,6 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
         }
 
-        // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
-
         // order 생성
         Order order = Order.builder()
             .userId(UUID.randomUUID()) // 사용자 uuid
@@ -65,6 +64,11 @@ public class OrderServiceImpl implements OrderService {
             .build();
 
         Order savedOrder = orderRepository.save(order);
+
+        // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
+        productRestTemplateClient.postInternalProductsReleaseStock(
+            buildReleaseStockRequest(orderDto.getProductId(),
+                orderDto.getQuantity()));
 
         // 배송 서비스에 알림 (비동기 or feign)
 
@@ -142,6 +146,18 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_NOT_FOUND);
         }
         return response.getProduct();
+    }
+
+    private InternalProductReleaseRequestDto buildReleaseStockRequest(UUID productId,
+        Integer quantity) {
+        return InternalProductReleaseRequestDto.builder()
+            .product(
+                InternalProductReleaseRequestDto.ProductDto.builder()
+                    .productId(productId)
+                    .quantity(quantity)
+                    .build()
+            )
+            .build();
     }
 
 }
