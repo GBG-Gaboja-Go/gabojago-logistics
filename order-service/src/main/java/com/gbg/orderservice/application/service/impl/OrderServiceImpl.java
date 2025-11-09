@@ -8,6 +8,7 @@ import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
 import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReleaseRequestDto;
+import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReturnRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
@@ -55,7 +56,7 @@ public class OrderServiceImpl implements OrderService {
             .producerVendorId(orderDto.getProducerVendorId())
             .receiverVendorId(UUID.randomUUID()) // 수령업체 uuid
             .deliveryId(UUID.randomUUID()) // 배송 uuid
-            .productId(UUID.randomUUID()) // product uuid
+            .productId(orderDto.getProductId()) // product uuid
             .quantity(orderDto.getQuantity())
             .totalPrice(
                 BigInteger.valueOf(orderDto.getQuantity() * 1000)) // product 하나 가격 * quantity
@@ -133,7 +134,7 @@ public class OrderServiceImpl implements OrderService {
 
         // product 수량 복원
         productRestTemplateClient.postInternalProductReturnStock(
-            buildReleaseStockRequest(order.getProductId(),
+            buildReleaseReturnRequest(order.getProductId(),
                 order.getQuantity()));
     }
 
@@ -156,6 +157,18 @@ public class OrderServiceImpl implements OrderService {
         return InternalProductReleaseRequestDto.builder()
             .product(
                 InternalProductReleaseRequestDto.ProductDto.builder()
+                    .productId(productId)
+                    .quantity(quantity)
+                    .build()
+            )
+            .build();
+    }
+
+    private InternalProductReturnRequestDto buildReleaseReturnRequest(UUID productId,
+        Integer quantity) {
+        return InternalProductReturnRequestDto.builder()
+            .product(
+                InternalProductReturnRequestDto.ProductDto.builder()
                     .productId(productId)
                     .quantity(quantity)
                     .build()
