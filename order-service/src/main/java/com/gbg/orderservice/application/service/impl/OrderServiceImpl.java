@@ -117,6 +117,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     public void postOrderCancel(UUID orderId) {
         Order order = findOrder(orderId);
         // 권한 검증
