@@ -20,14 +20,14 @@ public class GetOrderResponseDto {
     public static class OrderDto {
 
         private final UUID id;
-        private UUID producerVendorId;
-        private UUID receiverVendorId;
-        private UUID deliveryId;
-        private UUID productId;
-        private Integer quantity;
-        private BigInteger totalPrice;
-        private String requestMessage;
-        private OrderStatus status;
+        private final UUID producerVendorId;
+        private final UUID receiverVendorId;
+        private final UUID deliveryId;
+        private final UUID productId;
+        private final Integer quantity;
+        private final BigInteger totalPrice;
+        private final String requestMessage;
+        private final OrderStatus status;
 
         public static GetOrderResponseDto.OrderDto from(Order order) {
             return OrderDto.builder()
