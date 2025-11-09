@@ -66,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
 
         // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
-        productRestTemplateClient.postInternalProductsReleaseStock(
+        productRestTemplateClient.postInternalProductReleaseStock(
             buildReleaseStockRequest(orderDto.getProductId(),
                 orderDto.getQuantity()));
 
@@ -132,6 +132,9 @@ public class OrderServiceImpl implements OrderService {
         orderRepository.save(cancelledOrder);
 
         // product 수량 복원
+        productRestTemplateClient.postInternalProductReturnStock(
+            buildReleaseStockRequest(order.getProductId(),
+                order.getQuantity()));
     }
 
     private Order findOrder(UUID orderId) {

@@ -3,6 +3,7 @@ package com.gbg.productservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.productservice.application.service.ProductService;
 import com.gbg.productservice.presentation.dto.request.InternalProductReleaseRequestDto;
+import com.gbg.productservice.presentation.dto.request.InternalProductReturnRequestDto;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -25,8 +26,16 @@ public class InternalProductController {
     public ResponseEntity<BaseResponseDto<Void>> postInternalProductsReleaseStock(
         @Valid @RequestBody InternalProductReleaseRequestDto requestDto
     ) {
-        productService.postInternalProductsReleaseStock(requestDto);
+        productService.postInternalProductReleaseStock(requestDto);
         return ResponseEntity.ok(BaseResponseDto.success("상품 재고 차감 성공", HttpStatus.OK));
     }
 
+    @PostMapping("/return-stock")
+    @Operation(summary = "상품 재고 복원 내부 API", description = "주문 취소되면 해당 상품 재고를 복원합니다.")
+    public ResponseEntity<BaseResponseDto<Void>> postInternalProductsReturnStock(
+        @Valid @RequestBody InternalProductReturnRequestDto requestDto
+    ) {
+        productService.postInternalProductReturnStock(requestDto);
+        return ResponseEntity.ok(BaseResponseDto.success("상품 재고 복원 성공", HttpStatus.OK));
+    }
 }
