@@ -1,6 +1,8 @@
 package com.gbg.deliveryservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
+import com.gbg.deliveryservice.application.service.DeliveryService;
+import com.gbg.deliveryservice.domain.entity.enums.DeliverySearchType;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
@@ -9,11 +11,7 @@ import com.gbg.deliveryservice.presentation.dto.response.CreateDeliveryResponseD
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryPageResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetMyDeliveryResponseDTO;
-import com.gbg.deliveryservice.presentation.dto.response.PageInfoDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -37,6 +35,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/v1/delivery")
 public class DeliveryController {
 
+    private final DeliveryService deliveryService;
+
     @PostMapping
     @Operation(summary = "배달 생성", description = "배달 생성하는 api 입니다.(예상 시간 입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
     public ResponseEntity<BaseResponseDto<CreateDeliveryResponseDTO>> createDelivery(
@@ -45,7 +45,7 @@ public class DeliveryController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(BaseResponseDto.success("배달이 생성되었습니다.",
-                CreateDeliveryResponseDTO.from(UUID.randomUUID()), HttpStatus.CREATED));
+                deliveryService.createDelivery(req, UUID.randomUUID()), HttpStatus.CREATED));
     }
 
     @GetMapping
@@ -54,49 +54,13 @@ public class DeliveryController {
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
         Pageable pageable,
         @RequestParam(required = false) DeliveryStatus status,
-        @RequestParam(required = false) UUID sender,
-        @RequestParam(required = false) UUID receiver,
-        @RequestParam(required = false) UUID product
+        @RequestParam(required = false) DeliverySearchType type,
+        @RequestParam(required = false) String keyword
     ) {
-
-        List<GetDeliveryPageResponseDTO.DeliveryDto> deliveries = List.of(
-            GetDeliveryPageResponseDTO.DeliveryDto.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("서울특별시 종로구 세종대로 172")
-                .estimatedDistance(12.2)
-                .estimatedTime(LocalTime.of(1, 23, 13))
-                .status(DeliveryStatus.OUT_FOR_DELIVERY)
-                .createdAt(LocalDateTime.now())
-                .build(),
-
-            GetDeliveryPageResponseDTO.DeliveryDto.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("서울특별시 강남구 강남대로 172")
-                .estimatedDistance(7.8)
-                .estimatedTime(LocalTime.of(0, 45, 12))
-                .status(DeliveryStatus.OUT_FOR_DELIVERY)
-                .createdAt(LocalDateTime.now())
-                .build(),
-
-            GetDeliveryPageResponseDTO.DeliveryDto.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("경기도 가평군 화악산로 35")
-                .estimatedDistance(21.5)
-                .estimatedTime(LocalTime.of(2, 10, 5))
-                .status(DeliveryStatus.DELIVERED)
-                .createdAt(LocalDateTime.now())
-                .build()
-        );
-
-        PageInfoDTO pageInfo = PageInfoDTO.from(
-            pageable.getPageNumber(), pageable.getPageSize(), 5, 10L);
 
         return ResponseEntity.status(HttpStatus.OK).body(
             BaseResponseDto.success("배달 목록입니다.",
-                GetDeliveryPageResponseDTO.from(deliveries, pageInfo), HttpStatus.OK));
+                deliveryService.getDeliveryPage(pageable, status, type, keyword), HttpStatus.OK));
     }
 
 
@@ -106,18 +70,9 @@ public class DeliveryController {
         @PathVariable("deliveryId") UUID id
     ) {
 
-        GetDeliveryResponseDTO.DeliveryDTO res = GetDeliveryResponseDTO.DeliveryDTO.builder()
-            .id(UUID.randomUUID())
-            .orderId(UUID.randomUUID())
-            .deliveryAddress("경기도 가평군 화악산로 35")
-            .estimatedDistance(21.5)
-            .estimatedTime(LocalTime.of(2, 10, 5))
-            .status(DeliveryStatus.DELIVERED)
-            .createdAt(LocalDateTime.now())
-            .build();
-
         return ResponseEntity.ok(
-            BaseResponseDto.success("", GetDeliveryResponseDTO.from(res), HttpStatus.OK));
+            BaseResponseDto.success("배달이 조회되었습니다.", deliveryService.getDelivery(id),
+                HttpStatus.OK));
     }
 
     @PutMapping("/{deliveryId}")
@@ -126,6 +81,7 @@ public class DeliveryController {
         @PathVariable("deliveryId") UUID id,
         @RequestBody UpdateDeliveryRequestDTO req
     ) {
+        deliveryService.updateDelivery(req, id, UUID.randomUUID());
 
         return ResponseEntity.ok(BaseResponseDto.success("배달정보가 변경되었습니다.", HttpStatus.OK));
     }
@@ -136,6 +92,29 @@ public class DeliveryController {
         @PathVariable("deliveryId") UUID id,
         @RequestBody UpdateDeliveryStatusRequestDTO req
     ) {
+        deliveryService.updateDeliveryStatus(req, id, UUID.randomUUID());
+
+        return ResponseEntity.ok(BaseResponseDto.success("상태가 변경되었습니다.", HttpStatus.OK));
+    }
+
+
+    @PatchMapping("/{deliveryId}/start")
+    @Operation(summary = "배달 시작", description = "배달을 시작하는 api 입니다.")
+    public ResponseEntity<BaseResponseDto<Void>> startDelivery(
+        @PathVariable("deliveryId") UUID id
+    ) {
+        deliveryService.startDelivery(id, UUID.randomUUID());
+
+        return ResponseEntity.ok(BaseResponseDto.success("배달이 시작되었습니다.", HttpStatus.OK));
+    }
+
+
+    @PatchMapping("/{deliveryId}/completed")
+    @Operation(summary = "배달 종료", description = "배달을 종료하는 api 입니다.")
+    public ResponseEntity<BaseResponseDto<Void>> completedDelivery(
+        @PathVariable("deliveryId") UUID id
+    ) {
+        deliveryService.completedDelivery(id, UUID.randomUUID());
 
         return ResponseEntity.ok(BaseResponseDto.success("상태가 변경되었습니다.", HttpStatus.OK));
     }
@@ -146,47 +125,14 @@ public class DeliveryController {
         @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC)
         Pageable pageable,
         @RequestParam(required = false) DeliveryStatus status,
-        @RequestParam(required = false) UUID sender,
-        @RequestParam(required = false) UUID receiver,
-        @RequestParam(required = false) UUID product
+        @RequestParam(required = false) DeliverySearchType type,
+        @RequestParam(required = false) String keyword
     ) {
-        List<GetMyDeliveryResponseDTO.DeliveryDTO> deliveries = List.of(
-            GetMyDeliveryResponseDTO.DeliveryDTO.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("서울특별시 종로구 세종대로 172")
-                .estimatedDistance(12.2)
-                .estimatedTime(LocalTime.of(1, 23, 13))
-                .status(DeliveryStatus.OUT_FOR_DELIVERY)
-                .createdAt(LocalDateTime.now())
-                .build(),
-
-            GetMyDeliveryResponseDTO.DeliveryDTO.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("서울특별시 강남구 강남대로 172")
-                .estimatedDistance(7.8)
-                .estimatedTime(LocalTime.of(0, 45, 12))
-                .status(DeliveryStatus.OUT_FOR_DELIVERY)
-                .createdAt(LocalDateTime.now())
-                .build(),
-
-            GetMyDeliveryResponseDTO.DeliveryDTO.builder()
-                .id(UUID.randomUUID())
-                .orderId(UUID.randomUUID())
-                .deliveryAddress("경기도 가평군 화악산로 35")
-                .estimatedDistance(21.5)
-                .estimatedTime(LocalTime.of(2, 10, 5))
-                .status(DeliveryStatus.DELIVERED)
-                .createdAt(LocalDateTime.now())
-                .build()
-        );
-        PageInfoDTO pageInfo = PageInfoDTO.from(
-            pageable.getPageNumber(), pageable.getPageSize(), 5, 10L);
 
         return ResponseEntity.ok(
             BaseResponseDto.success("배달담당자 본인의 배달 목록입니다.",
-                GetMyDeliveryResponseDTO.from(deliveries, pageInfo), HttpStatus.OK));
+                deliveryService.getMyDeliveryPage(UUID.randomUUID(), pageable, status, type,
+                    keyword), HttpStatus.OK));
     }
 
     @DeleteMapping("/{deliveryId}")
@@ -194,6 +140,8 @@ public class DeliveryController {
     public ResponseEntity<BaseResponseDto<Void>> deleteDelivery(
         @PathVariable("deliveryId") UUID id
     ) {
+
+        deliveryService.deleteDelivery(id, UUID.randomUUID());
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
             .body(BaseResponseDto.success("삭제되었습니다.", HttpStatus.NO_CONTENT));

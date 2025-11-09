@@ -1,15 +1,14 @@
-package com.gbg.deliveryservice.domain.repository;
+package com.gbg.deliveryservice.infrastructure.repository;
 
 import com.gbg.deliveryservice.domain.entity.HubDelivery;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface HubDeliveryRepository {
+public interface HubDeliveryJpaRepository extends JpaRepository<HubDelivery, UUID> {
 
-    HubDelivery save(HubDelivery hubDelivery);
-
-    List<HubDelivery> findByAllDeliveryIdAndDeletedAtIsNull(UUID id);
+    List<HubDelivery> findAllByDeliveryIdAndDeletedAtIsNull(UUID id);
 
     Optional<HubDelivery> findByDeliveryIdAndDeletedAtIsNull(UUID id);
 

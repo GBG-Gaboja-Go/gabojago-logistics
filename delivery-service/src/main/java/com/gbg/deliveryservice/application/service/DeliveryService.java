@@ -1,5 +1,6 @@
 package com.gbg.deliveryservice.application.service;
 
+import com.gbg.deliveryservice.domain.entity.enums.DeliverySearchType;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
@@ -13,20 +14,23 @@ import org.springframework.data.domain.Pageable;
 
 public interface DeliveryService {
 
-    CreateDeliveryResponseDTO createDelivery(CreateDeliveryRequestDTO req);
+    CreateDeliveryResponseDTO createDelivery(CreateDeliveryRequestDTO req, UUID userId);
 
     GetDeliveryPageResponseDTO getDeliveryPage(Pageable pageable, DeliveryStatus status,
-        UUID sender, UUID receiver, UUID product);
+        DeliverySearchType type, String keyword);
 
     GetDeliveryResponseDTO getDelivery(UUID id);
 
-    Void updateDelivery(UpdateDeliveryRequestDTO req, UUID id, UUID userId);
+    void updateDelivery(UpdateDeliveryRequestDTO req, UUID id, UUID userId);
 
-    Void updateDeliveryStatus(UpdateDeliveryStatusRequestDTO req, UUID id, UUID userId);
+    void updateDeliveryStatus(UpdateDeliveryStatusRequestDTO req, UUID id, UUID userId);
+
+    void startDelivery(UUID id, UUID userId);
+
+    void completedDelivery(UUID id, UUID userId);
 
     GetMyDeliveryResponseDTO getMyDeliveryPage(UUID userId, Pageable pageable,
-        DeliveryStatus status,
-        UUID sender, UUID receiver, UUID product);
+        DeliveryStatus status, DeliverySearchType type, String keyword);
 
-    Void deleteDelivery(UUID id);
+    Void deleteDelivery(UUID id, UUID userId);
 }

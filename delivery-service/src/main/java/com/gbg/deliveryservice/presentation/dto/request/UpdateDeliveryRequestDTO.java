@@ -29,10 +29,14 @@ public record UpdateDeliveryRequestDTO(
         @NotNull(message = "예상 소요시간을 입력하세요. (입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
         @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "HH:mm:ss")
         private LocalTime estimatedTime;
-        
-        private LocalDateTime startedAt;
 
-        private LocalDateTime completedAt;
+        private boolean isUpdateStartTime;
+
+        private LocalDateTime startedTime;
+
+        private boolean isUpdateCompletedTime;
+
+        private LocalDateTime completedTime;
     }
 
 }

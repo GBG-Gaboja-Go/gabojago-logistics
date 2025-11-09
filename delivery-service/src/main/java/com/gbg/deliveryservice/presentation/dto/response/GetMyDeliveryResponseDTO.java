@@ -1,28 +1,26 @@
 package com.gbg.deliveryservice.presentation.dto.response;
 
+import com.gbg.deliveryservice.domain.entity.Delivery;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
+import org.springframework.data.domain.Page;
 
 @Builder
 public record GetMyDeliveryResponseDTO(
-    List<DeliveryDTO> deliveries,
-    PageInfoDTO pageInfo
+    Page<DeliveryDTO> deliveries
 ) {
 
     @Builder
     public static GetMyDeliveryResponseDTO from(
-        List<DeliveryDTO> deliveries,
-        PageInfoDTO pageInfo
+        Page<Delivery> deliveries
     ) {
 
         return GetMyDeliveryResponseDTO.builder()
-            .deliveries(deliveries)
-            .pageInfo(pageInfo)
+            .deliveries(deliveries.map(DeliveryDTO::from))
             .build();
     }
 
@@ -40,10 +38,10 @@ public record GetMyDeliveryResponseDTO(
         private final DeliveryStatus status;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
-        private LocalDateTime startedAt;
-        private LocalDateTime completedAt;
+        private LocalDateTime startedTime;
+        private LocalDateTime completedTime;
 
-        public static DeliveryDTO from(DeliveryDTO delivery) {
+        public static DeliveryDTO from(Delivery delivery) {
             return DeliveryDTO.builder()
                 .id(delivery.getId())
                 .orderId(delivery.getOrderId())
@@ -55,8 +53,8 @@ public record GetMyDeliveryResponseDTO(
                 .status(delivery.getStatus())
                 .createdAt(delivery.getCreatedAt())
                 .updatedAt(delivery.getUpdatedAt())
-                .startedAt(delivery.getStartedAt())
-                .completedAt(delivery.getCompletedAt())
+                .startedTime(delivery.getStartedTime())
+                .completedTime(delivery.getCompletedTime())
                 .build();
         }
     }

@@ -14,6 +14,8 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,7 +23,9 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Table(name = "p_delivery")
 public class Delivery extends BaseEntity {
 
@@ -57,6 +61,34 @@ public class Delivery extends BaseEntity {
 
     @Column(name = "delivery_address", nullable = false)
     private String deliveryAddress;
+
+    public void update(
+        String deliveryAddress,
+        double estimatedDistance,
+        LocalTime estimatedTime,
+        LocalDateTime startedTime,
+        LocalDateTime completedTime
+    ) {
+        this.deliveryAddress = deliveryAddress;
+        this.estimatedDistance = estimatedDistance;
+        this.estimatedTime = estimatedTime;
+        this.startedTime = startedTime;
+        this.completedTime = completedTime;
+    }
+
+    public void updateStatus(DeliveryStatus status) {
+        this.status = status;
+    }
+
+    public void startDelivery() {
+        this.startedTime = LocalDateTime.now();
+        this.status = DeliveryStatus.OUT_FOR_DELIVERY;
+    }
+
+    public void completedDelivery() {
+        this.completedTime = LocalDateTime.now();
+        this.status = DeliveryStatus.DELIVERED;
+    }
 
 
 }
