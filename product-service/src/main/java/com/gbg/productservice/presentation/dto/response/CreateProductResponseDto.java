@@ -12,5 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreateProductResponseDto {
 
-    private UUID id;
+    private ProductDto product;
+
+    @Getter
+    @Builder
+    public static class ProductDto {
+
+        private final UUID id;
+    }
 }
