@@ -1,5 +1,13 @@
 package com.gbg.hubservice.infrastructure.repository;
 
-public interface HubJpaRepository {
+import com.gbg.hubservice.domain.entity.Hub;
+import java.util.Optional;
+import java.util.UUID;
+import org.springframework.data.jpa.repository.JpaRepository;
 
+public interface HubJpaRepository extends JpaRepository<Hub, UUID> {
+
+    boolean existsByName(String name);
+
+    Optional<Hub> findById(UUID id);
 }
