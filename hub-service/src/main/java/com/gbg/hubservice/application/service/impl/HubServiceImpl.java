@@ -1,9 +1,8 @@
-// application/service/impl/HubServiceImpl.java
 package com.gbg.hubservice.application.service.impl;
 
+import com.gabojago.exception.AppException;
 import com.gbg.hubservice.application.service.HubService;
 import com.gbg.hubservice.application.service.exception.HubErrorCode;
-import com.gbg.hubservice.application.service.exception.HubException;
 import com.gbg.hubservice.domain.entity.Hub;
 import com.gbg.hubservice.infrastructure.repository.HubJpaRepository;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRequestDto;
@@ -28,7 +27,7 @@ public class HubServiceImpl implements HubService {
         CreateHubRequestDto.HubDto hubDto = request.getHub();
 
         if (hubRepository.existsByName(hubDto.getName())) {
-            throw new HubException(HubErrorCode.HUB_ALREADY_EXISTS);
+            throw new AppException(HubErrorCode.HUB_ALREADY_EXISTS);
         }
 
         Hub hub = Hub.builder()
@@ -46,7 +45,7 @@ public class HubServiceImpl implements HubService {
     @Override
     public Hub getById(UUID id) {
         return hubRepository.findById(id)
-            .orElseThrow(() -> new HubException(HubErrorCode.HUB_NOT_FOUND));
+            .orElseThrow(() -> new AppException(HubErrorCode.HUB_NOT_FOUND));
     }
 
     @Override
@@ -66,14 +65,13 @@ public class HubServiceImpl implements HubService {
             hubDto.getLatitude(),
             hubDto.getLongitude()
         );
-        // Dirty Checking으로 반영
     }
 
     @Override
     @Transactional
-    public void delete(UUID hubId, UUID actorId) {
+    public void delete(UUID hubId, UUID userId) {
         Hub hub = getById(hubId);
-        hub.delete(actorId);      // BaseEntity 소프트 삭제
-        hubRepository.save(hub);  // 명시 저장(안전)
+        hub.delete(userId);
+        hubRepository.save(hub);
     }
 }
