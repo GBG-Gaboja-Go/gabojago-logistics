@@ -46,7 +46,7 @@ public class InternalAIController {
             .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(BaseResponseDto.success("ai 메시지 입니다.", responseDto));
+            .body(BaseResponseDto.success("ai 메시지 입니다.", responseDto, HttpStatus.CREATED));
     }
 
     @GetMapping("/{orderId}")
@@ -63,7 +63,7 @@ public class InternalAIController {
             .build();
 
         return ResponseEntity.ok(BaseResponseDto.success(
-            "주문 ID 기준 AI 메시지 조회", getAIResponseDto
+            "주문 ID 기준 AI 메시지 조회", getAIResponseDto, HttpStatus.OK
         ));
     }
 
