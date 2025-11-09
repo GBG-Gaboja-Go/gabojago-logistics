@@ -1,33 +1,34 @@
 package com.gbg.orderservice.application.service.impl;
 
 import com.gabojago.exception.AppException;
+import com.gabojago.util.PageableUtils;
 import com.gbg.orderservice.application.service.OrderService;
 import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
+import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
+import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import java.math.BigInteger;
-import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
-    private static final Set<Integer> ALLOWED_SIZES = Set.of(10, 30, 50);
-    private static final int DEFAULT_SIZE = 10;
+    private final ProductRestTemplateClient productRestTemplateClient;
 
     @Override
     @Transactional
@@ -40,17 +41,14 @@ public class OrderServiceImpl implements OrderService {
         // userId로 vendor에서 해당 업체 수령업체인지 확인
 
         // product 조회
-        // product에서 해당 productId 재고 확인
+        ProductResponseDto.ProductDto product = fetchProduct(requestDto.getOrder().getProductId());
 
         // product 재고보다 요청 재고가 더 많은지 검증
-        int productQuantity = 100;
-        if (productQuantity <= orderDto.getQuantity()) {
+        if (product.getStock() <= orderDto.getQuantity()) {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
         }
 
         // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
-
-        // delivery 배송 알림
 
         // order 생성
         Order order = Order.builder()
@@ -78,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
         Pageable pageable) {
         String role = "";
         UUID userId = UUID.randomUUID();
-        pageable = normalizePageable(pageable);
+        pageable = PageableUtils.normalize(pageable);
         return orderRepository.searchOrders(searchRequestDto, pageable, role, userId);
     }
 
@@ -138,24 +136,12 @@ public class OrderServiceImpl implements OrderService {
             .orElseThrow(() -> new AppException(OrderErrorCode.ORDER_NOT_FOUND));
     }
 
-    // common에 utils로 뺄 예정
-    private Pageable normalizePageable(Pageable pageable) {
-        int page = Math.max(0, pageable.getPageNumber());
-        int size = pageable.getPageSize();
-
-        if (!ALLOWED_SIZES.contains(size)) {
-            size = DEFAULT_SIZE;
+    private ProductResponseDto.ProductDto fetchProduct(UUID productId) {
+        ProductResponseDto response = productRestTemplateClient.getProduct(productId);
+        if (response == null || response.getProduct() == null) {
+            throw new AppException(OrderErrorCode.ORDER_PRODUCT_NOT_FOUND);
         }
-
-        Sort sort = pageable.getSort();
-        if (sort.isUnsorted()) {
-            // 기본 정렬: 생성일(desc) 우선, 다음으로 수정일(desc)
-            sort = Sort.by(Sort.Order.desc("createdAt"), Sort.Order.desc("updatedAt"));
-        } else {
-            // Optional: 클라이언트가 보낸 sort에 허용되지 않은 프로퍼티가 있으면 무시하거나 대체할 수 있음.
-            // (여기서는 클라이언트 sort를 그대로 사용)
-        }
-
-        return PageRequest.of(page, size, sort);
+        return response.getProduct();
     }
+
 }
