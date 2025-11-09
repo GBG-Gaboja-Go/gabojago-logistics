@@ -1,5 +1,6 @@
 package com.gbg.deliveryservice.presentation.dto.response;
 
+import com.gbg.deliveryservice.domain.entity.Delivery;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -9,9 +10,9 @@ public record CreateDeliveryResponseDTO(
     DeliveryDTO delivery
 ) {
 
-    public static CreateDeliveryResponseDTO from(UUID id) {
+    public static CreateDeliveryResponseDTO from(Delivery delivery) {
         return CreateDeliveryResponseDTO.builder()
-            .delivery(DeliveryDTO.from(id))
+            .delivery(DeliveryDTO.from(delivery))
             .build();
     }
 
@@ -21,9 +22,9 @@ public record CreateDeliveryResponseDTO(
 
         private final UUID id;
 
-        public static DeliveryDTO from(UUID id) {
+        public static DeliveryDTO from(Delivery delivery) {
             return DeliveryDTO.builder()
-                .id(id)
+                .id(delivery.getId())
                 .build();
         }
     }
