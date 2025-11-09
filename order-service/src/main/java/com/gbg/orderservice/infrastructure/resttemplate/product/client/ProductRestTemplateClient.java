@@ -30,6 +30,9 @@ public class ProductRestTemplateClient {
         PRODUCT_SERVICE_BASE_URL + "/v1/products/{productId}";
     private static final String POST_RELEASE_STOCK_URL =
         PRODUCT_SERVICE_BASE_URL + "/internal/v1/products/release-stock";
+    private static final String POST_RETURN_STOCK_URL =
+        PRODUCT_SERVICE_BASE_URL + "/internal/v1/products/return-stock";
+
     private static final ParameterizedTypeReference<BaseResponseDto<ProductResponseDto>> RES_GET_PRODUCT_TYPE =
         new ParameterizedTypeReference<>() {
         };
@@ -58,7 +61,7 @@ public class ProductRestTemplateClient {
         }
     }
 
-    public void postInternalProductsReleaseStock(InternalProductReleaseRequestDto requestDto) {
+    public void postInternalProductReleaseStock(InternalProductReleaseRequestDto requestDto) {
 //        HttpHeaders headers = createJsonHeadersWithAuthorization(accessJwt);
 
         // reqDto → body (요청 JSON 데이터)
@@ -70,6 +73,29 @@ public class ProductRestTemplateClient {
         try {
             restTemplate.exchange(
                 POST_RELEASE_STOCK_URL,
+                HttpMethod.POST,
+                httpEntity,
+                BASE_RESPONSE_DTO_PARAMETERIZED_TYPE_REFERENCE
+            );
+        } catch (HttpStatusCodeException exception) {
+            throw mapException(exception);
+        } catch (RestClientException exception) {
+            throw new AppException(OrderErrorCode.ORDER_BAD_REQUEST);
+        }
+    }
+
+    public void postInternalProductReturnStock(InternalProductReleaseRequestDto requestDto) {
+//        HttpHeaders headers = createJsonHeadersWithAuthorization(accessJwt);
+
+        // reqDto → body (요청 JSON 데이터)
+        //headers → header (예: Content-Type, Authorization 등)을 하나로 묶어서 RestTemplate에 전달하는 역할
+//        HttpEntity<ReqPostInternalProductsReleaseStockDtoV1> httpEntity = new HttpEntity<>(requestDto, headers);
+
+        HttpEntity<InternalProductReleaseRequestDto> httpEntity = new HttpEntity<>(requestDto);
+
+        try {
+            restTemplate.exchange(
+                POST_RETURN_STOCK_URL,
                 HttpMethod.POST,
                 httpEntity,
                 BASE_RESPONSE_DTO_PARAMETERIZED_TYPE_REFERENCE
