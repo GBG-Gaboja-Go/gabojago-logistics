@@ -44,8 +44,8 @@ public class OrderServiceImpl implements OrderService {
     public CreateOrderResponseDto createOrder(CustomUser customUser,
         CreateOrderRequestDto requestDto) {
         CreateOrderRequestDto.OrderDto orderDto = requestDto.getOrder();
-        // userId로 vendor에서 해당 업체 수령업체인지 확인 : userVendor
-        // 수령업체 ID 가지고오기 : receiverVendorId
+        // userId로 vendor 조회
+        // vendor 수령인지 공급인지.
 
         // product 조회
         ProductResponseDto.ProductDto product = fetchProduct(requestDto.getOrder().getProductId());
@@ -99,12 +99,40 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
+    public Page<GetOrderResponseDto> searchOrders(CustomUser customUser,
+        OrderSearchRequestDto searchRequestDto,
         Pageable pageable) {
-        String role = "";
-        UUID userId = UUID.randomUUID();
         pageable = PageableUtils.normalize(pageable);
-        return orderRepository.searchOrders(searchRequestDto, pageable, role, userId);
+
+        OrderSearchRequestDto.OrderDto incoming =
+            searchRequestDto != null ? searchRequestDto.getOrder() : null;
+        OrderSearchRequestDto.OrderDto.OrderDtoBuilder builder = incoming != null
+            ? OrderSearchRequestDto.OrderDto.builder()
+            .userId(incoming.getUserId())
+            .hubId(incoming.getHubId())
+            .producerVendorId(incoming.getProducerVendorId())
+            .receiverVendorId(incoming.getReceiverVendorId())
+            .productId(incoming.getProductId())
+            .status(incoming.getStatus())
+            .dateFrom(incoming.getDateFrom())
+            .dateTo(incoming.getDateTo())
+            : OrderSearchRequestDto.OrderDto.builder();
+
+        // 마스터는 모든 주문 전체 조회 가능
+        if (customUser.getRole().equals("ROLE_MASTER")) {
+            builder.build();
+        } else if (customUser.getRole().equals("ROLE_VENDOR_MANAGER")) {
+            // 수령업체는 본인 업체만 조회 가능
+            builder.receiverVendorId(UUID.randomUUID());
+            builder.userId(null);
+        } else if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+            // 허브매니저는 본인 업체에 들어온 주문만 조회 가능
+            builder.hubId(UUID.randomUUID());
+        }
+
+        UUID userId = UUID.randomUUID();
+        return orderRepository.searchOrders(searchRequestDto, pageable, customUser.getRole(),
+            userId);
     }
 
     @Override
@@ -143,9 +171,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void postOrderCancel(UUID orderId) {
+    public void postOrderCancel(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
         // 마스터랑 공급업체만 취소 가능함.
+
+        if (customUser.getRole().equals("ROLE_VENDOR_MANAGER")) {
+            // 공급 업체 인지 확인
+        }
 
         if (OrderStatus.CANCELLED.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_CANCELLED);
