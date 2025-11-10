@@ -1,6 +1,7 @@
 package com.gbg.orderservice.presentation.dto.response;
 
 import com.gbg.orderservice.domain.entity.Order;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ public class CreateOrderResponseDto {
     @Builder
     public static class OrderDto {
 
+        @Schema(description = "주문 UUID", example = "e75227ed-0ece-4c8e-8c93-780cb015eeb3")
         private final UUID id;
 
         public static OrderDto from(Order order) {
