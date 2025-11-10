@@ -1,5 +1,6 @@
 package com.gbg.orderservice.application.service;
 
+import com.gbg.orderservice.infrastructure.config.auth.CustomUser;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
@@ -10,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 
 public interface OrderService {
 
-    CreateOrderResponseDto createOrder(CreateOrderRequestDto requestDto);
+    CreateOrderResponseDto createOrder(CustomUser customUser, CreateOrderRequestDto requestDto);
 
     GetOrderResponseDto getOrder(UUID orderId);
 

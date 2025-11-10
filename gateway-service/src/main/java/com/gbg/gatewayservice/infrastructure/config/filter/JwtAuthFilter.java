@@ -57,6 +57,7 @@ public class JwtAuthFilter implements GlobalFilter {
         Claims claims = jwtTokenProvider.getClaims(token);
         UUID userId = UUID.fromString(claims.getSubject());
         String role = claims.get("roles", String.class);
+        log.info("userId : {}, role: {}", userId, role);
 
         return authService.getUserStatus(userId)
             .flatMap(status -> {
@@ -82,18 +83,21 @@ public class JwtAuthFilter implements GlobalFilter {
                     HttpStatus status = HttpStatus.resolve(code.value());
 
                     if (status == HttpStatus.FORBIDDEN) {
-                        return onError(exchange, "User service returned FORBIDDEN", HttpStatus.FORBIDDEN);
+                        return onError(exchange, "User service returned FORBIDDEN",
+                            HttpStatus.FORBIDDEN);
                     }
 
                     if (status == HttpStatus.NOT_FOUND) {
                         return onError(exchange, "User not found", HttpStatus.NOT_FOUND);
                     }
 
-                    HttpStatus fallback = (status != null) ? status : HttpStatus.INTERNAL_SERVER_ERROR;
+                    HttpStatus fallback =
+                        (status != null) ? status : HttpStatus.INTERNAL_SERVER_ERROR;
                     return onError(exchange, "User service responded with error", fallback);
                 }
 
-                return onError(exchange, "Gateway internal error", HttpStatus.INTERNAL_SERVER_ERROR);
+                return onError(exchange, "Gateway internal error",
+                    HttpStatus.INTERNAL_SERVER_ERROR);
             });
 
     }

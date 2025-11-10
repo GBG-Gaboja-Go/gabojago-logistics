@@ -1,21 +1,27 @@
 package com.gbg.orderservice.application.service.impl;
 
+import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.exception.AppException;
 import com.gabojago.util.PageableUtils;
 import com.gbg.orderservice.application.service.OrderService;
 import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
+import com.gbg.orderservice.infrastructure.client.DeliveryClient;
+import com.gbg.orderservice.infrastructure.config.auth.CustomUser;
 import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReleaseRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReturnRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
+import com.gbg.orderservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
+import com.gbg.orderservice.presentation.dto.response.CreateDeliveryResponseDTO;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import java.math.BigInteger;
+import java.time.LocalTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +37,21 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRestTemplateClient productRestTemplateClient;
+    private final DeliveryClient deliveryClient;
 
     @Override
     @Transactional
-    public CreateOrderResponseDto createOrder(CreateOrderRequestDto requestDto) {
+    public CreateOrderResponseDto createOrder(CustomUser customUser,
+        CreateOrderRequestDto requestDto) {
         CreateOrderRequestDto.OrderDto orderDto = requestDto.getOrder();
-
-        // 1) 재고 예약 요청 (동기)
-
-        // vendor 조회
-        // userId로 vendor에서 해당 업체 수령업체인지 확인
+        // userId로 vendor에서 해당 업체 수령업체인지 확인 : userVendor
+        // 수령업체 ID 가지고오기 : receiverVendorId
 
         // product 조회
         ProductResponseDto.ProductDto product = fetchProduct(requestDto.getOrder().getProductId());
+        UUID producerVendorId = product.getVendorId();
+
+        // venoderId로 공급업체 수령 Hub가 어딘지도 알아야함
 
         // product 재고보다 요청 재고가 더 많은지 검증
         if (product.getStock() <= orderDto.getQuantity()) {
@@ -52,27 +60,41 @@ public class OrderServiceImpl implements OrderService {
 
         // order 생성
         Order order = Order.builder()
-            .userId(UUID.randomUUID()) // 사용자 uuid
-            .producerVendorId(orderDto.getProducerVendorId())
+            .userId(UUID.fromString(customUser.getUserId())) // 사용자 uuid
+            .producerHubId(UUID.randomUUID())
+            .producerVendorId(producerVendorId)
             .receiverVendorId(UUID.randomUUID()) // 수령업체 uuid
-            .deliveryId(UUID.randomUUID()) // 배송 uuid
             .productId(orderDto.getProductId()) // product uuid
             .quantity(orderDto.getQuantity())
             .totalPrice(
-                BigInteger.valueOf(orderDto.getQuantity() * 1000)) // product 하나 가격 * quantity
+                product.getPrice().multiply(BigInteger.valueOf(orderDto.getQuantity()))
+            )
             .requestMessage(orderDto.getRequestMessage())
             .status(OrderStatus.CREATED)
             .build();
 
         Order savedOrder = orderRepository.save(order);
 
-        // product 수량 감소 요청 : 예약 확정(비동기/동기 선택) -> confirm 또는 confirm은 consumer가 처리하도록 설계 가능
         productRestTemplateClient.postInternalProductReleaseStock(
             buildReleaseStockRequest(orderDto.getProductId(),
                 orderDto.getQuantity()));
 
-        // 배송 서비스에 알림 (비동기 or feign)
+        // 배송 서비스에 알림
+        CreateDeliveryRequestDTO.DeliveryDTO delivery = CreateDeliveryRequestDTO.DeliveryDTO.builder()
+            .orderId(savedOrder.getId())
+            .deliveryAddress("서울특별시 강남구 테헤란로 123") // userVendor.getAddress()
+            .hubFromId(UUID.randomUUID()) // 공급업체 hubId
+            .hubToId(UUID.randomUUID()) // userVendor.getHubId()
+            .userFromId(UUID.randomUUID()) // 공급업체 ID
+            .userToId(UUID.randomUUID()) // 수령업체 Id userVendor.getHubId()
+            .estimatedDistance(12.5)
+            .estimatedTime(LocalTime.of(2, 30, 0))
+            .build();
+        CreateDeliveryRequestDTO requestDTO = new CreateDeliveryRequestDTO(delivery);
 
+        BaseResponseDto<CreateDeliveryResponseDTO> response = deliveryClient.createDelivery(
+            requestDTO);
+        log.info("delivery 생성 요청: {}", response.getData().delivery().getId());
         return CreateOrderResponseDto.from(savedOrder);
     }
 
@@ -95,7 +117,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void postInternalOrderDelivering(UUID orderId) {
         Order order = findOrder(orderId);
-        // 권한 검증
+        // 마스터나 허브 관리자만 배송중으로 상태 변경할 수 있음.
 
         if (OrderStatus.DELIVERING.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERING);
@@ -123,7 +145,7 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void postOrderCancel(UUID orderId) {
         Order order = findOrder(orderId);
-        // 권한 검증
+        // 마스터랑 공급업체만 취소 가능함.
 
         if (OrderStatus.CANCELLED.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_CANCELLED);
