@@ -4,7 +4,7 @@ import com.gabojago.exception.AppException;
 import com.gbg.hubservice.application.service.HubService;
 import com.gbg.hubservice.application.service.exception.HubErrorCode;
 import com.gbg.hubservice.domain.entity.Hub;
-import com.gbg.hubservice.infrastructure.repository.HubJpaRepository;
+import com.gbg.hubservice.domain.repository.HubRepository;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRequestDto;
 import java.util.UUID;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class HubServiceImpl implements HubService {
 
-    private final HubJpaRepository hubRepository;
+    private final HubRepository hubRepository;
 
     @Override
     @Transactional
@@ -38,8 +38,7 @@ public class HubServiceImpl implements HubService {
             .userId(userId)
             .build();
 
-        Hub savedHub = hubRepository.save(hub);
-        return savedHub.getId();
+        return hubRepository.save(hub).getId();
     }
 
     @Override
