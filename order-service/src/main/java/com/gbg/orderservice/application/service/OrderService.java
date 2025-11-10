@@ -15,12 +15,13 @@ public interface OrderService {
 
     GetOrderResponseDto getOrder(UUID orderId);
 
-    Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
+    Page<GetOrderResponseDto> searchOrders(CustomUser customUser,
+        OrderSearchRequestDto searchRequestDto,
         Pageable pageable);
 
     void postInternalOrderDelivering(UUID orderId);
 
     void postInternalOrderDelivered(UUID orderId);
 
-    void postOrderCancel(UUID orderId);
+    void postOrderCancel(CustomUser customUser, UUID orderId);
 }

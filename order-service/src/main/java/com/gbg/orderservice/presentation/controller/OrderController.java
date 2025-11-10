@@ -53,10 +53,12 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('MASTER', 'VENDOR_MANAGER', 'HUB_MANAGER')")
     @Operation(summary = "주문 전체 조회 API", description = "수령업체는 본인 주문을 모두 조회할 수 있습니다.(마스터는 모든 수령업체 주문 조회 가능)")
     public ResponseEntity<BaseResponseDto<PageResponseDto<GetOrderResponseDto>>> getOrders(
+        @AuthenticationPrincipal CustomUser customUser,
         @RequestBody(required = false) OrderSearchRequestDto searchRequestDto,
         Pageable pageable
     ) {
-        Page<GetOrderResponseDto> result = orderService.searchOrders(searchRequestDto, pageable);
+        Page<GetOrderResponseDto> result = orderService.searchOrders(customUser, searchRequestDto,
+            pageable);
         return ResponseEntity.ok(
             BaseResponseDto.success("메뉴 목록 조회 성공", PageResponseDto.from(result), HttpStatus.OK));
     }
@@ -76,9 +78,10 @@ public class OrderController {
     @PreAuthorize("hasAnyRole('MASTER', 'VENDOR_MANAGER')")
     @Operation(summary = "주문 취소 API", description = "상품 담당 허브 관리자와 공급업체는 주문을 취소할 수 있습니다.")
     public ResponseEntity<BaseResponseDto<Void>> postOrderCancel(
+        @AuthenticationPrincipal CustomUser customUser,
         @Parameter(description = "order UUID") @PathVariable UUID orderId
     ) {
-        orderService.postOrderCancel(orderId);
+        orderService.postOrderCancel(customUser, orderId);
         return ResponseEntity.ok(BaseResponseDto.success("주문 취소 성공", HttpStatus.NO_CONTENT));
     }
 }
