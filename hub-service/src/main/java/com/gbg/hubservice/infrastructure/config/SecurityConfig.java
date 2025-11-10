@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,6 +16,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 @RequiredArgsConstructor
 public class SecurityConfig {
 
@@ -36,8 +38,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/v1/hubs/**").hasRole("MASTER")
                 .requestMatchers(HttpMethod.PUT, "/v1/hubs/**").hasRole("MASTER")
                 .requestMatchers(HttpMethod.DELETE, "/v1/hubs/**").hasRole("MASTER")
-
-                // 그 외 요청은 인증만 되면 접근 가능
                 .anyRequest().authenticated()
             )
 

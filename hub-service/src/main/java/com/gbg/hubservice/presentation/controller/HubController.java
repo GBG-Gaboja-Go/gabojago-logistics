@@ -18,7 +18,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,14 +37,13 @@ public class HubController {
     private final HubService hubService;
 
     @PostMapping
+    @PreAuthorize("hasRole('MASTER')")
     @Operation(summary = "허브 생성 API", description = "마스터관리자만 허브를 생성할 수 있습니다.")
     public ResponseEntity<BaseResponseDto<CreateHubResponseDto>> createHub(
         @Valid @RequestBody CreateHubRequestDto requestDto,
-        Authentication authentication
+        @AuthenticationPrincipal CustomUser user
     ) {
-        UUID userId = ((CustomUser) authentication.getPrincipal()).getUserId();
-        UUID createdId = hubService.create(requestDto, userId);
-
+        UUID createdId = hubService.create(requestDto, user.getUserId());
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(BaseResponseDto.success("허브 생성 성공", CreateHubResponseDto.of(createdId),
                 HttpStatus.CREATED));
@@ -70,6 +70,7 @@ public class HubController {
     }
 
     @PutMapping("/{hubId}")
+    @PreAuthorize("hasRole('MASTER')")
     @Operation(summary = "허브 정보 수정 API", description = "허브 이름/주소/위도/경도를 수정합니다.")
     public ResponseEntity<BaseResponseDto<Void>> updateHub(
         @Parameter(description = "허브 UUID") @PathVariable UUID hubId,
@@ -80,13 +81,13 @@ public class HubController {
     }
 
     @DeleteMapping("/{hubId}")
-    @Operation(summary = "허브 삭제 API", description = "허브를 삭제합니다. (소프트 삭제)")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "허브 삭제 API", description = "허브를 삭제합니다.")
     public ResponseEntity<BaseResponseDto<Void>> deleteHub(
         @Parameter(description = "허브 UUID") @PathVariable UUID hubId,
-        Authentication authentication
+        @AuthenticationPrincipal CustomUser user
     ) {
-        UUID userId = ((CustomUser) authentication.getPrincipal()).getUserId();
-        hubService.delete(hubId, userId);
+        hubService.delete(hubId, user.getUserId());
         return ResponseEntity.ok(BaseResponseDto.success("허브 삭제 성공", HttpStatus.OK));
     }
 }
