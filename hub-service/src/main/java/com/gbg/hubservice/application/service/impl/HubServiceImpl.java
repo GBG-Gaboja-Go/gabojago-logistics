@@ -1,6 +1,7 @@
 package com.gbg.hubservice.application.service.impl;
 
 import com.gabojago.exception.AppException;
+import com.gabojago.util.PageableUtils;
 import com.gbg.hubservice.application.service.HubService;
 import com.gbg.hubservice.application.service.exception.HubErrorCode;
 import com.gbg.hubservice.domain.entity.Hub;
@@ -49,6 +50,7 @@ public class HubServiceImpl implements HubService {
 
     @Override
     public Page<Hub> getPage(Pageable pageable) {
+        pageable = PageableUtils.normalize(pageable);
         return hubRepository.findAll(pageable);
     }
 
