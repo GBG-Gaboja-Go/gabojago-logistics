@@ -4,9 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.config.auth.CustomAccessDeniedHandler;
 import com.gbg.userservice.infrastructure.config.auth.CustomAuthenticationEntryPoint;
+import com.gbg.userservice.infrastructure.config.filter.AuthenticationFilter;
 import com.gbg.userservice.infrastructure.config.filter.JwtAuthorizationFilter;
 import com.gbg.userservice.infrastructure.config.jwt.JwtTokenProvider;
-import com.gbg.userservice.infrastructure.config.filter.AuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,6 +31,8 @@ public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
     private final ObjectMapper objectMapper;
     private final UserRepository userRepository;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -72,13 +74,15 @@ public class SecurityConfig {
 
             // 예외 핸들러 (공통 모듈에서 가져온 클래스)
             .exceptionHandling(ex -> ex
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
-                .authenticationEntryPoint(new CustomAuthenticationEntryPoint()))
+                .accessDeniedHandler(customAccessDeniedHandler)
+                .authenticationEntryPoint(customAuthenticationEntryPoint))
 
-            .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider), AuthenticationFilter.class)
 
             // 로그인 필터 추가
             .addFilterBefore(filter, UsernamePasswordAuthenticationFilter.class)
+
+
 
             .build();
     }
