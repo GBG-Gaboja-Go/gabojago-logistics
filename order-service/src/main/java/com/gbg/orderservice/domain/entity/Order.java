@@ -35,6 +35,9 @@ public class Order extends BaseEntity {
     @Column(name = "user_id", nullable = false)
     private UUID userId;
 
+    @Column(name = "hub_id", nullable = false)
+    private UUID producerHubId;
+
     @Column(name = "producer_vendor_id", nullable = false)
     private UUID producerVendorId;
 
@@ -87,6 +90,7 @@ public class Order extends BaseEntity {
         return Order.builder()
             .id(id)
             .userId(userId)
+            .producerHubId(producerHubId)
             .producerVendorId(producerVendorId)
             .receiverVendorId(receiverVendorId)
             .deliveryId(deliveryId)
