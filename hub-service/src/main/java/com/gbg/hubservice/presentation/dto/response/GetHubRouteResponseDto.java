@@ -19,7 +19,7 @@ public class GetHubRouteResponseDto {
         UUID id,
         UUID startHubId,
         UUID endHubId,
-        double distance
+        Double distance
     ) {
         LocalDateTime now = LocalDateTime.now();
         return GetHubRouteResponseDto.builder()
@@ -43,7 +43,7 @@ public class GetHubRouteResponseDto {
         private UUID id;
         private UUID startHubId;
         private UUID endHubId;
-        private double distance;
+        private Double distance;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }

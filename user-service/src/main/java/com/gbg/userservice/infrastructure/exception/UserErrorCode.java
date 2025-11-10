@@ -14,6 +14,7 @@ public enum UserErrorCode implements ErrorCode {
     USER_FORBIDDEN("USER004", "사용자 권한이 없습니다.", HttpStatus.FORBIDDEN),
     SELF_ROLE_UPDATE("USER005", "사용자 권한은 직접 변경할 수 없습니다.", HttpStatus.FORBIDDEN),
     DELETED_USER("USER006", "탈퇴된 사용자 입니다.", HttpStatus.NOT_FOUND),
+    NOT_IN_WORKSPACE_EMAIL("USER007", "해당 이메일은 우리 슬랙 워크스페이스에 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     ;
 
     private final String code;

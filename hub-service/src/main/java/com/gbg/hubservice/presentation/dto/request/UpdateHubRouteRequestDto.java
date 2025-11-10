@@ -9,7 +9,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-
 @Getter
 @Builder
 @NoArgsConstructor
@@ -32,8 +31,7 @@ public class UpdateHubRouteRequestDto {
         @NotNull(message = "도착 허브 ID를 입력해주세요.")
         private UUID endHubId;
 
-
-        @NotNull(message = "거리(m)를 입력해주세요.")
+        @NotNull(message = "거리(km)를 입력해주세요.")
         @Min(value = 0, message = "거리는 0 이상이어야 합니다.")
         private Double distance;
     }

@@ -8,6 +8,7 @@ import com.gbg.productservice.presentation.dto.response.ProductResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
@@ -34,7 +35,11 @@ public class ProductController {
         UUID newProductId = UUID.randomUUID();
 
         CreateProductResponseDto responseDto = CreateProductResponseDto.builder()
-            .id(newProductId)
+            .product(
+                CreateProductResponseDto.ProductDto.builder()
+                    .id(newProductId)
+                    .build()
+            )
             .build();
 
         return ResponseEntity.ok(
@@ -47,11 +52,15 @@ public class ProductController {
         @Parameter(description = "상품 UUID") @PathVariable UUID productId
     ) {
         ProductResponseDto responseDto = ProductResponseDto.builder()
-            .id(productId)
-            .name("가자미")
-            .vendorId(UUID.randomUUID())
-            .stock(100)
-            .price(10000)
+            .product(
+                ProductResponseDto.ProductDto.builder()
+                    .id(productId)
+                    .name("가자미")
+                    .vendorId(UUID.randomUUID())
+                    .stock(100)
+                    .price(BigInteger.valueOf(10000))
+                    .build()
+            )
             .build();
 
         return ResponseEntity.ok(
@@ -63,25 +72,31 @@ public class ProductController {
     public ResponseEntity<BaseResponseDto<List<ProductResponseDto>>> getAllProducts() {
         List<ProductResponseDto> products = List.of(
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("가자미")
-                .vendorId(UUID.randomUUID())
-                .stock(100)
-                .price(12000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("가자미")
+                    .vendorId(UUID.randomUUID())
+                    .stock(100)
+                    .price(BigInteger.valueOf(12000))
+                    .build())
                 .build(),
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("광어")
-                .vendorId(UUID.randomUUID())
-                .stock(200)
-                .price(18000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("광어")
+                    .vendorId(UUID.randomUUID())
+                    .stock(200)
+                    .price(BigInteger.valueOf(18000))
+                    .build())
                 .build(),
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("연어")
-                .vendorId(UUID.randomUUID())
-                .stock(150)
-                .price(15000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("연어")
+                    .vendorId(UUID.randomUUID())
+                    .stock(150)
+                    .price(BigInteger.valueOf(15000))
+                    .build())
                 .build()
         );
 
@@ -96,31 +111,37 @@ public class ProductController {
     ) {
         List<ProductResponseDto> products = List.of(
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("가자미")
-                .vendorId(UUID.randomUUID())
-                .stock(100)
-                .price(12000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("가자미")
+                    .vendorId(UUID.randomUUID())
+                    .stock(100)
+                    .price(BigInteger.valueOf(12000))
+                    .build())
                 .build(),
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("광어")
-                .vendorId(UUID.randomUUID())
-                .stock(200)
-                .price(18000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("광어")
+                    .vendorId(UUID.randomUUID())
+                    .stock(200)
+                    .price(BigInteger.valueOf(18000))
+                    .build())
                 .build(),
             ProductResponseDto.builder()
-                .id(UUID.randomUUID())
-                .name("연어")
-                .vendorId(UUID.randomUUID())
-                .stock(150)
-                .price(15000)
+                .product(ProductResponseDto.ProductDto.builder()
+                    .id(UUID.randomUUID())
+                    .name("연어")
+                    .vendorId(UUID.randomUUID())
+                    .stock(150)
+                    .price(BigInteger.valueOf(15000))
+                    .build())
                 .build()
         );
 
         // 검색 로직 (name이 null이 아니면 필터 적용)
         List<ProductResponseDto> filteredProducts = products.stream()
-            .filter(product -> name == null || product.getName().contains(name))
+            .filter(product -> name == null || product.getProduct().getName().contains(name))
             .toList();
 
         return ResponseEntity.ok(
@@ -135,12 +156,22 @@ public class ProductController {
         @Valid @RequestBody UpdateProductRequestDto requestDto
     ) {
         ProductResponseDto responseDto = ProductResponseDto.builder()
-            .id(productId)
-            .name(requestDto.getName() != null ? requestDto.getName() : "기존 상품명")
-            .vendorId(
-                requestDto.getVendorId() != null ? requestDto.getVendorId() : UUID.randomUUID())
-            .stock(requestDto.getStock() != null ? requestDto.getStock() : 0)
-            .price(requestDto.getPrice() != null ? requestDto.getPrice() : 0)
+            .product(
+                ProductResponseDto.ProductDto.builder()
+                    .id(productId)
+                    .name(
+                        requestDto.getProduct().getName() != null ? requestDto.getProduct()
+                            .getName() : "기존 상품명")
+                    .vendorId(
+                        requestDto.getProduct().getVendorId() != null ? requestDto.getProduct()
+                            .getVendorId()
+                            : UUID.randomUUID())
+                    .stock(requestDto.getProduct().getStock() != null ? requestDto.getProduct()
+                        .getStock() : 0)
+                    .price(requestDto.getProduct().getPrice() != null ? requestDto.getProduct()
+                        .getPrice() : BigInteger.valueOf(0))
+                    .build()
+            )
             .build();
 
         return ResponseEntity.ok(
