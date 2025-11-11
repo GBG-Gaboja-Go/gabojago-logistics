@@ -1,13 +1,19 @@
 package com.gbg.slackservice.application.service.impl;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.exception.AppException;
 import com.gbg.slackservice.application.service.SlackService;
 import com.gbg.slackservice.domain.entity.Slack;
 import com.gbg.slackservice.domain.repository.SlackRepository;
+import com.gbg.slackservice.infrastructure.client.UserClient;
 import com.gbg.slackservice.infrastructure.exception.SlackError;
 import com.gbg.slackservice.presentation.dto.response.SlackResponseDto;
 import com.gbg.slackservice.presentation.dto.response.SlackVerifyResponse;
+import com.gbg.slackservice.presentation.dto.response.UserResponseDto;
+import feign.FeignException;
+import feign.FeignException.FeignClientException;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
@@ -28,6 +35,8 @@ public class SlackServiceImpl implements SlackService {
 
     private final WebClient webClient = WebClient.create();
     private final SlackRepository slackRepository;
+    private final UserClient userClient;
+    private final HttpServletRequest request;
 
     @Override
     public SlackVerifyResponse verifySlackMember(String email) {
@@ -58,6 +67,12 @@ public class SlackServiceImpl implements SlackService {
     @Override
     public void sendDm(String email, String message) {
 
+        try {
+            UserResponseDto dto = userClient.getUserByEmail(email,request.getHeader("Authorization"));
+        } catch (FeignException.NotFound e){
+            throw new AppException(SlackError.USER_NOT_FOUND);
+        }
+
         boolean success = false;
         String receiverId = null;
 
@@ -71,6 +86,7 @@ public class SlackServiceImpl implements SlackService {
                 .block();
 
             if (!lookupResponse.path("ok").asBoolean()) {
+
                 throw new AppException(SlackError.SLACK_USER_NOT_FOUND);
             }
 

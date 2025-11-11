@@ -95,16 +95,11 @@ public class UserController {
 
     @GetMapping("/internal/email/{email}")
     @PreAuthorize("hasRole('MASTER')")
-    public ResponseEntity<BaseResponseDto<User>> getUserByEmail(
+    public User getUserByEmail(
         @PathVariable("email") String email
     ) {
 
-        User user = userService.getUserByEmail(email);
-        return ResponseEntity.ok(BaseResponseDto.success(
-            "유저 객체 반환 완료",
-            user,
-            HttpStatus.OK
-        ));
+        return userService.getUserByEmail(email);
     }
 
     @PatchMapping("/my-page")
