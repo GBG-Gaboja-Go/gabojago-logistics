@@ -8,6 +8,7 @@ import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
 import com.gbg.orderservice.infrastructure.client.DeliveryClient;
+import com.gbg.orderservice.infrastructure.client.VendorClient;
 import com.gbg.orderservice.infrastructure.config.auth.CustomUser;
 import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReleaseRequestDto;
@@ -20,6 +21,7 @@ import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateDeliveryResponseDTO;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
+import com.gbg.orderservice.presentation.dto.response.VendorResponseDto;
 import java.math.BigInteger;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -27,6 +29,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,7 @@ public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final ProductRestTemplateClient productRestTemplateClient;
     private final DeliveryClient deliveryClient;
+    private final VendorClient vendorClient;
 
     @Override
     @Transactional
@@ -51,7 +55,10 @@ public class OrderServiceImpl implements OrderService {
         ProductResponseDto.ProductDto product = fetchProduct(requestDto.getOrder().getProductId());
         UUID producerVendorId = product.getVendorId();
 
-        // venoderId로 공급업체 수령 Hub가 어딘지도 알아야함
+        // venoderId로 공급업체 공급 Hub 조회
+        ResponseEntity<BaseResponseDto<VendorResponseDto>> responseDto = vendorClient.getVendor(
+            producerVendorId);
+        UUID producerHubId = responseDto.getBody().getData().getHubId();
 
         // product 재고보다 요청 재고가 더 많은지 검증
         if (product.getStock() <= orderDto.getQuantity()) {
@@ -61,8 +68,8 @@ public class OrderServiceImpl implements OrderService {
         // order 생성
         Order order = Order.builder()
             .userId(UUID.fromString(customUser.getUserId())) // 사용자 uuid
-            .producerHubId(UUID.randomUUID())
-            .producerVendorId(producerVendorId)
+            .producerHubId(producerHubId) // 공급 hub id
+            .producerVendorId(producerVendorId) // 공급업체 uuid
             .receiverVendorId(UUID.randomUUID()) // 수령업체 uuid
             .productId(orderDto.getProductId()) // product uuid
             .quantity(orderDto.getQuantity())
@@ -83,9 +90,9 @@ public class OrderServiceImpl implements OrderService {
         CreateDeliveryRequestDTO.DeliveryDTO delivery = CreateDeliveryRequestDTO.DeliveryDTO.builder()
             .orderId(savedOrder.getId())
             .deliveryAddress("서울특별시 강남구 테헤란로 123") // userVendor.getAddress()
-            .hubFromId(UUID.randomUUID()) // 공급업체 hubId
+            .hubFromId(producerHubId) // 공급업체 hubId
             .hubToId(UUID.randomUUID()) // userVendor.getHubId()
-            .userFromId(UUID.randomUUID()) // 공급업체 ID
+            .userFromId(producerVendorId) // 공급업체 ID
             .userToId(UUID.randomUUID()) // 수령업체 Id userVendor.getHubId()
             .estimatedDistance(12.5)
             .estimatedTime(LocalTime.of(2, 30, 0))
