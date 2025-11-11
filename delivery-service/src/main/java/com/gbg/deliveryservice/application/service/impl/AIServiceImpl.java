@@ -3,15 +3,16 @@ package com.gbg.deliveryservice.application.service.impl;
 import com.gabojago.exception.AppException;
 import com.gbg.deliveryservice.application.helper.AIMessageHelper;
 import com.gbg.deliveryservice.application.service.AIService;
+import com.gbg.deliveryservice.domain.entity.AIHistory;
 import com.gbg.deliveryservice.domain.repository.AIRepository;
 import com.gbg.deliveryservice.infrastructure.client.dto.GeminiRequest;
+import com.gbg.deliveryservice.infrastructure.client.dto.GeminiResponse;
 import com.gbg.deliveryservice.presentation.advice.AIErrorCode;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto;
+import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto.Location;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,10 +41,10 @@ public class AIServiceImpl implements AIService {
     @Override
     public void createShippingDeadline(
         InternalCreateAIRequestDto requestDto) {
+        AIDto aiDto = requestDto.getAi();
         // messages 생성
         String prompt = aiMessageHelper.buildPromptForDeadline(requestDto);
         log.info("message: {}", prompt);
-        log.info("API 키 앞 4자리: {}", apiKey.substring(0, 4));
 
         try {
             // AI 호출
@@ -61,15 +62,25 @@ public class AIServiceImpl implements AIService {
             );
 
             // slack에 보낼 메시지 format
-            String responseMessage = formattingResponse(requestDto, finalDeadline);
-            log.info("최종 응답: {}", responseMessage);
+            String responseFromAI = formattingResponse(requestDto, finalDeadline);
+            log.info("responseFromAI: {}", responseFromAI);
+
+            // repository 저장
+            AIHistory history = AIHistory.builder()
+                .orderId(aiDto.getOrderId())
+                .orderRequestMessage(aiDto.getOrderRequestMessage())
+                .deliveryManSlackEmail(aiDto.getDeliveryManSlackEmail()) // 생략 가능
+                .finalDeadline(finalDeadline)
+                .responseMessage(responseFromAI)
+                .build();
+
+            aiRepository.save(history);
+            // slack 찌르기
 
         } catch (Exception e) {
             log.error("AI 처리 중 오류 발생", e);
             throw new RuntimeException("배송 시한 계산 실패: " + e.getMessage(), e);
         }
-
-        // slack 찌르기
 
     }
 
@@ -93,27 +104,17 @@ public class AIServiceImpl implements AIService {
                         return Mono.error(new AppException(AIErrorCode.GEMINI_UNAUTHORIZED));
                     })
             )
-            .bodyToMono(Map.class)
+            .bodyToMono(GeminiResponse.class)
             .map(resp -> {
-                try {
-                    // Gemini API 응답 구조: candidates[0].content.parts[0].text
-                    List<?> candidates = (List<?>) resp.get("candidates");
-                    if (candidates != null && !candidates.isEmpty()) {
-                        Map<?, ?> firstCandidate = (Map<?, ?>) candidates.get(0);
-                        Map<?, ?> content = (Map<?, ?>) firstCandidate.get("content");
-                        if (content != null) {
-                            List<?> parts = (List<?>) content.get("parts");
-                            if (parts != null && !parts.isEmpty()) {
-                                Map<?, ?> part = (Map<?, ?>) parts.get(0);
-                                return (String) part.get("text"); // 최종 응답 텍스트
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("Gemini 응답 파싱 실패", e);
+                String resultText = resp.extractText();
+                if (resultText == null || resultText.isEmpty()) {
+                    log.warn("Gemini 응답에 텍스트가 없습니다: {}", resp);
+                    return ""; // 또는 적절한 예외 처리
                 }
-                log.warn("예상하지 못한 응답: {}", resp);
-                return resp.toString();
+                return resultText;
+            })
+            .onErrorMap(e -> {
+                return new AppException(AIErrorCode.AI_RESPONSE_PARSING_FAILED);
             });
     }
 

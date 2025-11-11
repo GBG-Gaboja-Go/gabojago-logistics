@@ -13,7 +13,8 @@ public enum AIErrorCode implements ErrorCode {
     GEMINI_INVALID_REQUEST("AI004", "Gemini API 잘못된 요청", HttpStatus.BAD_REQUEST),
     GEMINI_TIMEOUT("AI005", "Gemini API 응답 시간 초과", HttpStatus.GATEWAY_TIMEOUT),
     GEMINI_PARSE_ERROR("AI006", "Gemini 응답 파싱 실패", HttpStatus.INTERNAL_SERVER_ERROR),
-    DEADLINE_CALCULATION_FAILED("AI007", "발송 시한 계산 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+    DEADLINE_CALCULATION_FAILED("AI007", "발송 시한 계산 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    AI_RESPONSE_PARSING_FAILED("AI008", "응답값 파싱 실패", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String code;
     private final String message;
