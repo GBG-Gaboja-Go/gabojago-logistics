@@ -6,7 +6,7 @@ import com.gbg.hubservice.application.service.HubService;
 import com.gbg.hubservice.application.service.exception.HubErrorCode;
 import com.gbg.hubservice.domain.entity.Hub;
 import com.gbg.hubservice.domain.repository.HubRepository;
-import com.gbg.hubservice.infrastructure.kakao.KakaoLocalClient;
+import com.gbg.hubservice.infrastructure.config.kakao.KakaoLocalClient;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRequestDto;
 import com.gbg.hubservice.presentation.dto.response.GetHubResponseDto;

@@ -1,4 +1,4 @@
-package com.gbg.hubservice.infrastructure.kakao;
+package com.gbg.hubservice.infrastructure.config.kakao;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
