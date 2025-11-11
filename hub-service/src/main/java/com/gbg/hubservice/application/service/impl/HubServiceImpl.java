@@ -8,6 +8,7 @@ import com.gbg.hubservice.domain.entity.Hub;
 import com.gbg.hubservice.domain.repository.HubRepository;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRequestDto;
+import com.gbg.hubservice.presentation.dto.response.GetHubResponseDto;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -74,5 +75,18 @@ public class HubServiceImpl implements HubService {
         Hub hub = getById(hubId);
         hub.delete(userId);
         hubRepository.save(hub);
+    }
+
+    public GetHubResponseDto getByUserId(UUID id) {
+        Hub hub = hubRepository.findByUserId(id)
+            .orElseThrow(() -> new AppException(HubErrorCode.HUB_NOT_FOUND));
+        GetHubResponseDto dto = GetHubResponseDto.of(
+            hub.getId(),
+            hub.getName(),
+            hub.getAddress(),
+            hub.getLatitude(),
+            hub.getLongitude()
+        );
+        return dto;
     }
 }

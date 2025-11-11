@@ -16,4 +16,6 @@ public interface HubRepository {
     Page<Hub> findAll(Pageable pageable);
 
     Hub save(Hub hub);
+
+    Optional<Hub> findByUserId(UUID id);
 }

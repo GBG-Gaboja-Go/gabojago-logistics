@@ -90,4 +90,15 @@ public class HubController {
         hubService.delete(hubId, user.getId());
         return ResponseEntity.ok(BaseResponseDto.success("허브 삭제 성공", HttpStatus.OK));
     }
+
+
+    @GetMapping("/manager/{hubManagerId}")
+    @Operation(summary = "허브 매니저 아이디로 조회 API", description = "허브매니저 ID로 허브 ID를 조회합니다.")
+    public ResponseEntity<BaseResponseDto<GetHubResponseDto>> getHubManagerId(
+        @Parameter(description = "매니저 UUID") @PathVariable("hubManagerId") UUID hubManagerId) {
+        GetHubResponseDto hub = hubService.getByUserId(hubManagerId);
+
+        return ResponseEntity.ok(BaseResponseDto.success("허브 조회 성공", hub, HttpStatus.OK));
+    }
+
 }
