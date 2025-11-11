@@ -118,21 +118,17 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto getUser(UUID userId) {
-        User user = findUser(userId);
+    public User getUser(UUID userId) {
 
-        return UserResponseDto.builder()
-            .user(UserResponseDto.UserDto.builder()
-                .id(user.getId())
-                .username(user.getUsername())
-                .nickname(user.getNickname())
-                .slackEmail(user.getSlackEmail())
-                .organization(user.getOrganization())
-                .summary(user.getSummary())
-                .role(user.getRole())
-                .status(user.getStatus())
-                .build())
-            .build();
+        return findUser(userId);
+    }
+
+    @Override
+    public User getUserByEmail(String email) {
+
+        return userRepository.findBySlackEmail(email).orElseThrow(
+            () -> new AppException(UserErrorCode.USER_NOT_FOUND)
+        );
     }
 
     @Override

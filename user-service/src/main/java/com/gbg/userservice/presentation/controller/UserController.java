@@ -3,6 +3,7 @@ package com.gbg.userservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.userservice.application.service.AuthService;
 import com.gbg.userservice.application.service.UserService;
+import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.entity.UserStatus;
 import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -77,15 +79,29 @@ public class UserController {
                 HttpStatus.OK));
     }
 
-    @GetMapping("/internal/{userId}")
+    @GetMapping("/internal/userId/{userId}")
     @PreAuthorize("hasRole('MASTER')")
-    public ResponseEntity<BaseResponseDto<UserResponseDto>> getUser(
+    public ResponseEntity<BaseResponseDto<User>> getUser(
         @PathVariable("userId") UUID userId
     ) {
 
-        UserResponseDto user = userService.getUser(userId);
+        User user = userService.getUser(userId);
         return ResponseEntity.ok(BaseResponseDto.success(
             "사용자 정보 조회 완료",
+            user,
+            HttpStatus.OK
+        ));
+    }
+
+    @GetMapping("/internal/email/{email}")
+    @PreAuthorize("hasRole('MASTER')")
+    public ResponseEntity<BaseResponseDto<User>> getUserByEmail(
+        @PathVariable("email") String email
+    ) {
+
+        User user = userService.getUserByEmail(email);
+        return ResponseEntity.ok(BaseResponseDto.success(
+            "유저 객체 반환 완료",
             user,
             HttpStatus.OK
         ));

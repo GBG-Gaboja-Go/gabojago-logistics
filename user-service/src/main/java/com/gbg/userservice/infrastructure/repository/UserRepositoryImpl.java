@@ -43,4 +43,10 @@ public class UserRepositoryImpl implements UserRepository {
 
         return userJpaRepository.findById(userId);
     }
+
+    @Override
+    public Optional<User> findBySlackEmail(String email) {
+
+        return userJpaRepository.findBySlackEmail(email);
+    }
 }
