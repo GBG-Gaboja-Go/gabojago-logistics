@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojago.exception.AppException;
 import com.gabojago.exception.ErrorResponse;
 
-import com.gbg.slackservice.infrastructure.exception.UserErrorCode;
+import com.gbg.slackservice.infrastructure.exception.SlackError;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,7 +33,7 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
         AccessDeniedException accessDeniedException
     ) throws IOException, ServletException {
 
-        AppException exception = new AppException(UserErrorCode.USER_FORBIDDEN);
+        AppException exception = new AppException(SlackError.USER_FORBIDDEN);
 
         response.setStatus(exception.getErrorCode().getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
