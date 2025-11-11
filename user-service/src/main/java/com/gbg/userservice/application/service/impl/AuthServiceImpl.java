@@ -23,6 +23,8 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public UUID signUp(CreateUserRequestDto req) {
 
+        validateDuplicateUsernameAndSlackEmail(req.username(), req.slackEmail());
+
         if (req.hasCompanyId()) {
             User user = User.of(
                 req.username(),
