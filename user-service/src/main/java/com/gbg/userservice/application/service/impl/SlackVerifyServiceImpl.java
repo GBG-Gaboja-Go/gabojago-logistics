@@ -10,6 +10,7 @@ import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.repository.UserRepository;
 import com.gbg.userservice.infrastructure.client.SlackFeignClient;
 import com.gbg.userservice.presentation.dto.request.SlackVerifyRequest;
+import com.gbg.userservice.presentation.dto.request.SlackVerifySuccessRequest;
 import com.gbg.userservice.presentation.dto.response.SlackVerifyResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
@@ -36,6 +37,13 @@ public class SlackVerifyServiceImpl implements SlackVerifyService {
 
         if (response.getData().ok()) {
             user.updateSlackVerified(true);
+
+            SlackVerifySuccessRequest msgReq = new SlackVerifySuccessRequest(
+                "C09RYJH8XGU",
+                "✅" + user.getSlackEmail() + " 님, 슬랙 이메일 인증이 완료되었습니다!"
+            );
+            slackFeignClient.sendVerifySuccessMessage(msgReq);
+
         } else {
             throw new AppException(NOT_IN_WORKSPACE_EMAIL);
         }

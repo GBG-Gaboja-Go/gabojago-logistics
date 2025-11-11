@@ -2,6 +2,7 @@ package com.gbg.slackservice.infrastructure.config.auth;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;

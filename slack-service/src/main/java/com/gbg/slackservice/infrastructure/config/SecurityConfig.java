@@ -1,10 +1,12 @@
 package com.gbg.slackservice.infrastructure.config;
 
+import com.gbg.slackservice.infrastructure.config.auth.CustomAccessDeniedHandler;
 import com.gbg.slackservice.infrastructure.config.filter.HeaderAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,9 +17,11 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     private final HeaderAuthFilter headerAuthFilter;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
@@ -29,6 +33,11 @@ public class SecurityConfig {
                 .requestMatchers("/v1/slacks/**").permitAll()
                 .anyRequest().authenticated()
             )
+
+            .exceptionHandling(ex -> ex
+                .accessDeniedHandler(customAccessDeniedHandler))
+
+
             .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
