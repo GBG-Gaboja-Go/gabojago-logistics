@@ -1,5 +1,6 @@
 package com.gbg.deliveryservice.infrastructure.repository;
 
+import com.gbg.deliveryservice.domain.entity.AIHistory;
 import com.gbg.deliveryservice.domain.repository.AIRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -9,4 +10,9 @@ import org.springframework.stereotype.Repository;
 public class AIRepositoryImpl implements AIRepository {
 
     private final AIJpaRepository aiJpaRepository;
+
+    @Override
+    public AIHistory save(AIHistory aiHistory) {
+        return aiJpaRepository.save(aiHistory);
+    }
 }

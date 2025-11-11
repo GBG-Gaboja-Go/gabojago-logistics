@@ -6,17 +6,22 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "p_ai_history")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Getter
+@Builder
 public class AIHistory extends BaseEntity {
 
     @Id
@@ -26,7 +31,7 @@ public class AIHistory extends BaseEntity {
     @Column(name = "order_id", nullable = false)
     private UUID orderId;
 
-    @Column(name = "order_request_message")
+    @Column(name = "order_request_message", length = 500)
     private String orderRequestMessage;
 
     @Column(name = "slack_email")
@@ -36,6 +41,7 @@ public class AIHistory extends BaseEntity {
     private LocalDateTime finalDeadline;
 
     @Column(name = "response_message")
+    @Lob
     private String responseMessage;
 
 }
