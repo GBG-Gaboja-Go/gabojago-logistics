@@ -6,14 +6,18 @@ import com.gbg.slackservice.application.service.SlackService;
 import com.gbg.slackservice.domain.entity.Slack;
 import com.gbg.slackservice.domain.repository.SlackRepository;
 import com.gbg.slackservice.infrastructure.exception.SlackError;
+import com.gbg.slackservice.presentation.dto.response.SlackResponseDto;
 import com.gbg.slackservice.presentation.dto.response.SlackVerifyResponse;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -103,5 +107,24 @@ public class SlackServiceImpl implements SlackService {
             slackRepository.save(slack);
         }
 
+    }
+
+    @Override
+    public SlackResponseDto slackLogs() {
+
+        List<Slack> slacks = slackRepository.findAll();
+        List<SlackResponseDto.SlackDto> slackDtos = slacks.stream()
+            .map(s -> SlackResponseDto.SlackDto.builder()
+                .id(s.getId())
+                .receiverId(s.getReceiverId())
+                .content(s.getContent())
+                .success(s.isSuccess())
+                .createdBy(s.getCreatedBy())
+                .build())
+            .toList();
+
+        return SlackResponseDto.builder()
+            .slacks(slackDtos)
+            .build();
     }
 }

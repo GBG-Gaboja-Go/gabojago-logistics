@@ -1,6 +1,7 @@
 package com.gbg.slackservice.infrastructure.config;
 
 import com.gbg.slackservice.infrastructure.config.auth.CustomAccessDeniedHandler;
+import com.gbg.slackservice.infrastructure.config.auth.CustomAuthenticationEntryPoint;
 import com.gbg.slackservice.infrastructure.config.filter.HeaderAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +23,7 @@ public class SecurityConfig {
 
     private final HeaderAuthFilter headerAuthFilter;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
@@ -35,8 +37,8 @@ public class SecurityConfig {
             )
 
             .exceptionHandling(ex -> ex
-                .accessDeniedHandler(customAccessDeniedHandler))
-
+                .accessDeniedHandler(customAccessDeniedHandler)
+                .authenticationEntryPoint(customAuthenticationEntryPoint))
 
             .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
