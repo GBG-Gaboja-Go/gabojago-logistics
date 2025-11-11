@@ -3,6 +3,7 @@ package com.gbg.slackservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.slackservice.application.service.SlackService;
 import com.gbg.slackservice.infrastructure.config.auth.CustomUser;
+import com.gbg.slackservice.presentation.dto.request.SlackSendDmRequest;
 import com.gbg.slackservice.presentation.dto.request.SlackVerifyRequest;
 import com.gbg.slackservice.presentation.dto.request.SlackVerifySuccessRequest;
 import com.gbg.slackservice.presentation.dto.response.SlackVerifyResponse;
@@ -55,6 +56,20 @@ public class SlackController {
         slackService.sendVerifySuccessMessage(req.channelId(), req.text());
         return BaseResponseDto.success(
             "메시지 전송 완료",
+            null,
+            HttpStatus.OK
+        );
+    }
+
+    @PostMapping("/send-dm")
+    public BaseResponseDto<String> sendDm(
+        @RequestBody SlackSendDmRequest req
+    ) {
+
+        slackService.sendDm(req.email(), req.message());
+
+        return BaseResponseDto.success(
+            "Slack DM 전송 완료",
             null,
             HttpStatus.OK
         );

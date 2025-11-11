@@ -3,7 +3,7 @@ package com.gbg.slackservice.infrastructure.config.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gabojago.exception.ErrorResponse;
 
-import com.gbg.slackservice.infrastructure.exception.UserErrorCode;
+import com.gbg.slackservice.infrastructure.exception.SlackError;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,7 +32,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ErrorResponse errorResponse = ErrorResponse.from(UserErrorCode.USER_UNAUTHORIZED);
+        ErrorResponse errorResponse = ErrorResponse.from(SlackError.USER_UNAUTHORIZED);
         response.getWriter().write(objectMapper.writeValueAsString(errorResponse));
     }
 }

@@ -77,6 +77,20 @@ public class UserController {
                 HttpStatus.OK));
     }
 
+    @GetMapping("/internal/{userId}")
+    @PreAuthorize("hasRole('MASTER')")
+    public ResponseEntity<BaseResponseDto<UserResponseDto>> getUser(
+        @PathVariable("userId") UUID userId
+    ) {
+
+        UserResponseDto user = userService.getUser(userId);
+        return ResponseEntity.ok(BaseResponseDto.success(
+            "사용자 정보 조회 완료",
+            user,
+            HttpStatus.OK
+        ));
+    }
+
     @PatchMapping("/my-page")
     public ResponseEntity<BaseResponseDto<UUID>> userDetailUpdate(
         @RequestBody UserUpdateRequestDto req,
@@ -123,7 +137,7 @@ public class UserController {
             .status(HttpStatus.NO_CONTENT)
             .body(BaseResponseDto.success(
                 "사용자 삭제가 정상적으로 처리되었습니다.",
-                    HttpStatus.NO_CONTENT
+                HttpStatus.NO_CONTENT
             ));
     }
 
