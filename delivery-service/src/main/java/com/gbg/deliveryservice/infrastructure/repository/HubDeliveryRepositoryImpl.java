@@ -30,6 +30,16 @@ public class HubDeliveryRepositoryImpl implements HubDeliveryRepository {
     }
 
     @Override
+    public List<HubDelivery> findAllByHubFromIdAndDeletedAtIsNull(UUID id) {
+        return hubDeliveryJpaRepository.findAllByHubFromIdAndDeletedAtIsNull(id);
+    }
+
+    @Override
+    public List<HubDelivery> findAllByHubToIdAndDeletedAtIsNull(UUID id) {
+        return hubDeliveryJpaRepository.findAllByHubToIdAndDeletedAtIsNull(id);
+    }
+
+    @Override
     public List<HubDelivery> findByAllDeliveryIdAndDeletedAtIsNull(UUID id) {
         return hubDeliveryJpaRepository.findAllByDeliveryIdAndDeletedAtIsNull(id);
     }

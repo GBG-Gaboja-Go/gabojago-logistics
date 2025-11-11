@@ -4,6 +4,7 @@ import com.gbg.deliveryservice.domain.entity.Delivery;
 import com.gbg.deliveryservice.domain.entity.HubDelivery;
 import com.gbg.deliveryservice.domain.entity.VendorDelivery;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -34,7 +35,7 @@ public record GetDeliveryResponseDTO(
         private final UUID orderId;
         private final String deliveryAddress;
         private final double actualDistance;
-        private final LocalTime actualDeliveryTime;
+        private final Duration actualDeliveryTime;
         private final double estimatedDistance;
         private final LocalTime estimatedTime;
         private final DeliveryStatus status;

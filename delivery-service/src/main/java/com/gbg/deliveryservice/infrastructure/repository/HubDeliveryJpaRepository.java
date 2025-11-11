@@ -13,4 +13,8 @@ public interface HubDeliveryJpaRepository extends JpaRepository<HubDelivery, UUI
     Optional<HubDelivery> findByDeliveryIdAndDeletedAtIsNull(UUID id);
 
     List<HubDelivery> findAllByDeliverymanIdAndDeletedAtIsNull(UUID id);
+
+    List<HubDelivery> findAllByHubFromIdAndDeletedAtIsNull(UUID id);
+
+    List<HubDelivery> findAllByHubToIdAndDeletedAtIsNull(UUID id);
 }

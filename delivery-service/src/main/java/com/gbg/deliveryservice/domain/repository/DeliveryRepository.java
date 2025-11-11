@@ -14,6 +14,8 @@ public interface DeliveryRepository {
 
     Optional<Delivery> findByIdAndDeletedAtIsNull(UUID id);
 
+    boolean existsByOrderIdAndDeletedAtIsNull(UUID orderId);
+
     Page<Delivery> deliveryPage(Pageable pageable, DeliveryStatus status);
 
     Page<Delivery> deliveryMyPage(Pageable pageable, DeliveryStatus status,

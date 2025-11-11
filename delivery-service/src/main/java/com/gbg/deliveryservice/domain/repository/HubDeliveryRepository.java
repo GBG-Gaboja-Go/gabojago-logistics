@@ -14,4 +14,8 @@ public interface HubDeliveryRepository {
     Optional<HubDelivery> findByDeliveryIdAndDeletedAtIsNull(UUID id);
 
     List<HubDelivery> findAllByDeliverymanIdAndDeletedAtIsNull(UUID id);
+
+    List<HubDelivery> findAllByHubFromIdAndDeletedAtIsNull(UUID uuid);
+
+    List<HubDelivery> findAllByHubToIdAndDeletedAtIsNull(UUID uuid);
 }
