@@ -20,5 +20,8 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
 
-jwt:
-  secret: ${JWT_KEY}
+ai:
+  gemini:
+    api-key: ${GOOGLE_API_KEY}
+    base-url: https://generativelanguage.googleapis.com/v1
+    default-model: ${GOOGLE_MODEL}
