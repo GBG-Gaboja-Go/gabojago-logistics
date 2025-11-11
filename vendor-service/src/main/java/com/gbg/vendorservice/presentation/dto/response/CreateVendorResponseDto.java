@@ -1,5 +1,6 @@
 package com.gbg.vendorservice.presentation.dto.response;
 
+import com.gbg.vendorservice.domain.entity.Vendor;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,5 +13,22 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CreateVendorResponseDto {
 
-    private UUID id;
+    private VendorDto vendor;
+
+    @Getter
+    @Builder
+    public static class VendorDto {
+
+        private UUID id;
+    }
+
+    public static CreateVendorResponseDto from(Vendor vendor) {
+        return CreateVendorResponseDto.builder()
+            .vendor(
+                VendorDto.builder()
+                    .id(vendor.getId())
+                    .build()
+            )
+            .build();
+    }
 }

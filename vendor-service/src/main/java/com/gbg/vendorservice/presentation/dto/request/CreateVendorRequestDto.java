@@ -25,9 +25,9 @@ public class CreateVendorRequestDto {
     @NotNull(message = "주소를 입력해주세요.")
     private String address;
 
-    @Builder.Default
-    private boolean isSupplier = false;
+    @NotNull(message = "공급업체 여부를 입력해주세요.")
+    private Boolean isSupplier;
 
-    @Builder.Default
-    private boolean isReceiver = false;
+    @NotNull(message = "수령업체 여부를 입력해주세요.")
+    private Boolean isReceiver;
 }
