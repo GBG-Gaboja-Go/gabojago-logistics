@@ -38,8 +38,8 @@ public class VendorRepositoryImpl implements VendorRepository {
     }
 
     @Override
-    public List<Vendor> findAllByManagerId(UUID managerId) {
-        return jpaVendorRepository.findAllByManagerId(managerId);
+    public List<Vendor> findAllByVendorManagerId(UUID managerId) {
+        return jpaVendorRepository.findAllByVendorManagerId(managerId);
     }
 
 

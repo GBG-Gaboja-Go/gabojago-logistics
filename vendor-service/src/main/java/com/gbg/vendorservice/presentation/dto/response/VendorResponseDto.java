@@ -22,7 +22,7 @@ public class VendorResponseDto {
         private UUID id;
         private String name;
         private UUID hubId;
-        private UUID managerId;
+        private UUID vendorManagerId;
         private boolean isSupplier;
         private boolean isReceiver;
         private String address;
@@ -35,7 +35,7 @@ public class VendorResponseDto {
                     .id(vendor.getId())
                     .name(vendor.getName())
                     .hubId(vendor.getHubId())
-                    .managerId(vendor.getManagerId())
+                    .vendorManagerId(vendor.getVendorManagerId())
                     .isSupplier(vendor.getIsSupplier())
                     .isReceiver(vendor.getIsReceiver())
                     .address(vendor.getAddress())

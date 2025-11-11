@@ -66,7 +66,7 @@ public class VendorController {
     public ResponseEntity<BaseResponseDto<List<VendorResponseDto>>> getVendorsByManagerId(
         @Parameter(description = "유저 UUID") @PathVariable UUID managerId
     ) {
-        List<VendorResponseDto> responseDto = vendorService.getVendorsByManagerId(managerId);
+        List<VendorResponseDto> responseDto = vendorService.getVendorsByVendorManagerId(managerId);
         return ResponseEntity.ok(
             BaseResponseDto.success("유저 ID 기반 업체 조회 성공", responseDto, HttpStatus.OK)
         );
