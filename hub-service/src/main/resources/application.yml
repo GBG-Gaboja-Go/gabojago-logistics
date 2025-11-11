@@ -9,8 +9,10 @@ spring:
   config:
     import: "configserver:http://localhost:8888"
 
-
 kakao:
   api:
     key: ${KAKAO_REST_API_KEY}
+  local:
     base-url: https://dapi.kakao.com
+  navi:
+    base-url: https://apis-navi.kakaomobility.com
