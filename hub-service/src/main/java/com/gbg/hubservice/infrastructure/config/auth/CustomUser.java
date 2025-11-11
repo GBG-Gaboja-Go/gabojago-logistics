@@ -12,12 +12,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 @RequiredArgsConstructor
 public class CustomUser implements UserDetails {
 
-    private final UUID userId;
+    private final UUID Id;
     private final List<? extends GrantedAuthority> authorities;
 
     @Override
     public String getUsername() {
-        return userId.toString();
+        return Id.toString();
     }
 
     @Override
