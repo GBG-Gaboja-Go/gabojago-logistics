@@ -2,6 +2,7 @@ package com.gbg.userservice.infrastructure.client;
 
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.userservice.presentation.dto.request.SlackVerifyRequest;
+import com.gbg.userservice.presentation.dto.request.SlackVerifySuccessRequest;
 import com.gbg.userservice.presentation.dto.response.SlackVerifyResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,5 +16,10 @@ public interface SlackFeignClient {
     BaseResponseDto<SlackVerifyResponse> verifySlackMember(
         @RequestBody SlackVerifyRequest req,
         @RequestHeader("Authorization") String token);
+
+    @PostMapping("/v1/slacks/verify-success-message")
+    BaseResponseDto<Void> sendVerifySuccessMessage(
+        @RequestBody SlackVerifySuccessRequest req
+    );
 
 }
