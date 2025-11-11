@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -64,13 +65,16 @@ public class InternalCreateAIRequestDto {
         /**
          * 배송 경로 정보
          */
-        @NotNull(message = "발송지 정보를 입력해주세요.")
-        private Location pickup;
+        @NotNull(message = "발송지 Hub 정보를 입력해주세요.")
+        private Location pickupHub;
 
-        private List<Location> via; // 경유지 리스트 (nullable)
+        private List<Location> viaHub; // 경유지 리스트 (nullable)
 
-        @NotNull(message = "도착지 정보를 입력해주세요.")
-        private Location destination;
+        @NotNull(message = "도착 Hub 정보를 입력해주세요.")
+        private Location destinationHub;
+
+        @NotNull(message = "주문자 주소를 입력해주세요.")
+        private String destinationAddress;
 
         /**
          * 배송 담당자
@@ -79,7 +83,7 @@ public class InternalCreateAIRequestDto {
         private String deliveryPersonName;
 
         @Email(message = "배송 담당자 이메일 형식이 올바르지 않습니다.")
-        private String deliveryPersonEmail;
+        private String deliveryManSlackEmail;
 
         /**
          * 배송 담당자 근무시간 (null 가능, 기본 09~18시)
@@ -98,8 +102,8 @@ public class InternalCreateAIRequestDto {
 
             private String address;
 
-            private Double lat;
-            private Double lon;
+            private BigDecimal latitude; // 위도 경도
+            private BigDecimal longitude; // 위도 경도
 
         }
 
