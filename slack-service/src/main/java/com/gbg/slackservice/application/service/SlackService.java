@@ -8,4 +8,6 @@ public interface SlackService {
 
 
     void sendVerifySuccessMessage(String channelId, String text);
+
+    void sendDm(String email, String message);
 }
