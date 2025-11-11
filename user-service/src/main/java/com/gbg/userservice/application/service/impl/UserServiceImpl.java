@@ -43,7 +43,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public UserResponseDto userDetail(UUID id) {
-        User findUser = getUser(id);
+        User findUser = findUser(id);
 
         return UserResponseDto.builder()
             .user(UserResponseDto.UserDto.builder()
@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UUID userDetailUpdate(UserUpdateRequestDto req, UUID id) {
-        User findUser = getUser(id);
+        User findUser = findUser(id);
 
         if (req.nickname() != null) {
             findUser.changeNickname(req.nickname());
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void userDelete(UUID loginId ,UUID userId) {
-        User findUser = getUser(userId);
+        User findUser = findUser(userId);
 
         findUser.delete(loginId);
     }
@@ -118,13 +118,32 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserResponseDto getUser(UUID userId) {
+        User user = findUser(userId);
+
+        return UserResponseDto.builder()
+            .user(UserResponseDto.UserDto.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .nickname(user.getNickname())
+                .slackEmail(user.getSlackEmail())
+                .organization(user.getOrganization())
+                .summary(user.getSummary())
+                .role(user.getRole())
+                .status(user.getStatus())
+                .build())
+            .build();
+    }
+
+    @Override
     public UserStatus getUserStatus(UUID userId) {
-        User user = getUser(userId);
+        User user = findUser(userId);
 
         return user.getStatus();
     }
 
-    private User getUser(UUID userId) {
+
+    private User findUser(UUID userId) {
 
         User user = userRepository.findById(userId).orElseThrow(
             () -> new AppException(UserErrorCode.USER_NOT_FOUND)

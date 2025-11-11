@@ -23,4 +23,6 @@ public interface UserService {
     UUID adminDetailUpdate(UUID loginId, UUID userId, AdminUpdateRequestDto req);
 
     UserStatus getUserStatus(UUID userId);
+
+    UserResponseDto getUser(UUID userId);
 }
