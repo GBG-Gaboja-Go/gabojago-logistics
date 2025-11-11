@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -77,29 +76,6 @@ public class UserController {
                 "조회 성공",
                 user,
                 HttpStatus.OK));
-    }
-
-    @GetMapping("/internal/userId/{userId}")
-    @PreAuthorize("hasRole('MASTER')")
-    public ResponseEntity<BaseResponseDto<User>> getUser(
-        @PathVariable("userId") UUID userId
-    ) {
-
-        User user = userService.getUser(userId);
-        return ResponseEntity.ok(BaseResponseDto.success(
-            "사용자 정보 조회 완료",
-            user,
-            HttpStatus.OK
-        ));
-    }
-
-    @GetMapping("/internal/email/{email}")
-    @PreAuthorize("hasRole('MASTER')")
-    public User getUserByEmail(
-        @PathVariable("email") String email
-    ) {
-
-        return userService.getUserByEmail(email);
     }
 
     @PatchMapping("/my-page")
@@ -166,6 +142,24 @@ public class UserController {
                 status,
                 HttpStatus.OK
             ));
+    }
+
+    @GetMapping("/internal/userId/{userId}")
+    @PreAuthorize("hasRole('MASTER')")
+    public User getUser(
+        @PathVariable("userId") UUID userId
+    ) {
+
+        return userService.getUser(userId);
+    }
+
+    @GetMapping("/internal/email/{email}")
+    @PreAuthorize("hasRole('MASTER')")
+    public User getUserByEmail(
+        @PathVariable("email") String email
+    ) {
+
+        return userService.getUserByEmail(email);
     }
 
 }
