@@ -6,7 +6,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,20 +16,22 @@ import org.springframework.web.filter.OncePerRequestFilter;
 public class HeaderAuthFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-        @NotNull HttpServletResponse response,
-        @NotNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+        FilterChain filterChain) throws ServletException, IOException {
 
         String userId = request.getHeader("X-Auth-Id");
         String role = request.getHeader("X-Auth-Role");
 
         if (userId != null && role != null) {
             CustomUser customUser = new CustomUser(userId, role);
+
+            String authority = role.startsWith("ROLE_") ? role : "ROLE_" + role;
+
             UsernamePasswordAuthenticationToken token =
                 new UsernamePasswordAuthenticationToken(
                     customUser,
                     null
-                    , List.of(new SimpleGrantedAuthority(role)));
+                    , List.of(new SimpleGrantedAuthority(authority)));
 
             SecurityContextHolder.getContext().setAuthentication(token);
         }

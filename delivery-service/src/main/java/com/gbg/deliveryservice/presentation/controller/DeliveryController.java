@@ -42,8 +42,8 @@ public class DeliveryController {
     private final DeliveryService deliveryService;
 
     @PostMapping
-    @PreAuthorize("hasAuthority('MASTER')")
-    @Operation(summary = "배달 생성", description = "배달 생성하는 api 입니다.(예상 시간 입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "배달 생성", description = "배달 생성하는 api 입니다.")
     public ResponseEntity<BaseResponseDto<CreateDeliveryResponseDTO>> createDelivery(
         @RequestBody @Valid CreateDeliveryRequestDTO req,
         @AuthenticationPrincipal CustomUser customUser
@@ -86,8 +86,8 @@ public class DeliveryController {
                 HttpStatus.OK));
     }
 
-    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @PutMapping("/{deliveryId}")
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
     @Operation(summary = "배달 수정", description = "배달 수정하는 api 입니다.(소요시간 입력 \"HH:mm:ss\" 이렇게 해야합니다.)")
     public ResponseEntity<BaseResponseDto<Void>> updateDelivery(
         @PathVariable("deliveryId") UUID id,
