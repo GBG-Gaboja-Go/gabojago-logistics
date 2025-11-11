@@ -2,6 +2,7 @@ package com.gbg.deliveryservice.presentation.dto.response;
 
 import com.gbg.deliveryservice.domain.entity.Delivery;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -31,7 +32,7 @@ public record GetDeliveryPageResponseDTO(
         private final UUID id;
         private final UUID orderId;
         private final double actualDistance;
-        private final LocalTime actualDeliveryTime;
+        private final Duration actualDeliveryTime;
         private final String deliveryAddress;
         private final double estimatedDistance;
         private final LocalTime estimatedTime;

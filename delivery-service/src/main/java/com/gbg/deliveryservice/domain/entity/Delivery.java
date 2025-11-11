@@ -10,6 +10,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -45,7 +46,7 @@ public class Delivery extends BaseEntity {
     private double actualDistance;
 
     @Column(name = "actual_deliveryTime")
-    private LocalTime actualDeliveryTime;
+    private Duration actualDeliveryTime;
 
     @Column(name = "estimated_distance")
     private double estimatedDistance;
@@ -88,6 +89,7 @@ public class Delivery extends BaseEntity {
     public void completedDelivery() {
         this.completedTime = LocalDateTime.now();
         this.status = DeliveryStatus.DELIVERED;
+        this.actualDeliveryTime = Duration.between(startedTime, completedTime);
     }
 
 

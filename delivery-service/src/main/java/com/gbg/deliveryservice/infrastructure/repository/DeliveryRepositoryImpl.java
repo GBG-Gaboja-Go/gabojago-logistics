@@ -34,6 +34,11 @@ public class DeliveryRepositoryImpl implements DeliveryRepository {
     }
 
     @Override
+    public boolean existsByOrderIdAndDeletedAtIsNull(UUID orderId) {
+        return deliveryJpaRepository.existsByOrderIdAndDeletedAtIsNull(orderId);
+    }
+
+    @Override
     public Page<Delivery> deliveryPage(Pageable pageable, DeliveryStatus status) {
         QDelivery delivery = QDelivery.delivery;
 
