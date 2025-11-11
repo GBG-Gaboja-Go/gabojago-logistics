@@ -8,7 +8,7 @@ import com.gbg.hubservice.domain.entity.Hub;
 import com.gbg.hubservice.domain.entity.HubRoute;
 import com.gbg.hubservice.domain.repository.HubRepository;
 import com.gbg.hubservice.domain.repository.HubRouteRepository;
-import com.gbg.hubservice.infrastructure.kakao.KakaoDirectionsClient;
+import com.gbg.hubservice.infrastructure.config.kakao.KakaoDirectionsClient;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRouteRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRouteRequestDto;
 import com.gbg.hubservice.presentation.dto.response.GetHubRouteResponseDto;
