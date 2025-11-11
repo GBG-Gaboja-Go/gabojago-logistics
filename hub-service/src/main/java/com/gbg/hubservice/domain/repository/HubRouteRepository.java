@@ -5,16 +5,18 @@ import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface HubRouteRepository {
+public interface HubRouteRepository extends JpaRepository<HubRoute, UUID> {
 
-    HubRoute save(HubRoute hubRoute);
+    HubRoute save(HubRoute route);
 
-    Optional<HubRoute> findById(UUID id);
+    Optional<HubRoute> findByIdAndDeletedAtIsNull(UUID id);
 
-    Page<HubRoute> findAll(Pageable pageable);
+    Optional<HubRoute> findByStartHubIdAndEndHubIdAndDeletedAtIsNull(UUID startHubId,
+        UUID endHubId);
 
-    void delete(HubRoute hubRoute);
+    boolean existsByStartHubIdAndEndHubIdAndDeletedAtIsNull(UUID startHubId, UUID endHubId);
 
-    boolean existsByStartHubIdAndEndHubId(UUID startHubId, UUID endHubId);
+    Page<HubRoute> findAllByDeletedAtIsNull(Pageable pageable);
 }

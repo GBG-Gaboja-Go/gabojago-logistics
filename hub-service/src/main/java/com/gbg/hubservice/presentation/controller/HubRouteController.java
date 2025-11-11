@@ -2,6 +2,9 @@ package com.gbg.hubservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
 import com.gabojago.dto.PageResponseDto;
+import com.gbg.hubservice.application.service.HubRouteService;
+import com.gbg.hubservice.domain.entity.HubRoute;
+import com.gbg.hubservice.infrastructure.config.auth.CustomUser;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRouteRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRouteRequestDto;
 import com.gbg.hubservice.presentation.dto.response.CreateHubRouteResponseDto;
@@ -9,15 +12,14 @@ import com.gbg.hubservice.presentation.dto.response.GetHubRouteResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.Valid;
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.IntStream;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,14 +31,18 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/v1/hub-routes")
+@RequiredArgsConstructor
 public class HubRouteController {
 
+    private final HubRouteService hubRouteService;
+
     @PostMapping
+    @PreAuthorize("hasRole('MASTER')")
     @Operation(summary = "허브간 경로 생성", description = "마스터 관리자만 허브 경로를 생성합니다.")
     public ResponseEntity<BaseResponseDto<CreateHubRouteResponseDto>> createHubRoute(
-        @Valid @RequestBody CreateHubRouteRequestDto requestDto) {
-
-        UUID createdId = UUID.randomUUID();
+        @Valid @RequestBody CreateHubRouteRequestDto requestDto,
+        @AuthenticationPrincipal CustomUser user) {
+        UUID createdId = hubRouteService.create(requestDto, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED).body(
             BaseResponseDto.success("허브 경로 생성 성공", CreateHubRouteResponseDto.of(createdId),
                 HttpStatus.CREATED));
@@ -47,18 +53,7 @@ public class HubRouteController {
     public ResponseEntity<BaseResponseDto<GetHubRouteResponseDto>> getHubRoute(
         @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId) {
 
-        LocalDateTime now = LocalDateTime.now();
-        GetHubRouteResponseDto resp = GetHubRouteResponseDto.builder()
-            .route(GetHubRouteResponseDto.RouteDto.builder()
-                .id(routeId)
-                .startHubId(UUID.randomUUID())
-                .endHubId(UUID.randomUUID())
-                .distance(12.345) // km 단위 Double
-                .createdAt(now.minusHours(1))
-                .updatedAt(now.minusMinutes(1))
-                .build())
-            .build();
-
+        GetHubRouteResponseDto resp = hubRouteService.getById(routeId);
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 조회 성공", resp, HttpStatus.OK));
     }
 
@@ -67,39 +62,32 @@ public class HubRouteController {
     public ResponseEntity<BaseResponseDto<PageResponseDto<GetHubRouteResponseDto>>> getHubRoutes(
         Pageable pageable) {
 
-        LocalDateTime now = LocalDateTime.now();
-        List<GetHubRouteResponseDto> items = IntStream.range(0, 5)
-            .mapToObj(i -> GetHubRouteResponseDto.builder()
-                .route(GetHubRouteResponseDto.RouteDto.builder()
-                    .id(UUID.randomUUID())
-                    .startHubId(UUID.randomUUID())
-                    .endHubId(UUID.randomUUID())
-                    .distance(1.0 + (i * 0.25)) // km 단위 Double
-                    .createdAt(now.minusHours(2 + i))
-                    .updatedAt(now.minusMinutes(2 + i))
-                    .build())
-                .build())
-            .toList();
-
-        Page<GetHubRouteResponseDto> page = new PageImpl<>(items, pageable, items.size());
+        Page<HubRoute> page = hubRouteService.getPage(pageable);
+        Page<GetHubRouteResponseDto> mapped = page.map(GetHubRouteResponseDto::of);
         return ResponseEntity.ok(
-            BaseResponseDto.success("허브 경로 목록 조회 성공", PageResponseDto.from(page), HttpStatus.OK));
+            BaseResponseDto.success("허브 경로 목록 조회 성공", PageResponseDto.from(mapped), HttpStatus.OK));
     }
 
     @PutMapping("/{routeId}")
+    @PreAuthorize("hasRole('MASTER')")
     @Operation(summary = "허브간 경로 정보 업데이트", description = "허브 경로 정보를 수정합니다.")
     public ResponseEntity<BaseResponseDto<Void>> updateHubRoute(
         @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId,
-        @Valid @RequestBody UpdateHubRouteRequestDto requestDto) {
+        @Valid @RequestBody UpdateHubRouteRequestDto requestDto,
+        @AuthenticationPrincipal CustomUser user) {
 
+        hubRouteService.update(routeId, requestDto, user.getId());
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 수정 성공", HttpStatus.OK));
     }
 
     @DeleteMapping("/{routeId}")
+    @PreAuthorize("hasRole('MASTER')")
     @Operation(summary = "허브 경로 삭제", description = "허브 경로를 삭제합니다.")
     public ResponseEntity<BaseResponseDto<Void>> deleteHubRoute(
-        @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId) {
+        @Parameter(description = "허브 경로 UUID") @PathVariable UUID routeId,
+        @AuthenticationPrincipal CustomUser user) {
 
+        hubRouteService.delete(routeId, user.getId());
         return ResponseEntity.ok(BaseResponseDto.success("허브 경로 삭제 성공", HttpStatus.OK));
     }
 }
