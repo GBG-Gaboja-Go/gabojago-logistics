@@ -1,8 +1,8 @@
 package com.gbg.hubservice.presentation.dto.request;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -31,12 +31,10 @@ public class CreateHubRouteRequestDto {
         @NotNull(message = "도착 허브 ID를 입력해주세요.")
         private UUID endHubId;
 
-        @NotNull(message = "거리(km)를 입력해주세요.")
-        @Min(value = 0, message = "거리는 0 이상이어야 합니다.")
+        @PositiveOrZero(message = "거리는 0 이상이어야 합니다.")
         private Double distance;
 
-        @NotNull(message = "소요시간(분)을 입력해주세요.")
-        @Min(value = 0, message = "소요시간은 0분 이상이어야 합니다.")
+        @PositiveOrZero(message = "소요시간은 0분 이상이어야 합니다.")
         private Integer duration;
     }
 }
