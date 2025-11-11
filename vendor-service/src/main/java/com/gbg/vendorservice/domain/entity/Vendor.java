@@ -32,8 +32,8 @@ public class Vendor extends BaseEntity {
     @Column(name = "hub_id", nullable = false)
     private UUID hubId;
 
-    @Column(name = "manager_id", nullable = false)
-    private UUID managerId;
+    @Column(name = "vendor_manager_id", nullable = false)
+    private UUID vendorManagerId;
 
     @Column(name = "is_supplier", nullable = false)
     private Boolean isSupplier;
@@ -54,8 +54,8 @@ public class Vendor extends BaseEntity {
         if (dto.getHubId() != null) {
             this.hubId = dto.getHubId();
         }
-        if (dto.getManagerId() != null) {
-            this.managerId = dto.getManagerId();
+        if (dto.getVendorMangerId() != null) {
+            this.vendorManagerId = dto.getVendorMangerId();
         }
         if (dto.getIsSupplier() != null) {
             this.isSupplier = dto.getIsSupplier();

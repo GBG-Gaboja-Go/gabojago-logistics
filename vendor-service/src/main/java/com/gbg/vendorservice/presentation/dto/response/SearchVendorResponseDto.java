@@ -20,14 +20,14 @@ public class SearchVendorResponseDto {
     private long totalElements;
     private int totalPages;
     private int currentPage;
-    
+
     public static SearchVendorResponseDto from(Page<Vendor> vendorPage) {
         List<VendorResponseDto.VendorDto> vendorDtos = vendorPage.getContent().stream()
             .map(vendor -> VendorResponseDto.VendorDto.builder()
                 .id(vendor.getId())
                 .name(vendor.getName())
                 .hubId(vendor.getHubId())
-                .managerId(vendor.getManagerId())
+                .vendorManagerId(vendor.getVendorManagerId())
                 .isSupplier(vendor.getIsSupplier())
                 .isReceiver(vendor.getIsReceiver())
                 .address(vendor.getAddress())

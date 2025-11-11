@@ -21,7 +21,7 @@ public interface VendorService {
 
     SearchVendorResponseDto searchVendors(SearchVendorRequestDto dto, Pageable pageable);
 
-    List<VendorResponseDto> getVendorsByManagerId(UUID managerId);
+    List<VendorResponseDto> getVendorsByVendorManagerId(UUID managerId);
 
     VendorResponseDto updateVendor(UUID vendorId, UpdateVendorRequestDto dto);
 

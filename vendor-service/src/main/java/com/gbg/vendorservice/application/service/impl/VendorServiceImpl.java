@@ -29,10 +29,14 @@ public class VendorServiceImpl implements VendorService {
     @Override
     @Transactional
     public CreateVendorResponseDto createVendor(CustomUser customUser, CreateVendorRequestDto dto) {
+
+        UUID vendorManagerId = dto.getVendorManagerId();
+        // 유저 검증
+
         Vendor vendor = Vendor.builder()
             .name(dto.getName())
             .hubId(dto.getHubId())
-            .managerId(UUID.fromString(customUser.getUserId())) // 생성자 ID
+            .vendorManagerId(vendorManagerId) // 업체 매니저 ID
             .address(dto.getAddress())
             .isSupplier(dto.getIsSupplier())
             .isReceiver(dto.getIsReceiver())
@@ -53,8 +57,8 @@ public class VendorServiceImpl implements VendorService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<VendorResponseDto> getVendorsByManagerId(UUID managerId) {
-        List<Vendor> vendors = vendorRepository.findAllByManagerId(managerId);
+    public List<VendorResponseDto> getVendorsByVendorManagerId(UUID managerId) {
+        List<Vendor> vendors = vendorRepository.findAllByVendorManagerId(managerId);
         if (vendors.isEmpty()) {
             throw new AppException(VendorErrorCode.VENDOR_NOT_FOUND);
         }
