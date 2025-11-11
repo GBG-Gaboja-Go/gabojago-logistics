@@ -18,10 +18,10 @@ public class GetHubResponseDto {
     private HubDto hub;
 
     public static GetHubResponseDto of(UUID id, String name, String address, BigDecimal latitude,
-        BigDecimal longitude) {
+        BigDecimal longitude, UUID userId) {
         LocalDateTime now = LocalDateTime.now();
         return GetHubResponseDto.builder().hub(
-            HubDto.builder().id(id).name(name).address(address).latitude(latitude)
+            HubDto.builder().id(id).userId(userId).name(name).address(address).latitude(latitude)
                 .longitude(longitude).createdAt(now).updatedAt(now).build()).build();
     }
 
@@ -34,6 +34,7 @@ public class GetHubResponseDto {
         private UUID id;
         private String name;
         private String address;
+        private UUID userId;
         private BigDecimal latitude;
         private BigDecimal longitude;
         private LocalDateTime createdAt;

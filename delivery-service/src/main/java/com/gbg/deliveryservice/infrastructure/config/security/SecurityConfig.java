@@ -35,6 +35,7 @@ public class SecurityConfig {
         List<String> allowedUrls = Arrays.asList(
             "/v1/delivery/internal/**",
             "/v1/delivery/**",
+            "/v1/delivery-mans/**",
             "/swagger-ui/**",
             "/swagger-resources/**",
             "/v3/api-docs/**"
@@ -50,9 +51,6 @@ public class SecurityConfig {
                 allowedUrls.forEach(url -> auth.requestMatchers(url).permitAll());
                 auth.anyRequest().authenticated();
             })
-
-//            .addFilterBefore(new JwtAuthorizationFilter(jwtTokenProvider),
-//                UsernamePasswordAuthenticationFilter.class)
 
             .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class)
 

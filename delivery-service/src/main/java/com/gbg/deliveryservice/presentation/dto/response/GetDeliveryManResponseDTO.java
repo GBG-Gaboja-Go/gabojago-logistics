@@ -1,5 +1,6 @@
 package com.gbg.deliveryservice.presentation.dto.response;
 
+import com.gbg.deliveryservice.domain.entity.DeliveryMan;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryType;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -11,9 +12,9 @@ public record GetDeliveryManResponseDTO(
     DeliveryManDto delivery
 ) {
 
-    public static GetDeliveryManResponseDTO from(DeliveryManDto deliveryDTO) {
+    public static GetDeliveryManResponseDTO from(DeliveryMan deliveryman) {
         return GetDeliveryManResponseDTO.builder()
-            .delivery(DeliveryManDto.from(deliveryDTO))
+            .delivery(DeliveryManDto.from(deliveryman))
             .build();
     }
 
@@ -23,21 +24,19 @@ public record GetDeliveryManResponseDTO(
 
         private final UUID id;
         private UUID hubId;
-        private UUID userId;
         private DeliveryType type;
         private int sequence;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
 
-        public static DeliveryManDto from(DeliveryManDto delivery) {
+        public static DeliveryManDto from(DeliveryMan deliveryman) {
             return DeliveryManDto.builder()
-                .id(delivery.getId())
-                .hubId(delivery.getHubId())
-                .userId(delivery.getUserId())
-                .type(delivery.getType())
-                .sequence(delivery.getSequence())
-                .createdAt(delivery.getCreatedAt())
-                .updatedAt(delivery.getUpdatedAt())
+                .id(deliveryman.getId())
+                .hubId(deliveryman.getHubId())
+                .type(deliveryman.getType())
+                .sequence(deliveryman.getSequence())
+                .createdAt(deliveryman.getCreatedAt())
+                .updatedAt(deliveryman.getUpdatedAt())
                 .build();
         }
     }

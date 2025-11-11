@@ -19,7 +19,7 @@ public record UpdateDeliveryManHubRequestDTO(
     public static class DeliveryManDTO {
 
         @NotNull(message = "변경할 허브를 입력해주세요.")
-        private UUID hub;
+        private UUID hubId;
 
     }
 

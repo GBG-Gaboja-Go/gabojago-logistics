@@ -12,7 +12,7 @@ import lombok.Getter;
 public record CreateDeliveryManRequestDTO(
     @Valid
     @NotNull(message = "배송 담당자 정보를 입력해주세요")
-    DeliveryManDTO delivery
+    DeliveryManDTO deliveryman
 ) {
 
     @Getter
@@ -28,7 +28,7 @@ public record CreateDeliveryManRequestDTO(
         @NotNull(message = "배송 담당자 타입을 입력해주세요.")
         private DeliveryType type;
 
-        @Min(value = 1, message = "배송 순번은 1에서 10까지입니다.")
+        @Min(value = -1, message = "배송 순번은 1에서 10까지입니다. (-1 은 근무 할 수 없는 배달 매니저)")
         @Max(value = 10, message = "배송 순번을 입력하세요.")
         private int sequence;
 

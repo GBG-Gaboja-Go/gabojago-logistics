@@ -15,5 +15,6 @@ public class GetHubResponseDto {
     public static class HubDto {
 
         private UUID id;
+        private UUID userId;
     }
 }
