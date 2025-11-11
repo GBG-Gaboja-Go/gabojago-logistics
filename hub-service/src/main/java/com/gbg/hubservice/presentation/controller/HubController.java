@@ -43,7 +43,7 @@ public class HubController {
         @Valid @RequestBody CreateHubRequestDto requestDto,
         @AuthenticationPrincipal CustomUser user
     ) {
-        UUID createdId = hubService.create(requestDto, user.getUserId());
+        UUID createdId = hubService.create(requestDto, user.getId());
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(BaseResponseDto.success("허브 생성 성공", CreateHubResponseDto.of(createdId),
                 HttpStatus.CREATED));
@@ -87,7 +87,7 @@ public class HubController {
         @Parameter(description = "허브 UUID") @PathVariable UUID hubId,
         @AuthenticationPrincipal CustomUser user
     ) {
-        hubService.delete(hubId, user.getUserId());
+        hubService.delete(hubId, user.getId());
         return ResponseEntity.ok(BaseResponseDto.success("허브 삭제 성공", HttpStatus.OK));
     }
 }
