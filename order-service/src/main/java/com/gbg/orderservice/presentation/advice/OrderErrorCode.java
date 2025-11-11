@@ -15,7 +15,8 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_BAD_REQUEST("ORDER004", "잘못된 주문 요청입니다.", HttpStatus.BAD_REQUEST),
     ORDER_ALREADY_DELIVERING("ORDER005", "이미 배송 시작한 주문입니다.", HttpStatus.BAD_REQUEST),
     ORDER_ALREADY_DELIVERED("ORDER006", "이미 배송 완료한 주문입니다.", HttpStatus.BAD_REQUEST),
-    ORDER_ALREADY_CANCELLED("ORDER007", "이미 취소된 주문입니다.", HttpStatus.BAD_REQUEST);
+    ORDER_ALREADY_CANCELLED("ORDER007", "이미 취소된 주문입니다.", HttpStatus.BAD_REQUEST),
+    USER_FORBIDDEN("ORDER008", "사용자 권한이 없습니다.", HttpStatus.FORBIDDEN);
 
 
     private final String code;
