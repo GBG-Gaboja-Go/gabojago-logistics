@@ -19,8 +19,8 @@ public interface VendorRepository {
 
     List<Vendor> findAll();
 
-    @Query("SELECT v FROM Vendor v WHERE v.managerId = :managerId AND v.isDeleted = false")
+    @Query("SELECT v FROM Vendor v WHERE v.vendorManagerId = :managerId AND v.isDeleted = false")
     Page<Vendor> search(SearchVendorRequestDto dto, Pageable pageable);
 
-    List<Vendor> findAllByManagerId(UUID managerId);
+    List<Vendor> findAllByVendorManagerId(UUID managerId);
 }

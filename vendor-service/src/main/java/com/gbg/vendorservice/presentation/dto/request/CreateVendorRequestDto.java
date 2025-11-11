@@ -19,8 +19,8 @@ public class CreateVendorRequestDto {
     @NotNull(message = "허브 ID를 입력해주세요.")
     private UUID hubId;
 
-    @NotNull(message = "매니저 ID를 입력해주세요.")
-    private UUID managerId;
+    @NotNull(message = "업체 매니저 ID를 입력해주세요.")
+    private UUID vendorManagerId;
 
     @NotNull(message = "주소를 입력해주세요.")
     private String address;
