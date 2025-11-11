@@ -71,7 +71,7 @@ public class SlackController {
         return BaseResponseDto.success(
             "Slack DM 전송 완료",
             null,
-            HttpStatus.NO_CONTENT
+            HttpStatus.OK
         );
     }
 }
