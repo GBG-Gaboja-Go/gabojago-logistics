@@ -2,6 +2,7 @@ package com.gbg.slackservice.infrastructure.repository;
 
 import com.gbg.slackservice.domain.entity.Slack;
 import com.gbg.slackservice.domain.repository.SlackRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -16,5 +17,11 @@ public class SlackRepositoryImpl implements SlackRepository {
     public void save(Slack slack) {
 
         slackJpaRepository.save(slack);
+    }
+
+    @Override
+    public List<Slack> findAll() {
+
+        return slackJpaRepository.findAll();
     }
 }
