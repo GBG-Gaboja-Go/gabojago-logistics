@@ -64,7 +64,8 @@ public class HubController {
     ) {
         Hub hub = hubService.getById(hubId);
         GetHubResponseDto responseDto = GetHubResponseDto.of(
-            hub.getId(), hub.getName(), hub.getAddress(), hub.getLatitude(), hub.getLongitude()
+            hub.getId(), hub.getName(), hub.getAddress(), hub.getLatitude(), hub.getLongitude(),
+            hub.getUserId()
         );
         return ResponseEntity.ok(BaseResponseDto.success("허브 조회 성공", responseDto, HttpStatus.OK));
     }

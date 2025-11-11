@@ -13,7 +13,11 @@ public enum DeliveryErrorCode implements ErrorCode {
     DELIVERY_FORBIDDEN("DELIVERY004", "해당 배달에 접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     HUB_DELIVERY_FORBIDDEN("DELIVERY005", "해당 허브의 배달이 아닙니다", HttpStatus.FORBIDDEN),
     DELIVERY_ALREADY_START("DELIVERY006", "이미 시작된 배달입니다.", HttpStatus.BAD_REQUEST),
-    DELIVERY_ALREADY_COMPLETED("DELIVERY007", "이미 완료된 배달입니다.", HttpStatus.BAD_REQUEST);
+    DELIVERY_ALREADY_COMPLETED("DELIVERY007", "이미 완료된 배달입니다.", HttpStatus.BAD_REQUEST),
+    DELIVERYMAN_ALREADY_EXIST("DELIVERYMAN001", "이미 해당 허브에 해당 순번의 배달담당자가 있습니다.",
+        HttpStatus.BAD_REQUEST),
+    DELIVERYMAN_NOT_FOUND("DELIVERYMAN000", "해당 배달 담당자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    HUB_DELIVERYMAN_FORBIDDEN("DELIVERYMAN002", "해당 배달 담당자에 대한 접근권한이 없습니다.", HttpStatus.FORBIDDEN);
 
     private final String code;
     private final String message;
