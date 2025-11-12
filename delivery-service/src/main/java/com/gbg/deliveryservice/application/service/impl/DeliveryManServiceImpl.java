@@ -9,6 +9,7 @@ import com.gbg.deliveryservice.infrastructure.client.HubFeignClient;
 import com.gbg.deliveryservice.infrastructure.client.dto.GetHubResponseDto;
 import com.gbg.deliveryservice.infrastructure.config.security.CustomUser;
 import com.gbg.deliveryservice.presentation.advice.DeliveryErrorCode;
+import com.gbg.deliveryservice.presentation.advice.FeignClientError;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryManRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryManHubRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryManRequestDTO;
@@ -16,10 +17,12 @@ import com.gbg.deliveryservice.presentation.dto.response.CreateDeliveryManRespon
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryManPageResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryManResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetMyDeliveryManResponseDTO;
+import feign.FeignException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,28 +38,40 @@ public class DeliveryManServiceImpl implements DeliveryManService {
     public CreateDeliveryManResponseDTO createDeliveryMan(CreateDeliveryManRequestDTO req,
         CustomUser customUser) {
 
-        GetHubResponseDto hub = hubFeignClient.getHub(req.deliveryman().getHubId()).getBody()
-            .getData();
-        if (customUser.role().equals("HUB_MANAGER") && hub.getHub().getUserId() != UUID.fromString(
-            customUser.userId())) {
-            throw new AppException(DeliveryErrorCode.HUB_DELIVERY_FORBIDDEN);
+        try {
+            GetHubResponseDto hub = hubFeignClient.getHub(
+                    req.deliveryman().getHubId(), customUser.userId(), customUser.role()).getBody()
+                .getData();
+
+            if (customUser.role().equals("HUB_MANAGER")
+                && hub.getHub().getUserId() != UUID.fromString(
+                customUser.userId())) {
+                throw new AppException(DeliveryErrorCode.HUB_DELIVERY_FORBIDDEN);
+            }
+
+            if (deliveryManRepository.existsByHubIdAndSequenceAndDeletedAtIsNull(
+                hub.getHub().getId(),
+                req.deliveryman().getSequence())) {
+                throw new AppException(DeliveryErrorCode.DELIVERYMAN_ALREADY_EXIST);
+            }
+
+            DeliveryMan deliveryMan = DeliveryMan.builder()
+                .hubId(hub.getHub().getId())
+                .id(req.deliveryman().getUserId())
+                .type(req.deliveryman().getType())
+                .sequence(req.deliveryman().getSequence())
+                .build();
+
+            deliveryManRepository.save(deliveryMan);
+
+            return CreateDeliveryManResponseDTO.from(deliveryMan.getId());
+
+        } catch (FeignException e) {
+
+            throw new AppException(
+                FeignClientError.of(String.valueOf(e.status()), e.getMessage(),
+                    HttpStatus.valueOf(e.status())));
         }
-
-        if (deliveryManRepository.existsByHubIdAndSequenceAndDeletedAtIsNull(hub.getHub().getId(),
-            req.deliveryman().getSequence())) {
-            throw new AppException(DeliveryErrorCode.DELIVERYMAN_ALREADY_EXIST);
-        }
-
-        DeliveryMan deliveryMan = DeliveryMan.builder()
-            .hubId(hub.getHub().getId())
-            .id(req.deliveryman().getUserId())
-            .type(req.deliveryman().getType())
-            .sequence(req.deliveryman().getSequence())
-            .build();
-
-        deliveryManRepository.save(deliveryMan);
-
-        return CreateDeliveryManResponseDTO.from(deliveryMan.getId());
     }
 
     @Override
@@ -65,7 +80,8 @@ public class DeliveryManServiceImpl implements DeliveryManService {
         Pageable pageable, DeliveryType type, UUID hub) {
 
         if (customUser.role().equals("HUB_MANAGER")) {
-            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()))
+            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()),
+                    customUser.userId(), customUser.role())
                 .getBody().getData().getHub().getId();
             Page<DeliveryMan> deliveryManPage = deliveryManRepository.findAllByHubIdAndDeletedAtIsNull(
                 hubId, pageable);
@@ -85,7 +101,8 @@ public class DeliveryManServiceImpl implements DeliveryManService {
             .orElseThrow(() -> new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND));
 
         if (customUser.role().equals("HUB_MANAGER")) {
-            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()))
+            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()),
+                    customUser.userId(), customUser.role())
                 .getBody().getData().getHub().getId();
 
             if (deliveryMan.getHubId() != hubId) {
@@ -105,7 +122,8 @@ public class DeliveryManServiceImpl implements DeliveryManService {
             .orElseThrow(() -> new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND));
 
         if (customUser.role().equals("HUB_MANAGER")) {
-            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()))
+            UUID hubId = hubFeignClient.getHubManagerId(UUID.fromString(customUser.userId()),
+                    customUser.userId(), customUser.role())
                 .getBody().getData().getHub().getId();
 
             if (deliveryMan.getHubId() != hubId) {
@@ -136,7 +154,8 @@ public class DeliveryManServiceImpl implements DeliveryManService {
         DeliveryMan deliveryMan = deliveryManRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND));
 
-        GetHubResponseDto hub = hubFeignClient.getHub(req.deliveryMan().getHubId()).getBody()
+        GetHubResponseDto hub = hubFeignClient.getHub(req.deliveryMan().getHubId(),
+                customUser.userId(), customUser.role()).getBody()
             .getData();
 
         deliveryMan.updateHub(hub.getHub().getId());
@@ -149,10 +168,11 @@ public class DeliveryManServiceImpl implements DeliveryManService {
         DeliveryMan deliveryMan = deliveryManRepository.findByIdAndDeletedAtIsNull(id)
             .orElseThrow(() -> new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND));
 
-        GetHubResponseDto hub = hubFeignClient.getHub(deliveryMan.getHubId()).getBody()
+        GetHubResponseDto hub = hubFeignClient.getHub(deliveryMan.getHubId(),
+                customUser.userId(), customUser.role()).getBody()
             .getData();
 
-        hubFeignClient.getHub(req.deliveryman().getHubId());
+        hubFeignClient.getHub(req.deliveryman().getHubId(), customUser.userId(), customUser.role());
 
         if (customUser.role().equals("HUB_MANAGER") && hub.getHub().getUserId() != UUID.fromString(
             customUser.userId())) {

@@ -17,7 +17,8 @@ public enum DeliveryErrorCode implements ErrorCode {
     DELIVERYMAN_ALREADY_EXIST("DELIVERYMAN001", "이미 해당 허브에 해당 순번의 배달담당자가 있습니다.",
         HttpStatus.BAD_REQUEST),
     DELIVERYMAN_NOT_FOUND("DELIVERYMAN000", "해당 배달 담당자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    HUB_DELIVERYMAN_FORBIDDEN("DELIVERYMAN002", "해당 배달 담당자에 대한 접근권한이 없습니다.", HttpStatus.FORBIDDEN);
+    HUB_DELIVERYMAN_FORBIDDEN("DELIVERYMAN002", "해당 배달 담당자에 대한 접근권한이 없습니다.", HttpStatus.FORBIDDEN),
+    FEIGN_CLIENT_ERROR("DELIVERY003", "해당 배달 담당자에 대한 접근권한이 없습니다.", HttpStatus.FORBIDDEN);
 
     private final String code;
     private final String message;
@@ -28,5 +29,6 @@ public enum DeliveryErrorCode implements ErrorCode {
         this.message = message;
         this.status = status;
     }
+
 
 }
