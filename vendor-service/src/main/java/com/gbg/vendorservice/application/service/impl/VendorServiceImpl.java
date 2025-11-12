@@ -101,4 +101,10 @@ public class VendorServiceImpl implements VendorService {
             .orElseThrow(() -> new AppException(VendorErrorCode.VENDOR_NOT_FOUND));
         vendorRepository.delete(vendor);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsById(UUID vendorId) {
+        return vendorRepository.existsById(vendorId);
+    }
 }
