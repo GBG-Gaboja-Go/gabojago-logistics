@@ -1,5 +1,7 @@
 package com.gbg.hubservice.domain.entity;
 
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gabojago.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -34,13 +37,19 @@ public class HubRoute extends BaseEntity {
     private UUID endHubId;
 
     @Column(nullable = false)
-    private Double distance; // km 단위
+    private Double distance;
 
     @Column(nullable = false)
-    private Integer duration; // 분 단위
+    private Integer duration;
 
     private UUID deletedBy;
     private LocalDateTime deletedAt;
+
+
+    public void changeEndpoints(UUID startHubId, UUID endHubId) {
+        this.startHubId = startHubId;
+        this.endHubId = endHubId;
+    }
 
     public void update(Double distance, Integer duration) {
         this.distance = distance;
