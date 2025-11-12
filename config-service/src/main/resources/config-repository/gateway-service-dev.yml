@@ -28,7 +28,7 @@ spring:
             - id: hub-service
               uri: lb://HUB-SERVICE
               predicates:
-                - Path=/v1/hubs/**,/v1/hub-routes/**
+                - Path=/v1/hubs/**, /v1/hub-routes/**, /internal/v1/hubs/**
 
             - id: product-service
               uri: lb://PRODUCT-SERVICE

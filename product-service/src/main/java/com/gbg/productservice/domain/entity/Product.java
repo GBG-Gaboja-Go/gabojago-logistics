@@ -65,11 +65,4 @@ public class Product extends BaseEntity {
         }
         this.stock = newStock;
     }
-
-    public void softDelete(UUID deletedBy) {
-        this.isDeleted = true;
-        this.delete(deletedBy);
-    }
-
-
 }
