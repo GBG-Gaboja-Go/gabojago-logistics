@@ -1,9 +1,8 @@
-package com.gbg.slackservice.infrastructure.config;
+package com.gbg.productservice.infrastructure.config;
 
-import com.gbg.slackservice.infrastructure.config.auth.CustomAccessDeniedHandler;
-import com.gbg.slackservice.infrastructure.config.auth.CustomAuthenticationEntryPoint;
-import com.gbg.slackservice.infrastructure.config.filter.HeaderAuthFilter;
+import com.gbg.productservice.infrastructure.config.filter.HeaderAuthFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
@@ -17,13 +16,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 @RequiredArgsConstructor
-@EnableMethodSecurity(prePostEnabled = true)
+@Slf4j
 public class SecurityConfig {
 
     private final HeaderAuthFilter headerAuthFilter;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
@@ -32,17 +30,14 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/v1/slacks/**").permitAll()
+                .requestMatchers("/v1/products/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-resources/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
-
-            .exceptionHandling(ex -> ex
-                .accessDeniedHandler(customAccessDeniedHandler)
-                .authenticationEntryPoint(customAuthenticationEntryPoint))
-
             .addFilterBefore(headerAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
-
 }

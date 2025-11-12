@@ -16,4 +16,6 @@ public interface UserRepository {
     Optional<User> findByUserName(String username);
 
     Optional<User> findById(UUID userId);
+
+    Optional<User> findBySlackEmail(String email);
 }

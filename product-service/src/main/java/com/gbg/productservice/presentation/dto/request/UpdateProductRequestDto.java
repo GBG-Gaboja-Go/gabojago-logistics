@@ -29,5 +29,4 @@ public class UpdateProductRequestDto {
         private BigInteger price;
 
     }
-
 }

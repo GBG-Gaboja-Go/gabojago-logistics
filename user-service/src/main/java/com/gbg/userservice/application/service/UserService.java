@@ -1,5 +1,6 @@
 package com.gbg.userservice.application.service;
 
+import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.entity.UserRole;
 import com.gbg.userservice.domain.entity.UserStatus;
 import com.gbg.userservice.infrastructure.config.auth.CustomUser;
@@ -24,5 +25,7 @@ public interface UserService {
 
     UserStatus getUserStatus(UUID userId);
 
-    UserResponseDto getUser(UUID userId);
+    User getUser(UUID userId);
+
+    User getUserByEmail(String email);
 }

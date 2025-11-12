@@ -8,11 +8,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Builder
 @Getter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponseDto {
+public class UpdateProductResponseDto {
 
     private ProductDto product;
 
@@ -27,8 +27,9 @@ public class ProductResponseDto {
         private BigInteger price;
     }
 
-    public static ProductResponseDto from(Product product) {
-        return ProductResponseDto.builder()
+    public static UpdateProductResponseDto from(
+        Product product) {
+        return UpdateProductResponseDto.builder()
             .product(ProductDto.builder()
                 .id(product.getId())
                 .name(product.getName())

@@ -3,7 +3,6 @@ package com.gbg.userservice.presentation.dto.response;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gbg.userservice.domain.entity.UserRole;
 import com.gbg.userservice.domain.entity.UserStatus;
-import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +24,7 @@ public class UserResponseDto {
         String username;
         String nickname;
         String slackEmail;
+        boolean slackVerified;
         UUID organization;
         String summary;
         UserRole role;

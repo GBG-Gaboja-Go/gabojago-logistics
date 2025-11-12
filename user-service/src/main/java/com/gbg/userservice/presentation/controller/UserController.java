@@ -3,6 +3,7 @@ package com.gbg.userservice.presentation.controller;
 import com.gabojago.dto.BaseResponseDto;
 import com.gbg.userservice.application.service.AuthService;
 import com.gbg.userservice.application.service.UserService;
+import com.gbg.userservice.domain.entity.User;
 import com.gbg.userservice.domain.entity.UserStatus;
 import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
@@ -77,20 +78,6 @@ public class UserController {
                 HttpStatus.OK));
     }
 
-    @GetMapping("/internal/{userId}")
-    @PreAuthorize("hasRole('MASTER')")
-    public ResponseEntity<BaseResponseDto<UserResponseDto>> getUser(
-        @PathVariable("userId") UUID userId
-    ) {
-
-        UserResponseDto user = userService.getUser(userId);
-        return ResponseEntity.ok(BaseResponseDto.success(
-            "사용자 정보 조회 완료",
-            user,
-            HttpStatus.OK
-        ));
-    }
-
     @PatchMapping("/my-page")
     public ResponseEntity<BaseResponseDto<UUID>> userDetailUpdate(
         @RequestBody UserUpdateRequestDto req,
@@ -155,6 +142,24 @@ public class UserController {
                 status,
                 HttpStatus.OK
             ));
+    }
+
+    @GetMapping("/internal/userId/{userId}")
+    @PreAuthorize("hasRole('MASTER')")
+    public User getUser(
+        @PathVariable("userId") UUID userId
+    ) {
+
+        return userService.getUser(userId);
+    }
+
+    @GetMapping("/internal/email/{email}")
+    @PreAuthorize("hasRole('MASTER')")
+    public User getUserByEmail(
+        @PathVariable("email") String email
+    ) {
+
+        return userService.getUserByEmail(email);
     }
 
 }

@@ -1,15 +1,19 @@
 package com.gbg.slackservice.presentation.controller;
 
 import com.gabojago.dto.BaseResponseDto;
+import com.gabojago.exception.AppException;
 import com.gbg.slackservice.application.service.SlackService;
 import com.gbg.slackservice.infrastructure.config.auth.CustomUser;
 import com.gbg.slackservice.presentation.dto.request.SlackSendDmRequest;
 import com.gbg.slackservice.presentation.dto.request.SlackVerifyRequest;
 import com.gbg.slackservice.presentation.dto.request.SlackVerifySuccessRequest;
+import com.gbg.slackservice.presentation.dto.response.SlackResponseDto;
 import com.gbg.slackservice.presentation.dto.response.SlackVerifyResponse;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,7 +69,6 @@ public class SlackController {
     public BaseResponseDto<String> sendDm(
         @RequestBody SlackSendDmRequest req
     ) {
-
         slackService.sendDm(req.email(), req.message());
 
         return BaseResponseDto.success(
@@ -73,5 +76,18 @@ public class SlackController {
             null,
             HttpStatus.OK
         );
+    }
+
+    @GetMapping("/logs")
+    @PreAuthorize("hasAuthority('MASTER')")
+    public ResponseEntity<BaseResponseDto<SlackResponseDto>> slackLogs() {
+
+        SlackResponseDto slackResponseDto = slackService.slackLogs();
+
+        return ResponseEntity.ok(BaseResponseDto.success(
+            "슬랙 로그 조회 성공",
+            slackResponseDto,
+            HttpStatus.OK
+        ));
     }
 }
