@@ -18,4 +18,6 @@ public interface DeliveryManJpaRepository extends JpaRepository<DeliveryMan, UUI
     Page<DeliveryMan> findByHubIdAndDeletedAtIsNull(UUID hubId, Pageable pageable);
 
     boolean existsByHubIdAndSequenceAndDeletedAtIsNull(UUID hubId, int sequence);
+
+    boolean existsByIdAndDeletedAtIsNull(UUID userId);
 }

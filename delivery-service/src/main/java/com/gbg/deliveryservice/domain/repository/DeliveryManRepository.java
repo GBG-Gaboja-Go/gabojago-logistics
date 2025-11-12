@@ -1,6 +1,7 @@
 package com.gbg.deliveryservice.domain.repository;
 
 import com.gbg.deliveryservice.domain.entity.DeliveryMan;
+import jakarta.validation.constraints.NotNull;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -17,4 +18,6 @@ public interface DeliveryManRepository {
     Page<DeliveryMan> findAllAndDeletedAtIsNull(Pageable pageable);
 
     boolean existsByHubIdAndSequenceAndDeletedAtIsNull(UUID hubId, int sequence);
+
+    boolean existsByUserIdAndDeletedAtIsNull(@NotNull(message = "userId를 입력해주세요") UUID userId);
 }
