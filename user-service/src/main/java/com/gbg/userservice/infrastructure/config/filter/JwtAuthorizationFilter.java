@@ -27,6 +27,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
         FilterChain filterChain) throws ServletException, IOException {
 
+        String path = request.getRequestURI();
+        System.out.println("Request URI: " + request.getRequestURI());
+        if (path.equals("/v1/users/logout")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         System.out.println("필터 진입 : " + request.getRequestURI());
 
 //        // 이미 인증된 사용자인 경우 필터 통과
