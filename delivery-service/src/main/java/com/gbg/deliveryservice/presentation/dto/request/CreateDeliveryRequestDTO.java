@@ -29,10 +29,10 @@ public record CreateDeliveryRequestDTO(
         private UUID hubToId;
 
         @NotNull(message = "공급 업체 아이디를 입력해주세요")
-        private UUID userFromId;
+        private UUID vendorFromId;
 
-        @NotNull(message = "수령 업체 아이디(주문자)를 입력해주세요")
-        private UUID userToId;
+        @NotNull(message = "수령 업체 아이디를 입력해주세요")
+        private UUID vendorToId;
 
     }
 
