@@ -4,6 +4,12 @@ server:
 spring:
   application:
     name: gateway-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: systempass
+      database: 0
   cloud:
     gateway:
       server:
