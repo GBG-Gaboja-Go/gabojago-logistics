@@ -14,7 +14,8 @@ public enum AIErrorCode implements ErrorCode {
     GEMINI_TIMEOUT("AI005", "Gemini API 응답 시간 초과", HttpStatus.GATEWAY_TIMEOUT),
     GEMINI_PARSE_ERROR("AI006", "Gemini 응답 파싱 실패", HttpStatus.INTERNAL_SERVER_ERROR),
     DEADLINE_CALCULATION_FAILED("AI007", "발송 시한 계산 실패", HttpStatus.INTERNAL_SERVER_ERROR),
-    AI_RESPONSE_PARSING_FAILED("AI008", "응답값 파싱 실패", HttpStatus.INTERNAL_SERVER_ERROR);
+    AI_RESPONSE_PARSING_FAILED("AI008", "응답값 파싱 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+    AI_HISTORY_NOT_FOUND("AI009", "해당 orderId의 AI 기록을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 
     private final String code;
     private final String message;

@@ -1,5 +1,6 @@
 package com.gbg.deliveryservice.application.service.impl;
 
+import com.gabojago.util.PageableUtils;
 import com.gbg.deliveryservice.application.helper.AIPromptHelper;
 import com.gbg.deliveryservice.application.service.AIService;
 import com.gbg.deliveryservice.domain.entity.AIHistory;
@@ -10,10 +11,13 @@ import com.gbg.deliveryservice.infrastructure.client.dto.SlackSendDmRequest;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto.Location;
+import com.gbg.deliveryservice.presentation.dto.response.GetAIResponseDto;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -55,7 +59,7 @@ public class AIServiceImpl implements AIService {
             AIHistory history = AIHistory.builder()
                 .orderId(aiDto.getOrderId())
                 .orderRequestMessage(aiDto.getOrderRequestMessage())
-                .deliveryManSlackEmail(aiDto.getDeliveryManSlackEmail()) // 생략 가능
+                .deliveryManSlackEmail(aiDto.getDeliveryManSlackEmail())
                 .finalDeadline(finalDeadline)
                 .responseMessage(responseMessage)
                 .build();
@@ -76,6 +80,22 @@ public class AIServiceImpl implements AIService {
 
     }
 
+    @Override
+    public Page<GetAIResponseDto> getAllLogs(Pageable pageable) {
+        pageable = PageableUtils.normalize(pageable);
+        Page<AIHistory> historyPage = aiRepository.findAll(pageable);
+
+        return historyPage.map(history ->
+            GetAIResponseDto.builder()
+                .ai(GetAIResponseDto.AIDto.builder()
+                    .orderId(history.getOrderId())
+                    .orderRequestMessage(history.getOrderRequestMessage())
+                    .aiResponseMessage(history.getResponseMessage()) // 엔티티의 responseMessage 필드 가정
+                    .finalDeadline(history.getFinalDeadline())
+                    .build())
+                .build()
+        );
+    }
 
     private String formattingResponse(InternalCreateAIRequestDto requestDto,
         LocalDateTime finalDeadline) {
