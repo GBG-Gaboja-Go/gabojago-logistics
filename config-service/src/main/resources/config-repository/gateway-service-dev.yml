@@ -38,7 +38,7 @@ spring:
             - id: vendor-service
               uri: lb://VENDOR-SERVICE
               predicates:
-                - Path=/v1/vendors/**
+                - Path=/v1/vendors/**, /internal/v1/vendors/**
 
             - id: slack-service
               uri: lb://SLACK-SERVICE

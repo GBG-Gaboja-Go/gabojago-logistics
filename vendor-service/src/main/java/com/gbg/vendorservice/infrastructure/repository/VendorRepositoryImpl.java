@@ -58,4 +58,9 @@ public class VendorRepositoryImpl implements VendorRepository {
             return jpaVendorRepository.findAll(pageable);
         }
     }
+
+    @Override
+    public boolean existsById(UUID vendorId) {
+        return jpaVendorRepository.existsById(vendorId);
+    }
 }

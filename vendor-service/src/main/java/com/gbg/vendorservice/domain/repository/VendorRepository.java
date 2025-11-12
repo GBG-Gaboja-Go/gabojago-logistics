@@ -23,4 +23,6 @@ public interface VendorRepository {
     Page<Vendor> search(SearchVendorRequestDto dto, Pageable pageable);
 
     List<Vendor> findAllByVendorManagerId(UUID managerId);
+
+    boolean existsById(UUID vendorId);
 }
