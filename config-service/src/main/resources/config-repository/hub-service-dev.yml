@@ -4,6 +4,13 @@ server:
 spring:
   application:
     name: hub-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: systempass
+      database: 1
+
 
   datasource:
     url: jdbc:postgresql://localhost:5432/hub_db
