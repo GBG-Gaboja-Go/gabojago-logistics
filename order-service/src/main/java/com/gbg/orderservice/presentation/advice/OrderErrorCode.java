@@ -18,8 +18,11 @@ public enum OrderErrorCode implements ErrorCode {
     ORDER_ALREADY_CANCELLED("ORDER007", "이미 취소된 주문입니다.", HttpStatus.BAD_REQUEST),
     USER_FORBIDDEN("ORDER008", "사용자 권한이 없습니다.", HttpStatus.FORBIDDEN),
     ORDER_ONLY_RECEIVER_CAN_ORDER("ORDER009", "수령업체만 주문할 수 있습니다.", HttpStatus.FORBIDDEN),
-    ORDER_SUPPLIER_VENDOR_ROLE_INVALID("ORDER004", "공급업체 역할을 가진 벤더 정보를 입력해야 합니다.",
-        HttpStatus.BAD_REQUEST);;
+    ORDER_SUPPLIER_VENDOR_ROLE_INVALID("ORDER010", "공급업체 역할을 가진 벤더 정보를 입력해야 합니다.",
+        HttpStatus.BAD_REQUEST),
+    ORDER_ACCESS_DENIED("ORDER011", "허브 관리자 역할이 아닙니다.", HttpStatus.FORBIDDEN),
+    ORDER_HUB_MANAGER_NO_HUB("ORDER012", "담당 허브 관리자만 접근할 수 있습니다.", HttpStatus.FORBIDDEN),
+    ORDER_ACCESS_DENIED_VENDOR("ORDER007", "담당 공급업체 관리자만 접근 가능합니다.", HttpStatus.FORBIDDEN);
 
 
     private final String code;
