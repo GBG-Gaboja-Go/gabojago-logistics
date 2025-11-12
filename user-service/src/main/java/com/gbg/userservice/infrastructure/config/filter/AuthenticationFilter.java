@@ -71,7 +71,9 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
         UserRole role = ((CustomUser) authResult.getPrincipal()).getRole();
 
         String token = jwtTokenProvider.createToken(id, username, role);
+        String refreshToken = jwtTokenProvider.createRefreshToken(id);
         response.addHeader(AUTHORIZATION_HEADER, token);
+        response.addHeader("Refresh-Token", refreshToken);
     }
 
     @Override
