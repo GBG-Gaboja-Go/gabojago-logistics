@@ -26,4 +26,6 @@ public interface VendorService {
     VendorResponseDto updateVendor(UUID vendorId, UpdateVendorRequestDto dto);
 
     void deleteVendor(UUID vendorId);
+
+    boolean existsById(UUID vendorId);
 }
