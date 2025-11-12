@@ -4,6 +4,7 @@ import com.gabojago.exception.AppException;
 import com.gbg.productservice.application.service.ProductService;
 import com.gbg.productservice.domain.entity.Product;
 import com.gbg.productservice.domain.repository.ProductRepository;
+import com.gbg.productservice.infrastructure.client.VendorClient;
 import com.gbg.productservice.presentation.advice.ProductErrorCode;
 import com.gbg.productservice.presentation.dto.request.CreateProductRequestDto;
 import com.gbg.productservice.presentation.dto.request.InternalProductReleaseRequestDto;
@@ -28,15 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final VendorClient vendorClient;
 
     @Override
     @Transactional
     public CreateProductResponseDto createProduct(CreateProductRequestDto dto) {
 
-        // vendor-service/ hub-service 연동 후 검증 추가 예정
-//        if (!vendorClient.existsById(dto.getProduct().getVendorId())) {
-//            throw new AppException(ProductErrorCode.VENDOR_NOT_FOUND);
-//        }
+        if (!vendorClient.existsById(dto.getProduct().getVendorId())) {
+            throw new AppException(ProductErrorCode.VENDOR_NOT_FOUND);
+        }
 //
 //        if (!hubClient.existsById(dto.getProduct().getHubId())) {
 //            throw new AppException(ProductErrorCode.HUB_NOT_FOUND);
