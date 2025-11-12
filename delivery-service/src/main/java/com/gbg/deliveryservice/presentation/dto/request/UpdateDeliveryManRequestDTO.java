@@ -12,7 +12,7 @@ import lombok.Getter;
 public record UpdateDeliveryManRequestDTO(
     @Valid
     @NotNull(message = "배송 담당자 정보를 입력해주세요")
-    DeliveryManDTO delivery
+    DeliveryManDTO deliveryman
 ) {
 
     @Getter

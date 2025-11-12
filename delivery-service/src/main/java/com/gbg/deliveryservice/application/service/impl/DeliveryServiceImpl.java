@@ -14,6 +14,7 @@ import com.gbg.deliveryservice.infrastructure.client.HubFeignClient;
 import com.gbg.deliveryservice.infrastructure.client.OrderFeignClient;
 import com.gbg.deliveryservice.infrastructure.config.security.CustomUser;
 import com.gbg.deliveryservice.presentation.advice.DeliveryErrorCode;
+import com.gbg.deliveryservice.presentation.advice.FeignClientError;
 import com.gbg.deliveryservice.presentation.dto.request.CreateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryRequestDTO;
 import com.gbg.deliveryservice.presentation.dto.request.UpdateDeliveryStatusRequestDTO;
@@ -21,12 +22,14 @@ import com.gbg.deliveryservice.presentation.dto.response.CreateDeliveryResponseD
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryPageResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetDeliveryResponseDTO;
 import com.gbg.deliveryservice.presentation.dto.response.GetMyDeliveryResponseDTO;
+import feign.FeignException;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,45 +47,55 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Transactional
     public CreateDeliveryResponseDTO createDelivery(CreateDeliveryRequestDTO req, UUID userId) {
 
-        orderFeignClient.getOrderDetail(req.delivery().getOrderId());
-        if (deliveryRepository.existsByOrderIdAndDeletedAtIsNull(req.delivery().getOrderId())) {
-            throw new AppException(DeliveryErrorCode.ALREADY_CREATE_DELIVERY_OF_ORDER);
+        try {
+            orderFeignClient.getOrderDetail(req.delivery().getOrderId(), userId.toString(),
+                "MASTER");
+            if (deliveryRepository.existsByOrderIdAndDeletedAtIsNull(req.delivery().getOrderId())) {
+                throw new AppException(DeliveryErrorCode.ALREADY_CREATE_DELIVERY_OF_ORDER);
+            }
+
+            hubFeignClient.getHub(req.delivery().getHubToId(), userId.toString(), "MASTER");
+            hubFeignClient.getHub(req.delivery().getHubFromId(),
+                userId.toString(), "MASTER");
+
+            // 공급업체 수령업체 검증하기(공급업체 수령업체 유효한지 확인)
+
+            // hubRout 가져오기
+            Delivery delivery = Delivery.builder()
+                .orderId(req.delivery().getOrderId())
+                .status(DeliveryStatus.WAITING_FOR_HUB_DEPARTURE)
+                .deliveryAddress(req.delivery().getDeliveryAddress())
+                .build();
+            //예상거리, 예상소요시간 나중에 집어넣기
+
+            Delivery saveDelivery = deliveryRepository.save(delivery);
+
+            HubDelivery hubDelivery = HubDelivery.builder()
+                .deliveryId(delivery.getId())
+                .hubToId(req.delivery().getHubToId())
+                .hubFromId(req.delivery().getHubFromId())
+                .deliverymanId(UUID.randomUUID()) // 딜리버리맨 만들어지면 집어넣기 순서 고려해서 (알고리즘에 따라 여러개 생길수도 있음)
+                .build();
+
+            hubDeliveryRepository.save(hubDelivery);
+
+            VendorDelivery vendorDelivery = VendorDelivery.builder()
+                .deliveryId(delivery.getId())
+                .userFromId(req.delivery().getUserFromId())
+                .userToId(req.delivery().getUserToId())
+                .deliverymanId(UUID.randomUUID())   // 배달 담당자 생기면 도착허브 소속 딜리버리맨 조회해서 집어넣기 순서 고려해서
+                .build();
+
+            vendorDeliveryRepository.save(vendorDelivery);
+
+            return CreateDeliveryResponseDTO.from(saveDelivery);
+
+        } catch (FeignException e) {
+
+            throw new AppException(
+                FeignClientError.of(String.valueOf(e.status()), e.getMessage(),
+                    HttpStatus.valueOf(e.status())));
         }
-
-        hubFeignClient.getHub(req.delivery().getHubToId());
-        hubFeignClient.getHub(req.delivery().getHubFromId());
-
-        // 공급업체 수령업체 검증하기(공급업체 수령업체 유효한지 확인)
-
-        // hubRout 가져오기
-        Delivery delivery = Delivery.builder()
-            .orderId(req.delivery().getOrderId())
-            .status(DeliveryStatus.WAITING_FOR_HUB_DEPARTURE)
-            .deliveryAddress(req.delivery().getDeliveryAddress())
-            .build();
-        //예상거리, 예상소요시간 나중에 집어넣기
-
-        Delivery saveDelivery = deliveryRepository.save(delivery);
-
-        HubDelivery hubDelivery = HubDelivery.builder()
-            .deliveryId(delivery.getId())
-            .hubToId(req.delivery().getHubToId())
-            .hubFromId(req.delivery().getHubFromId())
-            .deliverymanId(UUID.randomUUID()) // 딜리버리맨 만들어지면 집어넣기 순서 고려해서 (알고리즘에 따라 여러개 생길수도 있음)
-            .build();
-
-        hubDeliveryRepository.save(hubDelivery);
-
-        VendorDelivery vendorDelivery = VendorDelivery.builder()
-            .deliveryId(delivery.getId())
-            .userFromId(req.delivery().getUserFromId())
-            .userToId(req.delivery().getUserToId())
-            .deliverymanId(UUID.randomUUID())   // 배달 담당자 생기면 도착허브 소속 딜리버리맨 조회해서 집어넣기 순서 고려해서
-            .build();
-
-        vendorDeliveryRepository.save(vendorDelivery);
-
-        return CreateDeliveryResponseDTO.from(saveDelivery);
     }
 
     @Transactional(readOnly = true)
@@ -107,7 +120,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (customUser.role().equals("HUB_MANAGER")) {
             UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-                UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                        UUID.fromString(customUser.userId()), customUser.userId(), customUser.role())
+                    .getBody())
+                .getData().getHub().getId();
             if (hubDelivery.getHubToId() != hubId || hubDelivery.getHubFromId() != hubId) {
                 throw new AppException(DeliveryErrorCode.HUB_DELIVERY_FORBIDDEN);
             }
@@ -128,7 +143,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (customUser.role().equals("HUB_MANAGER")) {
             UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-                UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                        UUID.fromString(customUser.userId()), customUser.userId(), customUser.role())
+                    .getBody())
+                .getData().getHub().getId();
             HubDelivery hubDelivery = hubDeliveryRepository.findByDeliveryIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(DeliveryErrorCode.HUB_DELIVERY_NOT_FOUND));
             if (hubDelivery.getHubToId() != hubId || hubDelivery.getHubFromId() != hubId) {
@@ -159,7 +176,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (customUser.role().equals("HUB_MANAGER")) {
             UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-                UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                        UUID.fromString(customUser.userId()), customUser.userId(), customUser.role())
+                    .getBody())
+                .getData().getHub().getId();
 
             HubDelivery hubDelivery = hubDeliveryRepository.findByDeliveryIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(DeliveryErrorCode.HUB_DELIVERY_NOT_FOUND));
@@ -223,7 +242,9 @@ public class DeliveryServiceImpl implements DeliveryService {
 
         if (customUser.role().equals("HUB_MANAGER")) {
             UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-                UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                        UUID.fromString(customUser.userId()), customUser.userId(), customUser.role())
+                    .getBody())
+                .getData().getHub().getId();
             HubDelivery hubDelivery = hubDeliveryRepository.findByDeliveryIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new AppException(DeliveryErrorCode.HUB_DELIVERY_NOT_FOUND));
             if (hubDelivery.getHubToId() != hubId || hubDelivery.getHubFromId() != hubId) {
@@ -239,7 +260,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         Pageable pageable, DeliveryStatus status) {
 
         UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-            UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                UUID.fromString(customUser.userId()), customUser.userId(), customUser.role()).getBody())
+            .getData().getHub().getId();
 
         List<UUID> deliveryIdList = hubDeliveryRepository.findAllByHubFromIdAndDeletedAtIsNull(
             hubId).stream().map(HubDelivery::getDeliveryId).toList();
@@ -255,7 +277,8 @@ public class DeliveryServiceImpl implements DeliveryService {
         Pageable pageable, DeliveryStatus status) {
 
         UUID hubId = Objects.requireNonNull(hubFeignClient.getHubManagerId(
-            UUID.fromString(customUser.userId())).getBody()).getData().getHub().getId();
+                UUID.fromString(customUser.userId()), customUser.userId(), customUser.role()).getBody())
+            .getData().getHub().getId();
 
         List<UUID> deliveryIdList = hubDeliveryRepository.findAllByHubToIdAndDeletedAtIsNull(
             hubId).stream().map(HubDelivery::getDeliveryId).toList();

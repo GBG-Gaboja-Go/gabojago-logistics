@@ -128,7 +128,8 @@ public class HubServiceImpl implements HubService {
             hub.getName(),
             hub.getAddress(),
             hub.getLatitude(),
-            hub.getLongitude()
+            hub.getLongitude(),
+            hub.getUserId()
         );
     }
 }

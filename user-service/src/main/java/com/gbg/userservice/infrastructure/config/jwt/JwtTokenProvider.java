@@ -13,21 +13,30 @@ import java.security.Key;
 import java.time.Duration;
 import java.util.Date;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Value("${jwt.secret}")
     private String secret;
 
+    @Value("${jwt.access-expiration}")
+    private Duration accessExpiration;
+
+    @Value("${jwt.refresh-expiration}")
+    private Duration refreshExpiration;
+
+    private final RedisTemplate<String, Object> redisTemplate;
+
     private Key key;
-
-    @Value("${jwt.expiration}")
-    private Duration validity;
-
     private static final String BEARER_PREFIX = "Bearer ";
+    private static final String REFRESH_PREFIX = "Refresh Token: ";
 
     @PostConstruct
     private void getSigningKey() {
@@ -40,7 +49,7 @@ public class JwtTokenProvider {
         claims.put("username", username);
         claims.put("roles", roles.toString());
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + validity.toMillis());
+        Date expiration = new Date(now.getTime() + accessExpiration.toMillis());
 
         return BEARER_PREFIX + Jwts.builder()
             .setClaims(claims)
@@ -48,6 +57,27 @@ public class JwtTokenProvider {
             .setExpiration(expiration)
             .signWith(key, SignatureAlgorithm.HS256)
             .compact();
+    }
+
+    public String createRefreshToken(UUID userId) {
+        Date now = new Date();
+        Date expiration = new Date(now.getTime() + refreshExpiration.toMillis());
+
+        String refreshToken = Jwts.builder()
+            .setSubject(userId.toString())
+            .setIssuedAt(now)
+            .setExpiration(expiration)
+            .signWith(key, SignatureAlgorithm.HS256)
+            .compact();
+
+        redisTemplate.opsForValue().set(
+            REFRESH_PREFIX + userId,
+            refreshToken,
+            refreshExpiration.toMillis(),
+            TimeUnit.MILLISECONDS
+        );
+
+        return refreshToken;
     }
 
     public String resolveToken(HttpServletRequest request) {

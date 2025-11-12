@@ -62,7 +62,6 @@ public class HubRepositoryImpl implements HubRepository {
     }
 
     @Override
-    @Transactional
     public Hub save(Hub hub) {
         return jpa.save(hub);
     }
