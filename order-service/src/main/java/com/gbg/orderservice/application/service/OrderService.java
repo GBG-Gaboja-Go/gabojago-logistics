@@ -19,9 +19,9 @@ public interface OrderService {
         OrderSearchRequestDto searchRequestDto,
         Pageable pageable);
 
-    void postInternalOrderDelivering(UUID orderId);
+    void postInternalOrderDelivering(CustomUser customUser, UUID orderId);
 
-    void postInternalOrderDelivered(UUID orderId);
+    void postInternalOrderDelivered(CustomUser customUser, UUID orderId);
 
     void postOrderCancel(CustomUser customUser, UUID orderId);
 }

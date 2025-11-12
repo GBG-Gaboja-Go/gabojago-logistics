@@ -74,6 +74,30 @@ public class OrderController {
             BaseResponseDto.success("상세 주문 조회 성공", responseDto, HttpStatus.OK));
     }
 
+    @PostMapping("/{orderId}/deliverying")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
+    @Operation(summary = "주문 DELIVERYING 상태 변경 API", description = "배송이 시작되었을 때 내부적으로 상태 변경을 요청할 수 있습니다.")
+    public ResponseEntity<BaseResponseDto<Void>> postInternalOrderDelivering(
+        @AuthenticationPrincipal CustomUser customUser,
+        @Parameter(description = "order UUID") @PathVariable UUID orderId
+    ) {
+        orderService.postInternalOrderDelivering(customUser, orderId);
+        return ResponseEntity.ok(
+            BaseResponseDto.success("주문 상태 DELIVERING 변경 성공", HttpStatus.NO_CONTENT));
+    }
+
+    @PostMapping("/{orderId}/delivered")
+    @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
+    @Operation(summary = "주문 DELIVERED 상태 변경 API", description = "수령업체한테 배송완료하면 내부적으로 상태 변경을 요청할 수 있습니다.")
+    public ResponseEntity<BaseResponseDto<Void>> postInternalOrderDelivered(
+        @AuthenticationPrincipal CustomUser customUser,
+        @Parameter(description = "order UUID") @PathVariable UUID orderId
+    ) {
+        orderService.postInternalOrderDelivered(customUser, orderId);
+        return ResponseEntity.ok(
+            BaseResponseDto.success("주문 상태 DELIVERYING로 변경 성공", HttpStatus.NO_CONTENT));
+    }
+
     @PostMapping("/{orderId}/cancel")
     @PreAuthorize("hasAnyRole('MASTER', 'VENDOR_MANAGER')")
     @Operation(summary = "주문 취소 API", description = "상품 담당 허브 관리자와 공급업체는 주문을 취소할 수 있습니다.")

@@ -12,11 +12,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VendorResponseDto {
 
-    private UUID id;
-    private String name;
-    private UUID hubId;
-    private UUID managerId;
-    private boolean isSupplier;
-    private boolean isReceiver;
-    private String address;
+    private VendorDto vendor;
+
+    @Getter
+    @Builder
+    public static class VendorDto {
+
+        private UUID id;
+        private String name;
+        private UUID hubId;
+        private UUID vendorManagerId;
+        private boolean isSupplier;
+        private boolean isReceiver;
+        private String address;
+    }
+
 }
