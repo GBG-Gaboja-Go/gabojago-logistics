@@ -1,5 +1,6 @@
 package com.gbg.hubservice.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gabojago.entity.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Where;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 @Entity
 @Getter
 @Builder
