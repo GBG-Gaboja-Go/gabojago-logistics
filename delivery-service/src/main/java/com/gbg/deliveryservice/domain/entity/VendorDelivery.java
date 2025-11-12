@@ -29,11 +29,11 @@ public class VendorDelivery extends BaseEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
-    @Column(name = "user_from_id", nullable = false)
-    private UUID userFromId;
+    @Column(name = "vendor_from_id", nullable = false)
+    private UUID vendorFromId;
 
-    @Column(name = "user_to_id", nullable = false)
-    private UUID userToId;
+    @Column(name = "vendor_to_id", nullable = false)
+    private UUID vendorToId;
 
     @Column(name = "delivery_id", nullable = false)
     private UUID deliveryId;

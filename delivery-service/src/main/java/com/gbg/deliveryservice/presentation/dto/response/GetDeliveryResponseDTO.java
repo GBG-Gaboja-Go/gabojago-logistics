@@ -92,8 +92,8 @@ public record GetDeliveryResponseDTO(
     public static class VendorDeliveryDTO {
 
         private final UUID id;
-        private final UUID userToId;
-        private final UUID userFromId;
+        private final UUID vendorToId;
+        private final UUID vendorFromId;
         private final UUID deliverymanId;
         private final LocalDateTime createdAt;
         private final LocalDateTime updatedAt;
@@ -102,8 +102,8 @@ public record GetDeliveryResponseDTO(
             VendorDelivery vendorDelivery) {
             return VendorDeliveryDTO.builder()
                 .id(vendorDelivery.getId())
-                .userToId(vendorDelivery.getUserToId())
-                .userFromId(vendorDelivery.getUserFromId())
+                .vendorToId(vendorDelivery.getVendorToId())
+                .vendorFromId(vendorDelivery.getVendorFromId())
                 .createdAt(vendorDelivery.getCreatedAt())
                 .updatedAt(vendorDelivery.getUpdatedAt())
                 .build();

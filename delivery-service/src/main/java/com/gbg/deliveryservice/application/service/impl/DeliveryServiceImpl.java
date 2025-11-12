@@ -59,6 +59,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 userId.toString(), "MASTER");
 
             // 공급업체 수령업체 검증하기(공급업체 수령업체 유효한지 확인)
+            UUID a = req.delivery().getVendorFromId();
 
             // hubRout 가져오기
             Delivery delivery = Delivery.builder()
@@ -81,8 +82,8 @@ public class DeliveryServiceImpl implements DeliveryService {
 
             VendorDelivery vendorDelivery = VendorDelivery.builder()
                 .deliveryId(delivery.getId())
-                .userFromId(req.delivery().getUserFromId())
-                .userToId(req.delivery().getUserToId())
+                .vendorToId(req.delivery().getVendorToId())
+                .vendorFromId(req.delivery().getVendorFromId())
                 .deliverymanId(UUID.randomUUID())   // 배달 담당자 생기면 도착허브 소속 딜리버리맨 조회해서 집어넣기 순서 고려해서
                 .build();
 
