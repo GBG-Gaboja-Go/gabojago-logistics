@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,7 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class HubServiceImpl implements HubService {
 
     private final HubRepository hubRepository;
-    private final KakaoLocalClient kakaoLocalClient; // ✅ 지오코딩 클라이언트
+    private final KakaoLocalClient kakaoLocalClient;
 
     @Override
     @Transactional
@@ -59,6 +61,7 @@ public class HubServiceImpl implements HubService {
     }
 
     @Override
+    @Cacheable(value = "hub:byId", key = "#id")
     public Hub getById(UUID id) {
         return hubRepository.findById(id)
             .orElseThrow(() -> new AppException(HubErrorCode.HUB_NOT_FOUND));
@@ -72,8 +75,12 @@ public class HubServiceImpl implements HubService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "hub:byId", key = "#hubId")
     public void update(UUID hubId, UpdateHubRequestDto request) {
-        Hub hub = getById(hubId);
+
+        Hub hub = hubRepository.findById(hubId)
+            .orElseThrow(() -> new AppException(HubErrorCode.HUB_NOT_FOUND));
+
         UpdateHubRequestDto.HubDto dto = request.getHub();
 
         String newName = dto.getName();
@@ -104,8 +111,10 @@ public class HubServiceImpl implements HubService {
 
     @Override
     @Transactional
+    @CacheEvict(value = "hub:byId", key = "#hubId")
     public void delete(UUID hubId, UUID userId) {
-        Hub hub = getById(hubId);
+        Hub hub = hubRepository.findById(hubId)
+            .orElseThrow(() -> new AppException(HubErrorCode.HUB_NOT_FOUND));
         hub.delete(userId);
         hubRepository.save(hub);
     }
