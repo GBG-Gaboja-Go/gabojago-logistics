@@ -23,7 +23,6 @@ import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.VendorResponseDto;
 import java.math.BigInteger;
-import java.time.LocalTime;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,33 +47,37 @@ public class OrderServiceImpl implements OrderService {
     public CreateOrderResponseDto createOrder(CustomUser customUser,
         CreateOrderRequestDto requestDto) {
         CreateOrderRequestDto.OrderDto orderDto = requestDto.getOrder();
-        // userId로 vendor 조회
-        // vendor 수령인지 공급인지.
+        UUID customerVendorId = orderDto.getCustomerVendorId();
+        UUID productId = orderDto.getProductId();
+        Integer requestedQuantity = orderDto.getQuantity();
 
-        // product 조회
-        ProductResponseDto.ProductDto product = fetchProduct(requestDto.getOrder().getProductId());
+        // vendor 수령업체 검증
+        VendorResponseDto.VendorDto receiverVendor = fetchVendorById(customerVendorId);
+
+//        log.info("reciverVendorId: {}", receiverVendor.isReceiver());
+//        validateIsReceiverVendor(receiverVendor);
+
+        // product 조회, 재고 검증
+        ProductResponseDto.ProductDto product = fetchProduct(productId);
+        validateProductStock(product.getStock(), requestedQuantity);
+
+        // vendor 공급업체 검증
         UUID producerVendorId = product.getVendorId();
+        VendorResponseDto.VendorDto producerVendor = fetchVendorById(producerVendorId);
+        // validateIsProducerVendor(producerVendor);
 
-        // venoderId로 공급업체 공급 Hub 조회
-        ResponseEntity<BaseResponseDto<VendorResponseDto>> responseDto = vendorClient.getVendor(
-            producerVendorId);
-        UUID producerHubId = responseDto.getBody().getData().getHubId();
-
-        // product 재고보다 요청 재고가 더 많은지 검증
-        if (product.getStock() <= orderDto.getQuantity()) {
-            throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
-        }
+        UUID producerHubId = producerVendor.getHubId();
 
         // order 생성
         Order order = Order.builder()
-            .userId(UUID.fromString(customUser.getUserId())) // 사용자 uuid
+            .userId(UUID.fromString(customUser.getUserId()))
             .producerHubId(producerHubId) // 공급 hub id
             .producerVendorId(producerVendorId) // 공급업체 uuid
-            .receiverVendorId(UUID.randomUUID()) // 수령업체 uuid
-            .productId(orderDto.getProductId()) // product uuid
-            .quantity(orderDto.getQuantity())
+            .receiverVendorId(receiverVendor.getId()) // 수령업체 uuid
+            .productId(productId)
+            .quantity(requestedQuantity)
             .totalPrice(
-                product.getPrice().multiply(BigInteger.valueOf(orderDto.getQuantity()))
+                product.getPrice().multiply(BigInteger.valueOf(requestedQuantity))
             )
             .requestMessage(orderDto.getRequestMessage())
             .status(OrderStatus.CREATED)
@@ -82,26 +85,12 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
-        productRestTemplateClient.postInternalProductReleaseStock(
-            buildReleaseStockRequest(orderDto.getProductId(),
-                orderDto.getQuantity()));
+        // 상품 재고 차감
+        releaseProductStock(orderDto.getProductId(), orderDto.getQuantity());
 
         // 배송 서비스에 알림
-        CreateDeliveryRequestDTO.DeliveryDTO delivery = CreateDeliveryRequestDTO.DeliveryDTO.builder()
-            .orderId(savedOrder.getId())
-            .deliveryAddress("서울특별시 강남구 테헤란로 123") // userVendor.getAddress()
-            .hubFromId(producerHubId) // 공급업체 hubId
-            .hubToId(UUID.randomUUID()) // userVendor.getHubId()
-            .userFromId(producerVendorId) // 공급업체 ID
-            .userToId(UUID.randomUUID()) // 수령업체 Id userVendor.getHubId()
-            .estimatedDistance(12.5)
-            .estimatedTime(LocalTime.of(2, 30, 0))
-            .build();
-        CreateDeliveryRequestDTO requestDTO = new CreateDeliveryRequestDTO(delivery);
+        notifyDeliveryService(savedOrder, producerHubId, producerVendorId, receiverVendor);
 
-        BaseResponseDto<CreateDeliveryResponseDTO> response = deliveryClient.createDelivery(
-            requestDTO);
-        log.info("delivery 생성 요청: {}", response.getData().delivery().getId());
         return CreateOrderResponseDto.from(savedOrder);
     }
 
@@ -150,9 +139,13 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void postInternalOrderDelivering(UUID orderId) {
+    public void postInternalOrderDelivering(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
         // 마스터나 허브 관리자만 배송중으로 상태 변경할 수 있음.
+        // 담당 허브 관리자만
+//        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+//
+//        }
 
         if (OrderStatus.DELIVERING.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERING);
@@ -164,9 +157,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     @Transactional
-    public void postInternalOrderDelivered(UUID orderId) {
+    public void postInternalOrderDelivered(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
         // 권한 검증
+        // 담당 허브 관리자만
 
         if (OrderStatus.DELIVERED.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERED);
@@ -211,6 +205,55 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_NOT_FOUND);
         }
         return response.getProduct();
+    }
+
+    private VendorResponseDto.VendorDto fetchVendorById(UUID vendorId) {
+        ResponseEntity<BaseResponseDto<VendorResponseDto>> response = vendorClient.getVendor(
+            vendorId);
+        return response.getBody().getData().getVendor();
+    }
+
+    private void validateIsReceiverVendor(VendorResponseDto.VendorDto vendor) {
+        if (!vendor.isReceiver()) {
+            throw new AppException(OrderErrorCode.ORDER_ONLY_RECEIVER_CAN_ORDER);
+        }
+    }
+
+    private void validateIsProducerVendor(VendorResponseDto.VendorDto vendor) {
+        if (!vendor.isSupplier()) {
+            throw new AppException(OrderErrorCode.ORDER_SUPPLIER_VENDOR_ROLE_INVALID);
+        }
+    }
+
+    private void validateProductStock(Integer currentStock, Integer requestedQuantity) {
+        if (currentStock < requestedQuantity) {
+            throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
+        }
+    }
+
+    private void notifyDeliveryService(Order savedOrder, UUID producerHubId, UUID producerVendorId,
+        VendorResponseDto.VendorDto receiverVendor) {
+        CreateDeliveryRequestDTO.DeliveryDTO delivery = CreateDeliveryRequestDTO.DeliveryDTO.builder()
+            .orderId(savedOrder.getId())
+            .deliveryAddress(receiverVendor.getAddress())
+            .hubFromId(producerHubId)
+            .hubToId(receiverVendor.getHubId())
+            .userFromId(producerVendorId)
+            .userToId(receiverVendor.getId())
+            .build();
+
+        CreateDeliveryRequestDTO requestDTO = new CreateDeliveryRequestDTO(delivery);
+
+        BaseResponseDto<CreateDeliveryResponseDTO> response = deliveryClient.createDelivery(
+            requestDTO);
+        log.info("delivery 생성 요청: {}", response.getData().delivery().getId());
+    }
+
+
+    private void releaseProductStock(UUID productId, Integer quantity) {
+        productRestTemplateClient.postInternalProductReleaseStock(
+            buildReleaseStockRequest(productId, quantity)
+        );
     }
 
     private InternalProductReleaseRequestDto buildReleaseStockRequest(UUID productId,

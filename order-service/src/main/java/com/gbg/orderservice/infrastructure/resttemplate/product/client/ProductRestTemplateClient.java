@@ -58,12 +58,14 @@ public class ProductRestTemplateClient {
         } catch (HttpStatusCodeException exception) {
             throw mapException(exception);
         } catch (RestClientException exception) {
+            log.error("RestClientException 발생: {} - {}", exception.getClass().getSimpleName(),
+                exception.getMessage());
             throw new AppException(OrderErrorCode.ORDER_BAD_REQUEST);
         }
     }
 
     public void postInternalProductReleaseStock(InternalProductReleaseRequestDto requestDto) {
-//        HttpHeaders headers = createJsonHeadersWithAuthorization(accessJwt);
+        //HttpHeaders headers = createJsonHeadersWithAuthorization(accessJwt);
 
         // reqDto → body (요청 JSON 데이터)
         //headers → header (예: Content-Type, Authorization 등)을 하나로 묶어서 RestTemplate에 전달하는 역할
@@ -81,6 +83,8 @@ public class ProductRestTemplateClient {
         } catch (HttpStatusCodeException exception) {
             throw mapException(exception);
         } catch (RestClientException exception) {
+            log.error("재고 차감 중 RestClientException 발생: {} - URL: {}",
+                exception.getClass().getSimpleName(), POST_RELEASE_STOCK_URL, exception);
             throw new AppException(OrderErrorCode.ORDER_BAD_REQUEST);
         }
     }

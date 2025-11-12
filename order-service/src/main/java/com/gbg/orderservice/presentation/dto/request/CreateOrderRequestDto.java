@@ -24,6 +24,10 @@ public class CreateOrderRequestDto {
     @Builder
     public static class OrderDto {
 
+        @NotNull(message = "주문자 수령업체 ID 입력해주세요.")
+        @Schema(description = "수령업체 UUID", example = "a1b2c3d4-e5f6-7890-abcd-123456789012")
+        private UUID customerVendorId;
+
         @NotNull(message = "주문 상품을 입력해주세요.")
         @Schema(description = "상품 UUID", example = "a1b2c3d4-e5f6-7890-abcd-123456789012")
         private UUID productId;
