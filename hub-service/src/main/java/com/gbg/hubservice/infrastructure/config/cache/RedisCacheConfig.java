@@ -47,6 +47,7 @@ public class RedisCacheConfig {
 
         Map<String, RedisCacheConfiguration> cacheConfigs = new HashMap<>();
         cacheConfigs.put(CacheNames.HUB_BY_ID, base);
+        cacheConfigs.put(CacheNames.HUB_ROUTE_BY_ID, base);
 
         return RedisCacheManager.builder(connectionFactory)
             .cacheDefaults(base)

@@ -8,6 +8,7 @@ import com.gbg.hubservice.domain.entity.Hub;
 import com.gbg.hubservice.domain.entity.HubRoute;
 import com.gbg.hubservice.domain.repository.HubRepository;
 import com.gbg.hubservice.domain.repository.HubRouteRepository;
+import com.gbg.hubservice.infrastructure.config.cache.CacheNames;
 import com.gbg.hubservice.infrastructure.config.kakao.KakaoDirectionsClient;
 import com.gbg.hubservice.presentation.dto.request.CreateHubRouteRequestDto;
 import com.gbg.hubservice.presentation.dto.request.UpdateHubRouteRequestDto;
@@ -16,6 +17,8 @@ import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -81,6 +84,7 @@ public class HubRouteServiceImpl implements HubRouteService {
     }
 
     @Override
+    @Cacheable(value = CacheNames.HUB_ROUTE_BY_ID, key = "#routeId", sync = true)
     public GetHubRouteResponseDto getById(UUID routeId) {
         HubRoute r = hubRouteRepository.findByIdAndDeletedAtIsNull(routeId)
             .orElseThrow(() -> new AppException(HubErrorCode.HUB_ROUTE_NOT_FOUND));
@@ -95,6 +99,7 @@ public class HubRouteServiceImpl implements HubRouteService {
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheNames.HUB_ROUTE_BY_ID, key = "#routeId")
     public void update(UUID routeId, UpdateHubRouteRequestDto request, UUID actorId) {
         HubRoute r = hubRouteRepository.findByIdAndDeletedAtIsNull(routeId)
             .orElseThrow(() -> new AppException(HubErrorCode.HUB_ROUTE_NOT_FOUND));
@@ -111,15 +116,15 @@ public class HubRouteServiceImpl implements HubRouteService {
         Hub end = getHubOrThrow(endId);
 
         var summary = calcIfNeeded(dto.getDistance(), dto.getDuration(), start, end);
-        r.update(summary.distanceKm(), summary.durationMin());
-        r = HubRoute.builder().id(r.getId()).startHubId(startId).endHubId(endId)
-            .distance(summary.distanceKm()).duration(summary.durationMin()).build();
 
-        hubRouteRepository.save(r);
+        r.changeEndpoints(startId, endId);
+        r.update(summary.distanceKm(), summary.durationMin());
+
     }
 
     @Override
     @Transactional
+    @CacheEvict(value = CacheNames.HUB_ROUTE_BY_ID, key = "#routeId")
     public void delete(UUID routeId, UUID actorId) {
         HubRoute r = hubRouteRepository.findByIdAndDeletedAtIsNull(routeId)
             .orElseThrow(() -> new AppException(HubErrorCode.HUB_ROUTE_NOT_FOUND));
