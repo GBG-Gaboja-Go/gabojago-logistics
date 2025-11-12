@@ -8,6 +8,7 @@ import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
 import com.gbg.orderservice.infrastructure.client.DeliveryClient;
+import com.gbg.orderservice.infrastructure.client.HubClient;
 import com.gbg.orderservice.infrastructure.client.VendorClient;
 import com.gbg.orderservice.infrastructure.config.auth.CustomUser;
 import com.gbg.orderservice.infrastructure.resttemplate.product.client.ProductRestTemplateClient;
@@ -20,6 +21,7 @@ import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
 import com.gbg.orderservice.presentation.dto.response.CreateDeliveryResponseDTO;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
+import com.gbg.orderservice.presentation.dto.response.GetHubResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.VendorResponseDto;
 import java.math.BigInteger;
@@ -41,6 +43,7 @@ public class OrderServiceImpl implements OrderService {
     private final ProductRestTemplateClient productRestTemplateClient;
     private final DeliveryClient deliveryClient;
     private final VendorClient vendorClient;
+    private final HubClient hubClient;
 
     @Override
     @Transactional
@@ -73,6 +76,7 @@ public class OrderServiceImpl implements OrderService {
             .userId(UUID.fromString(customUser.getUserId()))
             .producerHubId(producerHubId) // 공급 hub id
             .producerVendorId(producerVendorId) // 공급업체 uuid
+            .producerVendorManagerId(producerVendor.getVendorManagerId())
             .receiverVendorId(receiverVendor.getId()) // 수령업체 uuid
             .productId(productId)
             .quantity(requestedQuantity)
@@ -89,7 +93,7 @@ public class OrderServiceImpl implements OrderService {
         releaseProductStock(orderDto.getProductId(), orderDto.getQuantity());
 
         // 배송 서비스에 알림
-        notifyDeliveryService(savedOrder, producerHubId, producerVendorId, receiverVendor);
+        //notifyDeliveryService(savedOrder, producerHubId, producerVendorId, receiverVendor);
 
         return CreateOrderResponseDto.from(savedOrder);
     }
@@ -141,11 +145,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void postInternalOrderDelivering(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
-        // 마스터나 허브 관리자만 배송중으로 상태 변경할 수 있음.
-        // 담당 허브 관리자만
-//        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
-//
-//        }
+
+        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+            validateHubManagerAccess(customUser, order.getProducerHubId());
+        }
 
         if (OrderStatus.DELIVERING.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERING);
@@ -159,8 +162,10 @@ public class OrderServiceImpl implements OrderService {
     @Transactional
     public void postInternalOrderDelivered(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
-        // 권한 검증
-        // 담당 허브 관리자만
+
+        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+            validateHubManagerAccess(customUser, order.getProducerHubId());
+        }
 
         if (OrderStatus.DELIVERED.equals(order.getStatus())) {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERED);
@@ -177,7 +182,10 @@ public class OrderServiceImpl implements OrderService {
         // 마스터랑 공급업체만 취소 가능함.
 
         if (customUser.getRole().equals("ROLE_VENDOR_MANAGER")) {
-            // 공급 업체 인지 확인
+            UUID currentUserId = UUID.fromString(customUser.getUserId());
+            if (!order.getProducerVendorManagerId().equals(currentUserId)) {
+                throw new AppException(OrderErrorCode.ORDER_ACCESS_DENIED_VENDOR);
+            }
         }
 
         if (OrderStatus.CANCELLED.equals(order.getStatus())) {
@@ -249,6 +257,25 @@ public class OrderServiceImpl implements OrderService {
         log.info("delivery 생성 요청: {}", response.getData().delivery().getId());
     }
 
+    private void validateHubManagerAccess(CustomUser customUser, UUID orderHubId) {
+        ResponseEntity<BaseResponseDto<GetHubResponseDto>> response = hubClient.getHubManagerId(
+            UUID.fromString(customUser.getUserId()));
+
+        GetHubResponseDto.HubDto hubDto = response.getBody()
+            .getData()
+            .getHub();
+
+        // 관리 허브 존재 여부 검증
+        if (hubDto == null) {
+            throw new AppException(OrderErrorCode.ORDER_HUB_MANAGER_NO_HUB);
+        }
+
+        // 담당 허브 맞는지 검증
+        if (!hubDto.getId().equals(orderHubId)) {
+            throw new AppException(OrderErrorCode.ORDER_HUB_MANAGER_NO_HUB);
+        }
+
+    }
 
     private void releaseProductStock(UUID productId, Integer quantity) {
         productRestTemplateClient.postInternalProductReleaseStock(
