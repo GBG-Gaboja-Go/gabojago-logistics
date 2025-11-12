@@ -18,6 +18,14 @@ public class CreateProductResponseDto {
     @Builder
     public static class ProductDto {
 
-        private final UUID id;
+        private UUID id;
+    }
+
+    public static CreateProductResponseDto from(UUID id) {
+        return CreateProductResponseDto.builder()
+            .product(ProductDto.builder()
+                .id(id)
+                .build())
+            .build();
     }
 }
