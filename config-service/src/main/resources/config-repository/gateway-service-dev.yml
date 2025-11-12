@@ -34,6 +34,7 @@ spring:
               uri: lb://DELIVERY-SERVICE
               predicates:
                 - Path=/v1/delivery/**
+                - Path=/v1/ai/**
 
             - id: vendor-service
               uri: lb://VENDOR-SERVICE

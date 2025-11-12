@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class AIMessageHelper {
+public class AIPromptHelper {
 
     private final ObjectMapper objectMapper;
 
@@ -21,9 +21,9 @@ public class AIMessageHelper {
     ) {
         StringBuilder prompt = new StringBuilder();
         prompt.append("""
-                당신은 물류 전문가입니다. 주어진 정보를 바탕으로 최종 발송 마감 시간을 계산하세요.\\n" +
-                            "응답은 반드시 ISO-8601 형식의 날짜시간만 출력하세요. 다른 텍스트는 절대 포함하지 마세요.\\n" +
-                            "예시: 2025-12-10T09:00:00+09:00\\n\\n 다음 정보를 바탕으로 최종 발송 시한을 계산하세요:
+                당신은 물류 전문가입니다. 주어진 정보를 바탕으로 최종 발송 마감 시간을 계산하세요.
+                            응답은 반드시 ISO-8601 형식의 날짜시간만 출력하세요. 다른 텍스트는 절대 포함하지 마세요.
+                            예시: 2025-12-10T09:00:00+09:00\\n\\n 다음 정보를 바탕으로 최종 발송 시한을 계산하세요:
 
                 """)
             .append("주문시간: ").append(req.getAi().getOrderTime()).append("\n")

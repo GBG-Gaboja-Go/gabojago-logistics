@@ -1,10 +1,12 @@
 package com.gbg.deliveryservice.application.service.impl;
 
-import com.gbg.deliveryservice.application.helper.AIMessageHelper;
+import com.gbg.deliveryservice.application.helper.AIPromptHelper;
 import com.gbg.deliveryservice.application.service.AIService;
 import com.gbg.deliveryservice.domain.entity.AIHistory;
 import com.gbg.deliveryservice.domain.repository.AIRepository;
 import com.gbg.deliveryservice.infrastructure.client.GeminiClient;
+import com.gbg.deliveryservice.infrastructure.client.SlackFeignClient;
+import com.gbg.deliveryservice.infrastructure.client.dto.SlackSendDmRequest;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto;
 import com.gbg.deliveryservice.presentation.dto.request.InternalCreateAIRequestDto.AIDto.Location;
@@ -20,33 +22,34 @@ import org.springframework.stereotype.Service;
 public class AIServiceImpl implements AIService {
 
     private final GeminiClient geminiClient;
-    private final AIMessageHelper aiMessageHelper;
+    private final AIPromptHelper aiPromptHelper;
     private final AIRepository aiRepository;
+    private final SlackFeignClient slackFeignClient;
 
     @Override
     public void createShippingDeadline(
         InternalCreateAIRequestDto requestDto) {
         AIDto aiDto = requestDto.getAi();
         // prompt 생성
-        String prompt = aiMessageHelper.buildPromptForDeadline(requestDto);
+        String prompt = aiPromptHelper.buildPromptForDeadline(requestDto);
         log.info("message: {}", prompt);
 
         try {
             String aiRaw = geminiClient.generate(prompt)
-                .timeout(Duration.ofSeconds(30))
+                .timeout(Duration.ofSeconds(90))
                 .block();
 
             log.info("AI 응답: {}", aiRaw);
 
             // ai 응답에서 최종발송시한값 parse
-            LocalDateTime finalDeadline = aiMessageHelper.parseFinalDeadlineOnly(
+            LocalDateTime finalDeadline = aiPromptHelper.parseFinalDeadlineOnly(
                 aiRaw,
-                requestDto.getAi().getOrderTime()
+                aiDto.getOrderTime()
             );
 
             // slack에 보낼 메시지 format
-            String responseFromAI = formattingResponse(requestDto, finalDeadline);
-            log.info("responseFromAI: {}", responseFromAI);
+            String responseMessage = formattingResponse(requestDto, finalDeadline);
+            log.info("responseFromAI: {}", responseMessage);
 
             // repository 저장
             AIHistory history = AIHistory.builder()
@@ -54,11 +57,17 @@ public class AIServiceImpl implements AIService {
                 .orderRequestMessage(aiDto.getOrderRequestMessage())
                 .deliveryManSlackEmail(aiDto.getDeliveryManSlackEmail()) // 생략 가능
                 .finalDeadline(finalDeadline)
-                .responseMessage(responseFromAI)
+                .responseMessage(responseMessage)
                 .build();
 
             aiRepository.save(history);
+
             // slack 찌르기
+            SlackSendDmRequest slackRequestDto = SlackSendDmRequest.builder()
+                .email(aiDto.getDeliveryManSlackEmail())
+                .message(responseMessage)
+                .build();
+            slackFeignClient.sendDm(slackRequestDto);
 
         } catch (Exception e) {
             log.error("AI 처리 중 오류 발생", e);
