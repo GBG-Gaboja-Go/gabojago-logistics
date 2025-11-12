@@ -74,9 +74,9 @@ public class OrderController {
             BaseResponseDto.success("상세 주문 조회 성공", responseDto, HttpStatus.OK));
     }
 
-    @PostMapping("/{orderId}/deliverying")
+    @PostMapping("/{orderId}/delivering")
     @PreAuthorize("hasAnyRole('MASTER', 'HUB_MANAGER')")
-    @Operation(summary = "주문 DELIVERYING 상태 변경 API", description = "배송이 시작되었을 때 내부적으로 상태 변경을 요청할 수 있습니다.")
+    @Operation(summary = "주문 DELIVERING 상태 변경 API", description = "배송이 시작되었을 때 내부적으로 상태 변경을 요청할 수 있습니다.")
     public ResponseEntity<BaseResponseDto<Void>> postInternalOrderDelivering(
         @AuthenticationPrincipal CustomUser customUser,
         @Parameter(description = "order UUID") @PathVariable UUID orderId
@@ -95,7 +95,7 @@ public class OrderController {
     ) {
         orderService.postInternalOrderDelivered(customUser, orderId);
         return ResponseEntity.ok(
-            BaseResponseDto.success("주문 상태 DELIVERYING로 변경 성공", HttpStatus.NO_CONTENT));
+            BaseResponseDto.success("주문 상태 DELIVERYED로 변경 성공", HttpStatus.NO_CONTENT));
     }
 
     @PostMapping("/{orderId}/cancel")
