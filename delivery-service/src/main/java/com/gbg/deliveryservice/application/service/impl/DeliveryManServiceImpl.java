@@ -48,6 +48,11 @@ public class DeliveryManServiceImpl implements DeliveryManService {
                 customUser.userId())) {
                 throw new AppException(DeliveryErrorCode.HUB_DELIVERY_FORBIDDEN);
             }
+            if (deliveryManRepository.existsByUserIdAndDeletedAtIsNull(req.deliveryman()
+                .getUserId())) {
+
+                throw new AppException(DeliveryErrorCode.DELIVERYMAN_EXIST);
+            }
 
             if (deliveryManRepository.existsByHubIdAndSequenceAndDeletedAtIsNull(
                 hub.getHub().getId(),
@@ -58,7 +63,7 @@ public class DeliveryManServiceImpl implements DeliveryManService {
             DeliveryMan deliveryMan = DeliveryMan.builder()
                 .hubId(hub.getHub().getId())
                 .id(req.deliveryman().getUserId())
-                .type(req.deliveryman().getType())
+                .type(hub.getHub().getId() != null ? DeliveryType.VENDOR : DeliveryType.HUB)
                 .sequence(req.deliveryman().getSequence())
                 .build();
 

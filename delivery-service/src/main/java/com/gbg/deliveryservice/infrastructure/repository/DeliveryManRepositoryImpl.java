@@ -42,4 +42,9 @@ public class DeliveryManRepositoryImpl implements DeliveryManRepository {
         return deliveryManJpaRepository.existsByHubIdAndSequenceAndDeletedAtIsNull(hubId, sequence);
     }
 
+    @Override
+    public boolean existsByUserIdAndDeletedAtIsNull(UUID userId) {
+        return deliveryManJpaRepository.existsByIdAndDeletedAtIsNull(userId);
+    }
+
 }
