@@ -18,4 +18,6 @@ public interface HubRepository {
     Hub save(Hub hub);
 
     Optional<Hub> findByUserId(UUID id);
+
+    boolean existsByIdAndIsDeletedFalse(UUID id);
 }

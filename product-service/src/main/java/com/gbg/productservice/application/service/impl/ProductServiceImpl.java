@@ -4,6 +4,7 @@ import com.gabojago.exception.AppException;
 import com.gbg.productservice.application.service.ProductService;
 import com.gbg.productservice.domain.entity.Product;
 import com.gbg.productservice.domain.repository.ProductRepository;
+import com.gbg.productservice.infrastructure.client.HubClient;
 import com.gbg.productservice.infrastructure.client.VendorClient;
 import com.gbg.productservice.presentation.advice.ProductErrorCode;
 import com.gbg.productservice.presentation.dto.request.CreateProductRequestDto;
@@ -30,18 +31,40 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final VendorClient vendorClient;
+    private final HubClient hubClient;
 
     @Override
     @Transactional
     public CreateProductResponseDto createProduct(CreateProductRequestDto dto) {
 
-        if (!vendorClient.existsById(dto.getProduct().getVendorId())) {
-            throw new AppException(ProductErrorCode.VENDOR_NOT_FOUND);
+        UUID vendorId = dto.getProduct().getVendorId();
+        UUID hubId = dto.getProduct().getHubId();
+
+        // 둘 다 없을 경우 예외
+        if (vendorId == null && hubId == null) {
+            throw new AppException(ProductErrorCode.MISSING_TARGET);
         }
-//
-//        if (!hubClient.existsById(dto.getProduct().getHubId())) {
-//            throw new AppException(ProductErrorCode.HUB_NOT_FOUND);
-//        }
+
+        // 둘 다 있을 경우 예외
+        if (vendorId != null && hubId != null) {
+            throw new AppException(ProductErrorCode.INVALID_TARGET_COMBINATION);
+        }
+
+        // 공급업체가 생성하는 경우
+        if (vendorId != null) {
+            boolean vendorExists = vendorClient.existsById(vendorId);
+            if (!vendorExists) {
+                throw new AppException(ProductErrorCode.VENDOR_NOT_FOUND);
+            }
+        }
+
+        // 허브가 생성하는 경우
+        if (hubId != null) {
+            boolean hubExists = hubClient.existsById(hubId);
+            if (!hubExists) {
+                throw new AppException(ProductErrorCode.HUB_NOT_FOUND);
+            }
+        }
 
         Product product = Product.builder()
             .name(dto.getProduct().getName())
@@ -98,7 +121,7 @@ public class ProductServiceImpl implements ProductService {
     public void deleteProduct(UUID id) {
         Product product = productRepository.findById(id)
             .orElseThrow(() -> new AppException(ProductErrorCode.PRODUCT_NOT_FOUND));
-        productRepository.delete(product); //feignClient 연동 후 softDelete로 변환 예정
+        productRepository.delete(product);
     }
 
     @Override

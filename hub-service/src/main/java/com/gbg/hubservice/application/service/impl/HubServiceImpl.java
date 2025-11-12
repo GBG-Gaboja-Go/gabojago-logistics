@@ -132,4 +132,8 @@ public class HubServiceImpl implements HubService {
             hub.getUserId()
         );
     }
+
+    public boolean existsById(UUID hubId) {
+        return hubRepository.existsByIdAndIsDeletedFalse(hubId);
+    }
 }

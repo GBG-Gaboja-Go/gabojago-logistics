@@ -12,7 +12,9 @@ public enum ProductErrorCode implements ErrorCode {
     INSUFFICIENT_STOCK("PRODUCT004", "재고가 부족합니다.", HttpStatus.BAD_REQUEST),
     USER_FORBIDDEN("PRODUCT005", "권한이 없습니다.", HttpStatus.FORBIDDEN),
     VENDOR_NOT_FOUND("PRODUCT006", "해당 업체 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    HUB_NOT_FOUND("PRODUCT007", "해당 허브 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    HUB_NOT_FOUND("PRODUCT007", "해당 허브 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    MISSING_TARGET("PRODUCT008", "업체 또는 허브 정보가 필요합니다.", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_COMBINATION("PRODUCT009", "업체와 허브 정보를 동시에 보낼 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 
     private final String code;

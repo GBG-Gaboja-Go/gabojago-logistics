@@ -27,8 +27,9 @@ public class CreateProductRequestDto {
         @NotNull(message = "상품명을 입력해주세요.")
         private String name;
 
-        @NotNull(message = "업체 ID를 입력해주세요.")
         private UUID vendorId;
+        
+        private UUID hubId;
 
         @NotNull(message = "재고 수량을 입력해주세요.")
         @Min(value = 0, message = "재고는 0 이상이어야 합니다.")

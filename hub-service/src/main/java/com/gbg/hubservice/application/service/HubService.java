@@ -21,4 +21,6 @@ public interface HubService {
     void delete(UUID hubId, UUID actorId);
 
     GetHubResponseDto getByUserId(UUID hubManagerId);
+
+    boolean existsById(UUID hubId);
 }

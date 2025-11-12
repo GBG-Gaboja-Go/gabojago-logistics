@@ -4,6 +4,7 @@ import com.gabojago.exception.AppException;
 import com.gbg.vendorservice.application.service.VendorService;
 import com.gbg.vendorservice.domain.entity.Vendor;
 import com.gbg.vendorservice.domain.repository.VendorRepository;
+import com.gbg.vendorservice.infrastructure.client.HubClient;
 import com.gbg.vendorservice.infrastructure.config.auth.CustomUser;
 import com.gbg.vendorservice.presentation.advice.VendorErrorCode;
 import com.gbg.vendorservice.presentation.dto.request.CreateVendorRequestDto;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class VendorServiceImpl implements VendorService {
 
     private final VendorRepository vendorRepository;
+    private final HubClient hubClient;
 
     @Override
     @Transactional
@@ -32,6 +34,10 @@ public class VendorServiceImpl implements VendorService {
 
         UUID vendorManagerId = dto.getVendorManagerId();
         // 유저 검증
+
+        if (!hubClient.existsById(dto.getHubId())) {
+            throw new AppException(VendorErrorCode.HUB_NOT_FOUND);
+        }
 
         Vendor vendor = Vendor.builder()
             .name(dto.getName())

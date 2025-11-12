@@ -72,4 +72,9 @@ public class HubRepositoryImpl implements HubRepository {
         return jpa.findByUserId(userId)
             .filter(h -> h.getDeletedAt() == null);
     }
+
+    @Override
+    public boolean existsByIdAndIsDeletedFalse(UUID id) {
+        return jpa.existsByIdAndDeletedAtIsNull(id);
+    }
 }

@@ -12,4 +12,6 @@ public interface HubJpaRepository extends JpaRepository<Hub, UUID> {
     Optional<Hub> findById(UUID id);
 
     Optional<Hub> findByUserId(UUID id);
+
+    boolean existsByIdAndDeletedAtIsNull(UUID id);
 }

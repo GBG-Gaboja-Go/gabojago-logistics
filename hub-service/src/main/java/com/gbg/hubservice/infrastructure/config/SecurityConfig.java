@@ -35,6 +35,9 @@ public class SecurityConfig {
 
             // 권한 규칙 설정
             .authorizeHttpRequests(auth -> auth
+                // 내부 API 허용 (vendor, product 서비스 접근 용)
+                .requestMatchers("/internal/v1/hubs/**").permitAll()
+                // 허브 권한 규칙
                 .requestMatchers(HttpMethod.POST, "/v1/hubs/**").hasRole("MASTER")
                 .requestMatchers(HttpMethod.PUT, "/v1/hubs/**").hasRole("MASTER")
                 .requestMatchers(HttpMethod.DELETE, "/v1/hubs/**").hasRole("MASTER")
