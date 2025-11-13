@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -26,6 +27,7 @@ public class JwtAuthFilter implements GlobalFilter {
     private static final Logger log = LoggerFactory.getLogger(JwtAuthFilter.class);
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthService authService;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @Override
@@ -45,8 +47,13 @@ public class JwtAuthFilter implements GlobalFilter {
             return onError(exchange, "Missing or invalid Authorization header",
                 HttpStatus.UNAUTHORIZED);
         }
-
         String token = authHeader.substring(7);
+
+        if (Boolean.TRUE.equals(redisTemplate.hasKey("BL:" + token))) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
 
         // Jwt 유효성 검증
         if (!jwtTokenProvider.validateToken(token)) {

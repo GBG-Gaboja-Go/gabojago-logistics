@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +49,20 @@ public class UserController {
                 "회원가입이 완료 되었습니다",
                 saveUser,
                 HttpStatus.CREATED));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<BaseResponseDto<Void>> logout(
+        @RequestHeader("Authorization") String accessToken,
+        @RequestHeader("Refresh-Token") String refreshToken
+    ) {
+
+        authService.logout(accessToken, refreshToken);
+        return ResponseEntity
+        .ok(BaseResponseDto.success(
+            "로그아웃 성공",
+            HttpStatus.OK
+        ));
     }
 
     @GetMapping

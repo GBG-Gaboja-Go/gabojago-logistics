@@ -122,6 +122,26 @@ public class JwtTokenProvider {
         return UUID.fromString(parseClaims(token).getSubject());
     }
 
+    public UUID getUserIdFromToken(String token) {
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .setAllowedClockSkewSeconds(60)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
 
+        return UUID.fromString(claims.getSubject());
+    }
+
+    public long getExpiration(String token) {
+        Claims claims = Jwts.parserBuilder()
+            .setSigningKey(key)
+            .setAllowedClockSkewSeconds(60)
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+
+        return claims.getExpiration().getTime() - System.currentTimeMillis();
+    }
 
 }
