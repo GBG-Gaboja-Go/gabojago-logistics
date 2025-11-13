@@ -18,6 +18,8 @@ public class InternalCreateAIResponseDto {
 
         private final UUID id;
 
+        private final UUID orderId;
+
         private final String responseMessage;
     }
 

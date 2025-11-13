@@ -33,6 +33,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         List<String> allowedUrls = Arrays.asList(
+            "/internal/v1/ai/**",
             "internal/v1/delivery/**",
             "/v1/delivery/**",
             "/v1/delivery-mans/**",

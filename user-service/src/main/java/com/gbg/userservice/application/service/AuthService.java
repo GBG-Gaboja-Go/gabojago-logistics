@@ -6,4 +6,6 @@ import java.util.UUID;
 public interface AuthService {
 
     UUID signUp(CreateUserRequestDto req);
+
+    void logout(String accessToken, String refreshToken);
 }
