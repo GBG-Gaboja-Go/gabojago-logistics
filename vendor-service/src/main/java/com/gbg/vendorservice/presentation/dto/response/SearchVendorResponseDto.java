@@ -28,8 +28,8 @@ public class SearchVendorResponseDto {
                 .name(vendor.getName())
                 .hubId(vendor.getHubId())
                 .vendorManagerId(vendor.getVendorManagerId())
-                .isSupplier(vendor.getIsSupplier())
-                .isReceiver(vendor.getIsReceiver())
+                .supplier(vendor.getSupplier())
+                .receiver(vendor.getReceiver())
                 .address(vendor.getAddress())
                 .build())
             .collect(Collectors.toList());

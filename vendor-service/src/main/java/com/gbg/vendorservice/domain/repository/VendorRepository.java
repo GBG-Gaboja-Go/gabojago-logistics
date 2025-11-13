@@ -25,4 +25,6 @@ public interface VendorRepository {
     List<Vendor> findAllByVendorManagerId(UUID managerId);
 
     boolean existsById(UUID vendorId);
+
+    List<Vendor> findByHubId(UUID hubId);
 }

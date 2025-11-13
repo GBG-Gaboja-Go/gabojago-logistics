@@ -13,8 +13,14 @@ public interface JpaVendorRepository extends JpaRepository<Vendor, UUID> {
 
     List<Vendor> findAllByVendorManagerId(UUID managerId);
 
-    Page<Vendor> findByIsSupplierTrue(Pageable pageable);
+    Page<Vendor> findBySupplierTrue(Pageable pageable);
 
-    Page<Vendor> findByIsReceiverTrue(Pageable pageable);
-    
+    Page<Vendor> findByReceiverTrue(Pageable pageable);
+
+    Page<Vendor> findByNameContainingIgnoreCaseAndSupplierTrue(String name, Pageable pageable);
+
+    Page<Vendor> findByNameContainingIgnoreCaseAndReceiverTrue(String name, Pageable pageable);
+
+    List<Vendor> findByHubId(UUID hubId);
+
 }

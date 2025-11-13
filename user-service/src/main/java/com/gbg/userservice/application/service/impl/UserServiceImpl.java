@@ -81,7 +81,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void userDelete(UUID loginId ,UUID userId) {
+    public void userDelete(UUID loginId, UUID userId) {
         User findUser = findUser(userId);
 
         findUser.delete(loginId);
@@ -89,7 +89,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UUID adminDetailUpdate(UUID loginId, UUID userId,  AdminUpdateRequestDto req) {
+    public UUID adminDetailUpdate(UUID loginId, UUID userId, AdminUpdateRequestDto req) {
         User findUser = userRepository.findById(userId).orElseThrow(
             () -> new AppException(UserErrorCode.USER_NOT_FOUND)
         );
@@ -150,5 +150,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return user;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean existsById(UUID userId) {
+        return userRepository.existsById(userId);
     }
 }

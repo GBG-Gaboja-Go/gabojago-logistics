@@ -10,7 +10,8 @@ public enum VendorErrorCode implements ErrorCode {
     VENDOR_ALREADY_EXISTS("VENDOR002", "이미 존재하는 업체입니다.", HttpStatus.CONFLICT),
     INVALID_VENDOR_TYPE("VENDOR003", "잘못된 업체 유형입니다.", HttpStatus.BAD_REQUEST),
     USER_FORBIDDEN("VENDOR004", "권한이 없습니다.", HttpStatus.FORBIDDEN),
-    HUB_NOT_FOUND("VENDOR005", "해당 허브 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    HUB_NOT_FOUND("VENDOR005", "해당 허브 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    USER_NOT_FOUND("VENDOR006", "해당 유저 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
 
 
     private final String code;

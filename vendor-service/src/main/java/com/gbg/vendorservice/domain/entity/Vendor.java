@@ -36,10 +36,10 @@ public class Vendor extends BaseEntity {
     private UUID vendorManagerId;
 
     @Column(name = "is_supplier", nullable = false)
-    private Boolean isSupplier;
+    private Boolean supplier;
 
     @Column(name = "is_receiver", nullable = false)
-    private Boolean isReceiver;
+    private Boolean receiver;
 
     @Column(nullable = false)
     private String address;
@@ -57,11 +57,11 @@ public class Vendor extends BaseEntity {
         if (dto.getVendorMangerId() != null) {
             this.vendorManagerId = dto.getVendorMangerId();
         }
-        if (dto.getIsSupplier() != null) {
-            this.isSupplier = dto.getIsSupplier();
+        if (dto.getSupplier() != null) {
+            this.supplier = dto.getSupplier();
         }
-        if (dto.getIsReceiver() != null) {
-            this.isReceiver = dto.getIsReceiver();
+        if (dto.getReceiver() != null) {
+            this.receiver = dto.getReceiver();
         }
         if (dto.getAddress() != null) {
             this.address = dto.getAddress();

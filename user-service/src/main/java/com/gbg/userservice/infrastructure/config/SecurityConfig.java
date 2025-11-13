@@ -67,6 +67,7 @@ public class SecurityConfig {
                 .requestMatchers("/v1/users/sign-up").permitAll()
                 .requestMatchers("/v1/users/sign-in").permitAll()
                 .requestMatchers("/v1/users/logout").permitAll()
+                .requestMatchers("/internal/v1/users/**").permitAll()
                 .requestMatchers("/v1/users/internal/**").permitAll()
                 .requestMatchers("/swagger-ui/**").permitAll()
                 .requestMatchers("/swagger-resources/**").permitAll()
