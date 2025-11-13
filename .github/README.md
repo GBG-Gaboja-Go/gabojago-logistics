@@ -15,14 +15,14 @@
 
 **Backend & Core**
 
-* Language : ![Static Badge](https://img.shields.io/badge/Java-red?style=flat-square)  
-* Framework : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)  
+* 언어 : ![Static Badge](https://img.shields.io/badge/Java-red?style=flat-square)  
+* 프레임워크 : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)  
 * JDK : ![Static Badge](https://img.shields.io/badge/JDK-17-yellow?style=flat-square)  
-* Data Persistence : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white) ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)  
-* Infrastructure : ![Static Badge](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white) ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=flat&logo=swagger&logoColor=white) JitPack  
-* API Gateway: Spring Cloud Gateway
-* Service Discovery: Netflix Eurek
-* Configuration: Spring Cloud Config
+* DB : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white) ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)  
+* 인프라 : ![Static Badge](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white) ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=flat&logo=swagger&logoColor=white) JitPack  
+* API Gateway : Spring Cloud Gateway
+* Service Discovery : Netflix Eurek
+* Configuration : Spring Cloud Config
 * 외부 API : Gemini, Slack, KakaoMap  
 
 **Communication & Messaging**
@@ -84,7 +84,7 @@ https://www.notion.so/teamsparta/API-29f2dc3ef51480af947ac8c43ea9e7a3
 ## ✨ 주요 기능
 
 * **🌐 Hub 간 최적 경로 및 시간 계산**
-  * Kakao Local API를 활용하여 물류 허브(Hub)의 주소를 **좌표(Coordinates)**로 정확하게 변환.
+  * Kakao Local API를 활용하여 물류 허브(Hub)의 주소를 좌표(Coordinates)로 정확하게 변환.
   * 변환된 좌표를 기반으로 허브 간의 실제 이동 거리 및 예상 소요 시간을 계산하여 배송 계획에 반영.
 
 * **🛵 배달 담당자 자동 배정 로직**
@@ -138,6 +138,12 @@ export DB_PASSWORD='{DB 비밀번호}'
 
 <br>
 
+**4. 서비스 상태 확인**
+* Eureka Dashboard: http://localhost:8761
+* Gateway: http://localhost:8080
+
+<br>
+
 ## 👻 팀원
 
 **프로젝트 기간** : 2025.10.31(금) ~ 2025.11.14(금)  
@@ -151,7 +157,5 @@ export DB_PASSWORD='{DB 비밀번호}'
 | 팀원 박준형   | 허브, Kakao MapAPI     |
 | 팀원 이가현     | 주문, Gemini AI      |
 | 팀원 이태경     | 배송 |
-**4. 서비스 상태 확인**
-* Eureka Dashboard: http://localhost:8761
-* Gateway: http://localhost:8080
+
 
