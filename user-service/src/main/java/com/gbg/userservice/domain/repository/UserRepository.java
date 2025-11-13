@@ -18,4 +18,6 @@ public interface UserRepository {
     Optional<User> findById(UUID userId);
 
     Optional<User> findBySlackEmail(String email);
+
+    boolean existsById(UUID userId);
 }

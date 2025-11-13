@@ -16,6 +16,6 @@ public class UpdateVendorRequestDto {
     private UUID hubId;
     private UUID vendorMangerId;
     private String address;
-    private Boolean isSupplier;
-    private Boolean isReceiver;
+    private Boolean supplier;
+    private Boolean receiver;
 }

@@ -1,9 +1,7 @@
 package com.gbg.userservice.application.service;
 
 import com.gbg.userservice.domain.entity.User;
-import com.gbg.userservice.domain.entity.UserRole;
 import com.gbg.userservice.domain.entity.UserStatus;
-import com.gbg.userservice.infrastructure.config.auth.CustomUser;
 import com.gbg.userservice.presentation.dto.request.AdminUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.request.UserUpdateRequestDto;
 import com.gbg.userservice.presentation.dto.response.UserListResponseDto;
@@ -28,4 +26,6 @@ public interface UserService {
     User getUser(UUID userId);
 
     User getUserByEmail(String email);
+
+    boolean existsById(UUID userId);
 }

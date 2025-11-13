@@ -101,5 +101,4 @@ public class HubController {
 
         return ResponseEntity.ok(BaseResponseDto.success("허브 조회 성공", hub, HttpStatus.OK));
     }
-
 }

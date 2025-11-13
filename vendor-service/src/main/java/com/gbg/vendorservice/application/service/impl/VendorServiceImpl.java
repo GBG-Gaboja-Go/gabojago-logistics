@@ -5,6 +5,7 @@ import com.gbg.vendorservice.application.service.VendorService;
 import com.gbg.vendorservice.domain.entity.Vendor;
 import com.gbg.vendorservice.domain.repository.VendorRepository;
 import com.gbg.vendorservice.infrastructure.client.HubClient;
+import com.gbg.vendorservice.infrastructure.client.UserClient;
 import com.gbg.vendorservice.infrastructure.config.auth.CustomUser;
 import com.gbg.vendorservice.presentation.advice.VendorErrorCode;
 import com.gbg.vendorservice.presentation.dto.request.CreateVendorRequestDto;
@@ -27,16 +28,30 @@ public class VendorServiceImpl implements VendorService {
 
     private final VendorRepository vendorRepository;
     private final HubClient hubClient;
+    private final UserClient userClient;
 
     @Override
     @Transactional
     public CreateVendorResponseDto createVendor(CustomUser customUser, CreateVendorRequestDto dto) {
 
         UUID vendorManagerId = dto.getVendorManagerId();
-        // 유저 검증
 
+        // 허브 존재 검증
         if (!hubClient.existsById(dto.getHubId())) {
             throw new AppException(VendorErrorCode.HUB_NOT_FOUND);
+        }
+
+        // 유저 존재 검증
+        if (!userClient.existsById(vendorManagerId)) {
+            throw new AppException(VendorErrorCode.USER_NOT_FOUND);
+        }
+
+        // 비즈니스 검증: 공급자/수령자 중 하나만 true여야 함
+        boolean supplier = Boolean.TRUE.equals(dto.getSupplier());
+        boolean receiver = Boolean.TRUE.equals(dto.getReceiver());
+
+        if (!(supplier ^ receiver)) { // XOR — 둘 중 하나만 true여야 함
+            throw new AppException(VendorErrorCode.INVALID_VENDOR_TYPE);
         }
 
         Vendor vendor = Vendor.builder()
@@ -44,8 +59,8 @@ public class VendorServiceImpl implements VendorService {
             .hubId(dto.getHubId())
             .vendorManagerId(vendorManagerId) // 업체 매니저 ID
             .address(dto.getAddress())
-            .isSupplier(dto.getIsSupplier())
-            .isReceiver(dto.getIsReceiver())
+            .supplier(dto.getSupplier())
+            .receiver(dto.getReceiver())
             .isDeleted(false)
             .build();
 
@@ -80,6 +95,15 @@ public class VendorServiceImpl implements VendorService {
             .map(VendorResponseDto::from)
             .toList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<VendorResponseDto> getVendorsByHubId(UUID hubId) {
+        return vendorRepository.findByHubId(hubId).stream()
+            .map(VendorResponseDto::from)
+            .toList();
+    }
+
 
     @Override
     @Transactional(readOnly = true)

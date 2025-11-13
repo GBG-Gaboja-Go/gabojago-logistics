@@ -23,6 +23,8 @@ public interface VendorService {
 
     List<VendorResponseDto> getVendorsByVendorManagerId(UUID managerId);
 
+    List<VendorResponseDto> getVendorsByHubId(UUID hubId);
+
     VendorResponseDto updateVendor(UUID vendorId, UpdateVendorRequestDto dto);
 
     void deleteVendor(UUID vendorId);

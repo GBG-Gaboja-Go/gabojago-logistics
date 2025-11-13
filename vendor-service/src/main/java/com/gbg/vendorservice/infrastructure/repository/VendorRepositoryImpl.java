@@ -48,15 +48,42 @@ public class VendorRepositoryImpl implements VendorRepository {
         String name = dto.getName();
         String type = dto.getType();
 
-        if (name != null && !name.isEmpty()) {
+        // 🔧 안정성을 위한 전처리
+        if (type != null) {
+            type = type.trim().toLowerCase(); // " supplier" → "supplier"
+        }
+
+        boolean hasName = name != null && !name.trim().isEmpty();
+        boolean searchSupplier = "supplier".equals(type);
+        boolean searchReceiver = "receiver".equals(type);
+
+        // ✅ 디버깅 로그 (확인용)
+        System.out.println("[Vendor Search] name: " + name + ", type: " + type);
+        System.out.println(
+            "→ hasName: " + hasName + ", isSupplier: " + searchSupplier + ", isReceiver: "
+                + searchReceiver);
+
+        // ✅ 조건 조합별 분기 처리
+        if (hasName && searchSupplier) {
+            return jpaVendorRepository.findByNameContainingIgnoreCaseAndSupplierTrue(name,
+                pageable);
+        } else if (hasName && searchReceiver) {
+            return jpaVendorRepository.findByNameContainingIgnoreCaseAndReceiverTrue(name,
+                pageable);
+        } else if (hasName) {
             return jpaVendorRepository.findByNameContainingIgnoreCase(name, pageable);
-        } else if ("supplier".equalsIgnoreCase(type)) {
-            return jpaVendorRepository.findByIsSupplierTrue(pageable);
-        } else if ("receiver".equalsIgnoreCase(type)) {
-            return jpaVendorRepository.findByIsReceiverTrue(pageable);
+        } else if (searchSupplier) {
+            return jpaVendorRepository.findBySupplierTrue(pageable);
+        } else if (searchReceiver) {
+            return jpaVendorRepository.findByReceiverTrue(pageable);
         } else {
             return jpaVendorRepository.findAll(pageable);
         }
+    }
+
+    @Override
+    public List<Vendor> findByHubId(UUID hubId) {
+        return jpaVendorRepository.findByHubId(hubId);
     }
 
     @Override

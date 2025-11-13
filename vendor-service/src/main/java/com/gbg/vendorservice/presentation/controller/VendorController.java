@@ -22,12 +22,12 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -73,22 +73,44 @@ public class VendorController {
     }
 
     @GetMapping
-    @Operation(summary = "전체 업체 목록 조회 API", description = "전체 업체 목록을 조회합니다.")
+    @PreAuthorize("hasRole('MASTER')")
+    @Operation(summary = "전체 업체 목록 조회 API", description = "MASTER만 전체 업체 목록을 조회합니다.")
     public ResponseEntity<BaseResponseDto<List<VendorResponseDto>>> getAllVendors() {
         List<VendorResponseDto> responseDto = vendorService.getAllVendors();
         return ResponseEntity.ok(
             BaseResponseDto.success("업체 목록 조회 성공", responseDto, HttpStatus.OK));
     }
 
+    @GetMapping("/hub/{hubId}")
+    @PreAuthorize("hasAnyRole('MASTER','HUB_MANAGER')")
+    @Operation(summary = "허브별 업체 목록 조회 API", description = "특정 허브에 소속된 업체 목록을 조회합니다.")
+    public ResponseEntity<BaseResponseDto<List<VendorResponseDto>>> getVendorsByHubId(
+        @PathVariable UUID hubId) {
+
+        List<VendorResponseDto> responseDto = vendorService.getVendorsByHubId(hubId);
+
+        return ResponseEntity.ok(
+            BaseResponseDto.success("허브별 업체 목록 조회 성공", responseDto, HttpStatus.OK)
+        );
+    }
+
     @GetMapping("/search")
     @Operation(summary = "업체 검색 API", description = "업체명(name) 또는 유형(type: supplier/receiver)으로 검색합니다.")
     public ResponseEntity<BaseResponseDto<SearchVendorResponseDto>> searchVendors(
-        @ModelAttribute SearchVendorRequestDto dto,
+        @RequestParam(required = false) String name,
+        @RequestParam(required = false) String type,
         Pageable pageable
     ) {
+        SearchVendorRequestDto dto = SearchVendorRequestDto.builder()
+            .name(name)
+            .type(type)
+            .build();
+
         SearchVendorResponseDto responseDto = vendorService.searchVendors(dto, pageable);
+
         return ResponseEntity.ok(
-            BaseResponseDto.success("업체 검색 성공", responseDto, HttpStatus.OK));
+            BaseResponseDto.success("업체 검색 성공", responseDto, HttpStatus.OK)
+        );
     }
 
 
