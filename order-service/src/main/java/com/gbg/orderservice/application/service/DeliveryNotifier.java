@@ -30,7 +30,6 @@ public class DeliveryNotifier {
 
         CreateDeliveryRequestDTO requestDTO = new CreateDeliveryRequestDTO(delivery);
 
-        // 💡 이제 Delivery Service에서 orderId 조회가 성공적으로 이루어집니다.
         deliveryClient.createDelivery(requestDTO);
         log.info("delivery 생성 요청 성공");
 
