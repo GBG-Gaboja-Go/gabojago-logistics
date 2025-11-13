@@ -1,21 +1,6 @@
-##  🏍️ gabojago 
+##  🚚 gabojago 
 
-| 이 프로젝트는 MSA 기반 B2B 물류 관리 및 배송 시스템을 구현한 백엔드 애플리케이션입니다.
-
-
-## 👻 팀원
-
-| **프로젝트 기간** | 2025.10.31(금) ~ 2025.11.14(금) |
-|-------------|-------------------------------|
-| **포지션**     | 백엔드 개발자 5명                    |
-
-| 이름         | 역할           |
-|------------|--------------|
-| 팀장 **류창희** | 유저, 인증, Slack       |
-| 팀원 권준성 | 업체, 상품        |
-| 팀원 박준형   | 허브, Kakao MapAPI     |
-| 팀원 이가현     | 주문, Gemini AI      |
-| 팀원 이태경     | 배송 |
+> 이 프로젝트는 MSA 기반 B2B 물류 관리 및 배송 시스템을 구현한 백엔드 애플리케이션입니다.
 
 <br>
 
@@ -26,27 +11,48 @@
 
 <br>
 
-## 🦾 기술 스택
-언어 : ![Static Badge](https://img.shields.io/badge/Java-red?style=flat-square)  
-JDK : ![Static Badge](https://img.shields.io/badge/JDK-17-yellow?style=flat-square)  
-프레임워크 : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)  
-DB : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white), ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)  
-Infrastructure : Docker, Swagger, JitPack  
-외부 API : Gemini, Slack, KakaoMap  
+## ⚙️ 기술 스택
+
+**Backend & Core**
+
+* Language : ![Static Badge](https://img.shields.io/badge/Java-red?style=flat-square)  
+* Framework : ![Static Badge](https://img.shields.io/badge/SpringBoot-%23FFFF00?logo=springboot)  
+* JDK : ![Static Badge](https://img.shields.io/badge/JDK-17-yellow?style=flat-square)  
+* Data Persistence : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white) ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)  
+* Infrastructure : ![Static Badge](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white) ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=flat&logo=swagger&logoColor=white) JitPack  
+* API Gateway: Spring Cloud Gateway
+* Service Discovery: Netflix Eurek
+* Configuration: Spring Cloud Config
+* 외부 API : Gemini, Slack, KakaoMap  
+
+**Communication & Messaging**
+* Inter-Service Communication (Synchronous): OpenFeign 또는 WebClient
+
+**Security & DevOps**
+* Security: Spring Security (JWT)
+
+
 
 <br>
 
 ## 👥 유스케이스  
-<img width="700" height="800" alt="image" src="https://github.com/user-attachments/assets/c3ac47d0-b6e7-483d-91aa-cf656ea09e81" />
+<img width="700" height="1000" alt="image" src="https://github.com/user-attachments/assets/43794c0f-e36d-425a-9928-b73938e483f9" />
 
 <br>
 
-## 🧬 시스템 아키텍처  
+## 🧬 시스템 아키텍처 
+<img width="700" height="531" alt="image" src="https://github.com/user-attachments/assets/7927424a-6bae-455c-a9e0-14799423aa14" />
+
+<br>
 
 ## 💿 ERD  
+<img width="700" height="1000" alt="Gabojago (2)" src="https://github.com/user-attachments/assets/7e5db71a-e6cc-4865-a324-b426b77b89cc" />
+
 
 ## 📄 API 명세서  
 https://www.notion.so/teamsparta/API-29f2dc3ef51480af947ac8c43ea9e7a3
+
+<br>
 
 
 ## 🔗 MSA 구조
@@ -60,7 +66,7 @@ https://www.notion.so/teamsparta/API-29f2dc3ef51480af947ac8c43ea9e7a3
 
 
 
-### 🚚비즈니스 서비스
+### 🔎 비즈니스 서비스
 
 | SERVICE         | PORT           | 설명           |
 |------------|--------------|--------------|
@@ -132,6 +138,19 @@ export DB_PASSWORD='{DB 비밀번호}'
 
 <br>
 
+## 👻 팀원
+
+**프로젝트 기간** : 2025.10.31(금) ~ 2025.11.14(금)  
+**포지션**      :  백엔드 개발자 5명                    
+
+
+| 이름         | 역할           |
+|------------|--------------|
+| 팀장 **류창희** | 유저, 인증, Slack       |
+| 팀원 권준성 | 업체, 상품        |
+| 팀원 박준형   | 허브, Kakao MapAPI     |
+| 팀원 이가현     | 주문, Gemini AI      |
+| 팀원 이태경     | 배송 |
 **4. 서비스 상태 확인**
 * Eureka Dashboard: http://localhost:8761
 * Gateway: http://localhost:8080
