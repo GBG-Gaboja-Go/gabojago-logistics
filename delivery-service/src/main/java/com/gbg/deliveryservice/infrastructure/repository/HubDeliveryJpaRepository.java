@@ -1,6 +1,7 @@
 package com.gbg.deliveryservice.infrastructure.repository;
 
 import com.gbg.deliveryservice.domain.entity.HubDelivery;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,4 +18,8 @@ public interface HubDeliveryJpaRepository extends JpaRepository<HubDelivery, UUI
     List<HubDelivery> findAllByHubFromIdAndDeletedAtIsNull(UUID id);
 
     List<HubDelivery> findAllByHubToIdAndDeletedAtIsNull(UUID id);
+
+    Collection<HubDelivery> findAllByDeletedAtIsNull();
+
+    Optional<HubDelivery> findTopByOrderByCreatedAtDesc();
 }
