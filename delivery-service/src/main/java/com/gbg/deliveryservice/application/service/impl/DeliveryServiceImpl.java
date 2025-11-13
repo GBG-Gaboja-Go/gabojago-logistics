@@ -293,7 +293,8 @@ public class DeliveryServiceImpl implements DeliveryService {
                 UUID.fromString(customUser.userId()), customUser.userId(), customUser.role()).getBody())
             .getData().getHub().getId();
 
-        List<UUID> deliveryIdList = hubDeliveryRepository.findAllByDeletedAtIsNull(
+        List<UUID> deliveryIdList = hubDeliveryRepository.findAllByHubToIdAndDeletedAtIsNull(
+            hubId
         ).stream().map(HubDelivery::getDeliveryId).toList();
 
         Page<Delivery> deliveries = deliveryRepository.deliveryMyPage(pageable, status,
