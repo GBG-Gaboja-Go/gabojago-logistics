@@ -1,13 +1,15 @@
 ##  🚚 gabojago 
 
-> 이 프로젝트는 MSA 기반 B2B 물류 관리 및 배송 시스템을 구현한 백엔드 애플리케이션입니다.
+> 이 프로젝트는 MSA 기반 B2B 물류 관리 및 배송 시스템을 구현한 백엔드 애플리케이션입니다.  
+각 허브를 중심으로 회사, 제품, 주문, 배송, 사용자 등 다양한 요소를 통합적으로 관리할 수 있는 기능을 제공하며,  
+허브 간 최적 경로 산출, 실시간 배송 추적, 자동 재고 관리 등을 통해 운영 효율을 높이는 것을 목표로 합니다.
 
 <br>
 
 ## :raised_hands: 프로젝트 소개
 - Gabojago 물류는 각 지역에 허브센터를 가지고 있으며 각 허브 센터는 여러 업체의 물건을 보관합니다.
-- 허브의 재고가 부족할 경우, 공급업체로부터 상품이 입고됩니다
 - 해당 상품의 배송 요청이 들어오면 목적지 허브로 물품을 이동시켜 목적지에 배송합니다.
+- AI를 활용하여 최종 발송시한을 계산하여 배송 담당자 Slack으로 알림을 보냅니다.
 
 <br>
 
@@ -21,7 +23,7 @@
 * DB : ![Static Badge](https://img.shields.io/badge/PostgreSQL-336791?style=flat&logo=postgresql&logoColor=white) ![Static Badge](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)  
 * 인프라 : ![Static Badge](https://img.shields.io/badge/docker-%230db7ed.svg?style=flat&logo=docker&logoColor=white) ![Swagger](https://img.shields.io/badge/-Swagger-%23Clojure?style=flat&logo=swagger&logoColor=white) JitPack  
 * API Gateway : Spring Cloud Gateway
-* Service Discovery : Netflix Eurek
+* Service Discovery : Netflix Eureka
 * Configuration : Spring Cloud Config
 * 외부 API : Gemini, Slack, KakaoMap  
 
@@ -84,20 +86,19 @@ https://www.notion.so/teamsparta/API-29f2dc3ef51480af947ac8c43ea9e7a3
 ## ✨ 주요 기능
 
 * **🌐 Hub 간 최적 경로 및 시간 계산**
-  * Kakao Local API를 활용하여 물류 허브(Hub)의 주소를 좌표(Coordinates)로 정확하게 변환.
-  * 변환된 좌표를 기반으로 허브 간의 실제 이동 거리 및 예상 소요 시간을 계산하여 배송 계획에 반영.
+  * Kakao Local API를 활용하여 물류 허브(Hub)의 주소를 좌표(Coordinates)로 정확하게 변환합니다.
+  * 변환된 좌표를 기반으로 허브 간의 실제 이동 거리 및 예상 소요 시간을 계산하여 배송 계획에 반영합니다.
 
 * **🛵 배달 담당자 자동 배정 로직**
 
-  * 순번 기반의 순환 배정(Round-Robin) 시스템을 적용하여 담당자를 지정.
+  * 순번 기반의 순환 배정(Round-Robin) 시스템을 적용하여 담당자를 지정합니다.
   * 배정 시 최근 배달 담당자 ID를 조회하여, 해당 순번보다 큰 담당자 중 가장 순번이 빠른 담당자를 우선 지정합니다.
   * 결번(퇴사/미근무) 등으로 순번이 비어도 시스템이 자동으로 다음 순번을 찾아 배정하여 누락을 방지합니다.
-  * (*순번을 건너뛰는 방식으로 결번 상황에 유연하게 대응하도록 설계됨.)
 
-* **🤖 AI 기반 배송 시간 예측 및 알림**
+* **🤖 AI 활용 최종 발송 시한 예측 및 Slack 알림**
 
-  * 상품 주문 시 Gemini API를 연동하여 물류 처리 및 이동 시간을 고려한 최종 발송 시간을 도출.
-  * 도출된 예측 시간을 포맷팅하여, 담당자 및 관련 채널에 Slack 메시지로 즉시 전송하는 자동 알림 시스템 구축.
+  * 상품 주문 시 Gemini API를 활용하여 배송 이동경로와 고객 요청사항을 고려한 최종 발송 시한을 도출합니다.
+  * 도출된 예측 시간을 포맷팅하여, 담당자 및 관련 채널에 Slack 메시지로 즉시 전송합니다.
 
 <br>
 
