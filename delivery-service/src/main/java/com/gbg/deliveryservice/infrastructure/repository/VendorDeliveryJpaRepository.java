@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface VendorDeliveryJpaRepository extends JpaRepository<VendorDelivery, UUID> {
 
     Optional<VendorDelivery> findByDeliveryIdAndDeletedAtIsNull(UUID id);
-    
+
     Optional<VendorDelivery> findByDeliverymanIdAndDeletedAtIsNull(UUID id);
+
+    Optional<VendorDelivery> findTopByVendorToIdOrderByCreatedAtDesc(UUID hubId);
 }

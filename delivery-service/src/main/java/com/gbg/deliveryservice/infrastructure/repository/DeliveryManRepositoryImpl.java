@@ -3,6 +3,7 @@ package com.gbg.deliveryservice.infrastructure.repository;
 import com.gbg.deliveryservice.domain.entity.DeliveryMan;
 import com.gbg.deliveryservice.domain.repository.DeliveryManRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -45,6 +46,16 @@ public class DeliveryManRepositoryImpl implements DeliveryManRepository {
     @Override
     public boolean existsByUserIdAndDeletedAtIsNull(UUID userId) {
         return deliveryManJpaRepository.existsByIdAndDeletedAtIsNull(userId);
+    }
+
+    @Override
+    public List<DeliveryMan> findAllByHubIdOrderBySequenceAsc(UUID hubId) {
+        return deliveryManJpaRepository.findAllByHubIdOrderBySequenceAsc(hubId);
+    }
+
+    @Override
+    public List<DeliveryMan> findAllByHubIdIsNullOrderBySequenceAsc() {
+        return deliveryManJpaRepository.findAllByHubIdIsNullOrderBySequenceAsc();
     }
 
 }

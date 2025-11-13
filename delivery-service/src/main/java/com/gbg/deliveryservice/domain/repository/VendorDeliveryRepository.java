@@ -11,4 +11,7 @@ public interface VendorDeliveryRepository {
     Optional<VendorDelivery> findByDeliveryIdAndDeletedAtIsNull(UUID id);
 
     Optional<VendorDelivery> findByDeliverymanIdAndDeletedAtIsNull(UUID id);
+
+    Optional<VendorDelivery> findTopByVendorToIdOrderByCreatedAtDesc(UUID vendorId);
+
 }

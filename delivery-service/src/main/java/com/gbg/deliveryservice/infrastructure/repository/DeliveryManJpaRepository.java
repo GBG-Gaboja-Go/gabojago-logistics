@@ -1,6 +1,7 @@
 package com.gbg.deliveryservice.infrastructure.repository;
 
 import com.gbg.deliveryservice.domain.entity.DeliveryMan;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -20,4 +21,8 @@ public interface DeliveryManJpaRepository extends JpaRepository<DeliveryMan, UUI
     boolean existsByHubIdAndSequenceAndDeletedAtIsNull(UUID hubId, int sequence);
 
     boolean existsByIdAndDeletedAtIsNull(UUID userId);
+
+    List<DeliveryMan> findAllByHubIdOrderBySequenceAsc(UUID hubId);
+
+    List<DeliveryMan> findAllByHubIdIsNullOrderBySequenceAsc();
 }

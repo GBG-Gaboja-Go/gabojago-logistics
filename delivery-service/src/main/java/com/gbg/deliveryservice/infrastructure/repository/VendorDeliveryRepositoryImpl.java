@@ -28,4 +28,9 @@ public class VendorDeliveryRepositoryImpl implements VendorDeliveryRepository {
         return vendorDeliveryJpaRepository.findByDeliverymanIdAndDeletedAtIsNull(id);
     }
 
+    @Override
+    public Optional<VendorDelivery> findTopByVendorToIdOrderByCreatedAtDesc(UUID vendorId) {
+        return vendorDeliveryJpaRepository.findTopByVendorToIdOrderByCreatedAtDesc(vendorId);
+    }
+
 }

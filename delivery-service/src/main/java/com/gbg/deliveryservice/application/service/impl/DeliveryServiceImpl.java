@@ -3,15 +3,19 @@ package com.gbg.deliveryservice.application.service.impl;
 import com.gabojago.exception.AppException;
 import com.gbg.deliveryservice.application.service.DeliveryService;
 import com.gbg.deliveryservice.domain.entity.Delivery;
+import com.gbg.deliveryservice.domain.entity.DeliveryMan;
 import com.gbg.deliveryservice.domain.entity.HubDelivery;
 import com.gbg.deliveryservice.domain.entity.VendorDelivery;
 import com.gbg.deliveryservice.domain.entity.enums.DeliverySearchType;
 import com.gbg.deliveryservice.domain.entity.enums.DeliveryStatus;
+import com.gbg.deliveryservice.domain.repository.DeliveryManRepository;
 import com.gbg.deliveryservice.domain.repository.DeliveryRepository;
 import com.gbg.deliveryservice.domain.repository.HubDeliveryRepository;
 import com.gbg.deliveryservice.domain.repository.VendorDeliveryRepository;
 import com.gbg.deliveryservice.infrastructure.client.HubFeignClient;
 import com.gbg.deliveryservice.infrastructure.client.OrderFeignClient;
+import com.gbg.deliveryservice.infrastructure.client.VendorFeignClient;
+import com.gbg.deliveryservice.infrastructure.client.dto.VendorResponseDto.VendorDto;
 import com.gbg.deliveryservice.infrastructure.config.security.CustomUser;
 import com.gbg.deliveryservice.presentation.advice.DeliveryErrorCode;
 import com.gbg.deliveryservice.presentation.advice.FeignClientError;
@@ -42,6 +46,8 @@ public class DeliveryServiceImpl implements DeliveryService {
     private final VendorDeliveryRepository vendorDeliveryRepository;
     private final OrderFeignClient orderFeignClient;
     private final HubFeignClient hubFeignClient;
+    private final DeliveryManRepository deliveryManRepository;
+    private final VendorFeignClient vendorFeignClient;
 
     @Override
     @Transactional
@@ -58,16 +64,18 @@ public class DeliveryServiceImpl implements DeliveryService {
             hubFeignClient.getHub(req.delivery().getHubFromId(),
                 userId.toString(), "MASTER");
 
-            // 공급업체 수령업체 검증하기(공급업체 수령업체 유효한지 확인)
-            UUID a = req.delivery().getVendorFromId();
+            VendorDto vendor = vendorFeignClient.getVendorsById(
+                req.delivery().getVendorFromId(),
+                userId.toString(), "MASTER").getBody().getData();
 
-            // hubRout 가져오기
+            vendorFeignClient.getVendorsById(req.delivery().getVendorToId(), userId.toString(),
+                "MASTER");
+
             Delivery delivery = Delivery.builder()
                 .orderId(req.delivery().getOrderId())
                 .status(DeliveryStatus.WAITING_FOR_HUB_DEPARTURE)
                 .deliveryAddress(req.delivery().getDeliveryAddress())
                 .build();
-            //예상거리, 예상소요시간 나중에 집어넣기
 
             Delivery saveDelivery = deliveryRepository.save(delivery);
 
@@ -75,7 +83,7 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .deliveryId(delivery.getId())
                 .hubToId(req.delivery().getHubToId())
                 .hubFromId(req.delivery().getHubFromId())
-                .deliverymanId(UUID.randomUUID()) // 딜리버리맨 만들어지면 집어넣기 순서 고려해서 (알고리즘에 따라 여러개 생길수도 있음)
+                .deliverymanId(assignNextDeliveryManHub().getId())
                 .build();
 
             hubDeliveryRepository.save(hubDelivery);
@@ -84,7 +92,11 @@ public class DeliveryServiceImpl implements DeliveryService {
                 .deliveryId(delivery.getId())
                 .vendorToId(req.delivery().getVendorToId())
                 .vendorFromId(req.delivery().getVendorFromId())
-                .deliverymanId(UUID.randomUUID())   // 배달 담당자 생기면 도착허브 소속 딜리버리맨 조회해서 집어넣기 순서 고려해서
+                .deliverymanId(
+                    assignNextDeliveryManVendor(
+                        vendor.getId()
+                    ).getId())
+
                 .build();
 
             vendorDeliveryRepository.save(vendorDelivery);
@@ -281,13 +293,78 @@ public class DeliveryServiceImpl implements DeliveryService {
                 UUID.fromString(customUser.userId()), customUser.userId(), customUser.role()).getBody())
             .getData().getHub().getId();
 
-        List<UUID> deliveryIdList = hubDeliveryRepository.findAllByHubToIdAndDeletedAtIsNull(
-            hubId).stream().map(HubDelivery::getDeliveryId).toList();
+        List<UUID> deliveryIdList = hubDeliveryRepository.findAllByDeletedAtIsNull(
+        ).stream().map(HubDelivery::getDeliveryId).toList();
 
         Page<Delivery> deliveries = deliveryRepository.deliveryMyPage(pageable, status,
             deliveryIdList);
 
         return GetMyDeliveryResponseDTO.from(deliveries);
+    }
+
+    private DeliveryMan assignNextDeliveryManVendor(UUID hubId) {
+
+        List<DeliveryMan> deliveryMen = deliveryManRepository.findAllByHubIdOrderBySequenceAsc(
+            hubId);
+
+        if (deliveryMen.isEmpty()) {
+            throw new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND);
+        }
+
+        VendorDelivery lastDelivery = vendorDeliveryRepository
+            .findTopByVendorToIdOrderByCreatedAtDesc(hubId)
+            .orElse(null);
+
+        if (lastDelivery == null) {
+            return deliveryMen.get(0);
+        }
+
+        UUID lastManId = lastDelivery.getDeliverymanId();
+        DeliveryMan lastMan = deliveryManRepository.findByIdAndDeletedAtIsNull(lastManId)
+            .orElseThrow(() -> new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND));
+
+        if (lastMan == null) {
+            return deliveryMen.get(0);
+        }
+
+        int lastSeq = lastMan.getSequence();
+
+        return deliveryMen.stream()
+            .filter(dm -> dm.getSequence() > lastSeq)
+            .findFirst()
+            .orElse(deliveryMen.get(0));
+    }
+
+    private DeliveryMan assignNextDeliveryManHub() {
+
+        List<DeliveryMan> deliveryMen = deliveryManRepository.findAllByHubIdIsNullOrderBySequenceAsc();
+
+        if (deliveryMen.isEmpty()) {
+            throw new AppException(DeliveryErrorCode.DELIVERYMAN_NOT_FOUND);
+        }
+
+        HubDelivery lastDelivery = hubDeliveryRepository
+            .findTopOrderByCreatedAtDesc()
+            .orElse(null);
+
+        if (lastDelivery == null) {
+            return deliveryMen.get(0);
+        }
+
+        UUID lastManId = lastDelivery.getDeliverymanId();
+        DeliveryMan lastMan = deliveryManRepository.findByIdAndDeletedAtIsNull(lastManId)
+            .orElse(null);
+
+        if (lastMan == null) {
+            return deliveryMen.get(0);
+        }
+
+        int lastSeq = lastMan.getSequence();
+
+        return deliveryMen.stream()
+            .filter(dm -> dm.getSequence() > lastSeq)
+            .findFirst()
+            .orElse(deliveryMen.get(0));
     }
 
 }

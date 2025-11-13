@@ -2,6 +2,7 @@ package com.gbg.deliveryservice.infrastructure.repository;
 
 import com.gbg.deliveryservice.domain.entity.HubDelivery;
 import com.gbg.deliveryservice.domain.repository.HubDeliveryRepository;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,6 +38,16 @@ public class HubDeliveryRepositoryImpl implements HubDeliveryRepository {
     @Override
     public List<HubDelivery> findAllByHubToIdAndDeletedAtIsNull(UUID id) {
         return hubDeliveryJpaRepository.findAllByHubToIdAndDeletedAtIsNull(id);
+    }
+
+    @Override
+    public Optional<HubDelivery> findTopOrderByCreatedAtDesc() {
+        return hubDeliveryJpaRepository.findTopByOrderByCreatedAtDesc();
+    }
+
+    @Override
+    public Collection<HubDelivery> findAllByDeletedAtIsNull() {
+        return hubDeliveryJpaRepository.findAllByDeletedAtIsNull();
     }
 
     @Override
