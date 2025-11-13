@@ -16,10 +16,9 @@ import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.Inte
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.request.InternalProductReturnRequestDto;
 import com.gbg.orderservice.infrastructure.resttemplate.product.dto.response.ProductResponseDto;
 import com.gbg.orderservice.presentation.advice.OrderErrorCode;
-import com.gbg.orderservice.presentation.dto.request.CreateDeliveryRequestDTO;
+import com.gbg.orderservice.presentation.dto.OrderCreatedEvent;
 import com.gbg.orderservice.presentation.dto.request.CreateOrderRequestDto;
 import com.gbg.orderservice.presentation.dto.request.OrderSearchRequestDto;
-import com.gbg.orderservice.presentation.dto.response.CreateDeliveryResponseDTO;
 import com.gbg.orderservice.presentation.dto.response.CreateOrderResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetHubResponseDto;
 import com.gbg.orderservice.presentation.dto.response.GetOrderResponseDto;
@@ -28,6 +27,8 @@ import java.math.BigInteger;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -44,6 +45,8 @@ public class OrderServiceImpl implements OrderService {
     private final DeliveryClient deliveryClient;
     private final VendorClient vendorClient;
     private final HubClient hubClient;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional
@@ -93,7 +96,14 @@ public class OrderServiceImpl implements OrderService {
         releaseProductStock(orderDto.getProductId(), orderDto.getQuantity());
 
         // 배송 서비스에 알림
-        //notifyDeliveryService(savedOrder, producerHubId, producerVendorId, receiverVendor);
+        eventPublisher.publishEvent(new OrderCreatedEvent(
+            savedOrder.getId(),
+            producerHubId,
+            producerVendorId,
+            receiverVendor.getAddress(),
+            receiverVendor.getHubId(),
+            receiverVendor.getId()
+        ));
 
         return CreateOrderResponseDto.from(savedOrder);
     }
@@ -237,24 +247,6 @@ public class OrderServiceImpl implements OrderService {
         if (currentStock < requestedQuantity) {
             throw new AppException(OrderErrorCode.ORDER_PRODUCT_OUT_OF_STOCK);
         }
-    }
-
-    private void notifyDeliveryService(Order savedOrder, UUID producerHubId, UUID producerVendorId,
-        VendorResponseDto.VendorDto receiverVendor) {
-        CreateDeliveryRequestDTO.DeliveryDTO delivery = CreateDeliveryRequestDTO.DeliveryDTO.builder()
-            .orderId(savedOrder.getId())
-            .deliveryAddress(receiverVendor.getAddress())
-            .hubFromId(producerHubId)
-            .hubToId(receiverVendor.getHubId())
-            .userFromId(producerVendorId)
-            .userToId(receiverVendor.getId())
-            .build();
-
-        CreateDeliveryRequestDTO requestDTO = new CreateDeliveryRequestDTO(delivery);
-
-        BaseResponseDto<CreateDeliveryResponseDTO> response = deliveryClient.createDelivery(
-            requestDTO);
-        log.info("delivery 생성 요청: {}", response.getData().delivery().getId());
     }
 
     private void validateHubManagerAccess(CustomUser customUser, UUID orderHubId) {

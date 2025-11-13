@@ -34,7 +34,7 @@ public class SecurityConfig {
 
         List<String> allowedUrls = Arrays.asList(
             "/internal/v1/ai/**",
-            "/v1/delivery/internal/**",
+            "/internal/v1/delivery/**",
             "/v1/delivery/**",
             "/v1/delivery-mans/**",
             "/swagger-ui/**",
