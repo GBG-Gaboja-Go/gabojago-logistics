@@ -22,8 +22,8 @@ public class VendorResponseDto {
         private String name;
         private UUID hubId;
         private UUID vendorManagerId;
-        private boolean isSupplier;
-        private boolean isReceiver;
+        private boolean supplier;
+        private boolean receiver;
         private String address;
     }
 

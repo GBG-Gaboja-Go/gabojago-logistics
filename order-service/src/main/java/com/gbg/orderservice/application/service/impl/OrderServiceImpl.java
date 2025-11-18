@@ -7,7 +7,6 @@ import com.gbg.orderservice.application.service.OrderService;
 import com.gbg.orderservice.domain.entity.Order;
 import com.gbg.orderservice.domain.entity.enums.OrderStatus;
 import com.gbg.orderservice.domain.repository.OrderRepository;
-import com.gbg.orderservice.infrastructure.client.DeliveryClient;
 import com.gbg.orderservice.infrastructure.client.HubClient;
 import com.gbg.orderservice.infrastructure.client.VendorClient;
 import com.gbg.orderservice.infrastructure.config.auth.CustomUser;
@@ -42,7 +41,6 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductRestTemplateClient productRestTemplateClient;
-    private final DeliveryClient deliveryClient;
     private final VendorClient vendorClient;
     private final HubClient hubClient;
     @Autowired
@@ -59,9 +57,7 @@ public class OrderServiceImpl implements OrderService {
 
         // vendor 수령업체 검증
         VendorResponseDto.VendorDto receiverVendor = fetchVendorById(customerVendorId);
-
-//        log.info("reciverVendorId: {}", receiverVendor.isReceiver());
-//        validateIsReceiverVendor(receiverVendor);
+        validateIsReceiverVendor(receiverVendor);
 
         // product 조회, 재고 검증
         ProductResponseDto.ProductDto product = fetchProduct(productId);
@@ -70,7 +66,7 @@ public class OrderServiceImpl implements OrderService {
         // vendor 공급업체 검증
         UUID producerVendorId = product.getVendorId();
         VendorResponseDto.VendorDto producerVendor = fetchVendorById(producerVendorId);
-        // validateIsProducerVendor(producerVendor);
+        validateIsProducerVendor(producerVendor);
 
         UUID producerHubId = producerVendor.getHubId();
 
