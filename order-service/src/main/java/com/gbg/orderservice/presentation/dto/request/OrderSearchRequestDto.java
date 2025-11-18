@@ -29,7 +29,7 @@ public class OrderSearchRequestDto {
         private UUID userId;
 
         @Schema(description = "공급 업체 담당 허브 UUID", example = "ac3b722b-a5c0-477f-a180-288e92481067")
-        private UUID hubId;
+        private UUID producerHubId;
 
         @Schema(description = "공급 업체 UUID", example = "7a3d48b4-6d2a-4b89-8bfa-91c9d4b9e123")
         private UUID producerVendorId;

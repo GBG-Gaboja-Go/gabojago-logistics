@@ -26,6 +26,9 @@ public class GetOrderResponseDto {
         @Schema(description = "주문자 ID", example = "06432270-2fb0-4a94-9e6c-effdb399d6c3")
         private final UUID userId;
 
+        @Schema(description = "공급 허브 ID", example = "")
+        private final UUID producerHubId;
+
         @Schema(description = "생산자 업체 ID", example = "7f6e5d4c-3b2a-1908-7654-3210fedcba98")
         private final UUID producerVendorId;
 
@@ -54,6 +57,7 @@ public class GetOrderResponseDto {
             return OrderDto.builder()
                 .id(order.getId())
                 .userId(order.getUserId())
+                .producerHubId(order.getProducerHubId())
                 .producerVendorId(order.getProducerVendorId())
                 .receiverVendorId(order.getReceiverVendorId())
                 .deliveryId(order.getDeliveryId())

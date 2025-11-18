@@ -115,7 +115,7 @@ public class OrderServiceImpl implements OrderService {
         OrderSearchRequestDto.OrderDto.OrderDtoBuilder builder = incoming != null
             ? OrderSearchRequestDto.OrderDto.builder()
             .userId(incoming.getUserId())
-            .hubId(incoming.getHubId())
+            .producerHubId(incoming.getProducerHubId())
             .producerVendorId(incoming.getProducerVendorId())
             .receiverVendorId(incoming.getReceiverVendorId())
             .productId(incoming.getProductId())
@@ -124,20 +124,10 @@ public class OrderServiceImpl implements OrderService {
             .dateTo(incoming.getDateTo())
             : OrderSearchRequestDto.OrderDto.builder();
 
-        // 마스터는 모든 주문 전체 조회 가능
-        if (customUser.getRole().equals("ROLE_MASTER")) {
-            builder.build();
-        } else if (customUser.getRole().equals("ROLE_VENDOR_MANAGER")) {
-            // 수령업체는 본인 업체만 조회 가능
-            builder.receiverVendorId(UUID.randomUUID());
-            builder.userId(null);
-        } else if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
-            // 허브매니저는 본인 업체에 들어온 주문만 조회 가능
-            builder.hubId(UUID.randomUUID());
-        }
+        OrderSearchRequestDto finalSearchRequestDto = applyRoleFilter(customUser, builder);
+        UUID userId = UUID.fromString(customUser.getUserId());
 
-        UUID userId = UUID.randomUUID();
-        return orderRepository.searchOrders(searchRequestDto, pageable, customUser.getRole(),
+        return orderRepository.searchOrders(finalSearchRequestDto, pageable, customUser.getRole(),
             userId);
     }
 
@@ -295,4 +285,27 @@ public class OrderServiceImpl implements OrderService {
             .build();
     }
 
+    private OrderSearchRequestDto applyRoleFilter(CustomUser customUser,
+        OrderSearchRequestDto.OrderDto.OrderDtoBuilder builder) {
+
+        String role = customUser.getRole();
+        UUID userId = UUID.fromString(customUser.getUserId());
+
+        if ("VENDOR_MANAGER".equals(role)) {
+            builder.userId(userId);
+        } else if ("HUB_MANAGER".equals(role)) {
+            // HUB_MANAGER: 본인 허브에 들어온 주문만 조회 (producerHubId 기준)
+            UUID hubId = getHubIdByManagerId(userId);
+            builder.producerHubId(hubId);
+        }
+
+        OrderSearchRequestDto.OrderDto finalOrderDto = builder.build();
+        return OrderSearchRequestDto.builder().order(finalOrderDto).build();
+    }
+
+    private UUID getHubIdByManagerId(UUID hubManagerId) {
+        ResponseEntity<BaseResponseDto<GetHubResponseDto>> response = hubClient.getHubManagerId(
+            hubManagerId);
+        return response.getBody().getData().getHub().getId();
+    }
 }
