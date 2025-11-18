@@ -4,7 +4,6 @@ import com.gbg.hubservice.infrastructure.config.filter.HeaderAuthFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.DefaultAuthenticationEventPublisher;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -37,10 +36,10 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // 내부 API 허용 (vendor, product 서비스 접근 용)
                 .requestMatchers("/internal/v1/hubs/**").permitAll()
-                // 허브 권한 규칙
-                .requestMatchers(HttpMethod.POST, "/v1/hubs/**").hasRole("MASTER")
-                .requestMatchers(HttpMethod.PUT, "/v1/hubs/**").hasRole("MASTER")
-                .requestMatchers(HttpMethod.DELETE, "/v1/hubs/**").hasRole("MASTER")
+                .requestMatchers("/v1/hubs/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                .requestMatchers("/swagger-resources/**").permitAll()
+                .requestMatchers("/v3/api-docs/**").permitAll()
                 .anyRequest().authenticated()
             )
 

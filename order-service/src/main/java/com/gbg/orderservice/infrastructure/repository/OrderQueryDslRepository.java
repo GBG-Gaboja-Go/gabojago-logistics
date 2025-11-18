@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface OrderRepositoryCustom {
+public interface OrderQueryDslRepository {
 
     Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
         Pageable pageable,

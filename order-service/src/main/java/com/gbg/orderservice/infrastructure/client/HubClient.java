@@ -13,6 +13,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 public interface HubClient {
 
     @GetMapping("/v1/hubs/manager/{hubManagerId}")
-    public ResponseEntity<BaseResponseDto<GetHubResponseDto>> getHubManagerId(
+    ResponseEntity<BaseResponseDto<GetHubResponseDto>> getHubManagerId(
         @Parameter(description = "매니저 UUID") @PathVariable("hubManagerId") UUID hubManagerId);
 }

@@ -14,10 +14,6 @@ public interface OrderRepository {
 
     Optional<Order> findById(UUID orderId);
 
-    Page<Order> findAll(Pageable pageable);
-
-    Page<Order> findByUserId(UUID userId, Pageable pageable);
-
     Page<GetOrderResponseDto> searchOrders(OrderSearchRequestDto searchRequestDto,
         Pageable pageable,
         String role, UUID userId);
