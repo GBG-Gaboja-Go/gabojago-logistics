@@ -142,7 +142,7 @@ public class OrderServiceImpl implements OrderService {
     public void postInternalOrderDelivering(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
 
-        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+        if (customUser.getRole().equals("HUB_MANAGER")) {
             validateHubManagerAccess(customUser, order.getProducerHubId());
         }
 
@@ -150,8 +150,8 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERING);
         }
 
-        Order cancelledOrder = order.markDelivering();
-        orderRepository.save(cancelledOrder);
+        Order deliveringOrder = order.markDelivering();
+        orderRepository.save(deliveringOrder);
     }
 
     @Override
@@ -159,7 +159,7 @@ public class OrderServiceImpl implements OrderService {
     public void postInternalOrderDelivered(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
 
-        if (customUser.getRole().equals("ROLE_HUB_MANAGER")) {
+        if (customUser.getRole().equals("HUB_MANAGER")) {
             validateHubManagerAccess(customUser, order.getProducerHubId());
         }
 
@@ -167,17 +167,16 @@ public class OrderServiceImpl implements OrderService {
             throw new AppException(OrderErrorCode.ORDER_ALREADY_DELIVERED);
         }
 
-        Order cancelledOrder = order.markDelivered();
-        orderRepository.save(cancelledOrder);
+        Order deliveredOrder = order.markDelivered();
+        orderRepository.save(deliveredOrder);
     }
 
     @Override
     @Transactional
     public void postOrderCancel(CustomUser customUser, UUID orderId) {
         Order order = findOrder(orderId);
-        // 마스터랑 공급업체만 취소 가능함.
 
-        if (customUser.getRole().equals("ROLE_VENDOR_MANAGER")) {
+        if (customUser.getRole().equals("VENDOR_MANAGER")) {
             UUID currentUserId = UUID.fromString(customUser.getUserId());
             if (!order.getProducerVendorManagerId().equals(currentUserId)) {
                 throw new AppException(OrderErrorCode.ORDER_ACCESS_DENIED_VENDOR);
